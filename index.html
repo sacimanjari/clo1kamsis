@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CipherBlock — Enkripsi Data Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+  --ecb-primary: #1d4ed8;
+  --ecb-dark: #ffffff;
+  --ecb-mid: #f8fafc;
+  --ecb-surface: #f1f5f9;
+  --ecb-border: #1d4ed833;
+  --ecb-text: #0f172a;
+  --cbc-primary: #3b82f6;
+  --cbc-accent: #93c5fd;
+  --cbc-dark: #020617;
+  --cbc-mid: #0f172a;
+  --cbc-surface: #1e293b;
+  --cbc-border: #3b82f633;
+  --cbc-text: #f8fafc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #ffffff; color: #0f172a; min-height: 100vh; overflow-x: hidden; }
+
+.landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.landing::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 20% 30%, #1d4ed80d 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 70%, #3b82f60d 0%, transparent 60%); pointer-events: none; }
+.grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+.landing-header { text-align: center; z-index: 1; margin-bottom: 48px; animation: fadeUp 0.6s ease both; }
+.brand { font-size: clamp(42px, 8vw, 96px); font-weight: 800; letter-spacing: -2px; line-height: 1; background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+.brand-sub { font-size: 12px; letter-spacing: 4px; color: #64748b; text-transform: uppercase; line-height: 1.8; }
+.student-id { display: inline-block; margin-top: 15px; padding: 8px 24px; border-radius: 30px; font-weight: bold; background: rgba(29, 78, 216, 0.1); color: #1d4ed8; letter-spacing: 2px; border: 1px solid rgba(29, 78, 216, 0.2); }
+
+.mode-cards { display: flex; gap: 28px; z-index: 1; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
+.mode-card { width: 330px; border-radius: 20px; padding: 36px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
+.mode-card::before { content: ''; position: absolute; inset: 0; border-radius: 20px; padding: 1px; background: var(--card-g); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.mode-card.ecb { background: linear-gradient(145deg, #ffffff, #f8fafc); --card-g: linear-gradient(135deg, #1d4ed8, #1d4ed850); box-shadow: 0 0 60px #1d4ed810; color: #0f172a; }
+.mode-card.cbc { background: linear-gradient(145deg, #020617, #0f172a); --card-g: linear-gradient(135deg, #3b82f6, #93c5fd50); box-shadow: 0 0 60px #3b82f610; color: #f8fafc; }
+.mode-card:hover { transform: translateY(-8px); }
+.mode-card.ecb:hover { box-shadow: 0 20px 80px #1d4ed822; }
+.mode-card.cbc:hover { box-shadow: 0 20px 80px #3b82f622; }
+.card-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+.ecb .card-badge { background: #1d4ed820; color: #1d4ed8; border: 1px solid #1d4ed840; }
+.cbc .card-badge { background: #3b82f620; color: #93c5fd; border: 1px solid #3b82f640; }
+.card-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.card-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -1px; }
+.ecb .card-title { color: #1d4ed8; } .cbc .card-title { color: #93c5fd; }
+.card-full { font-size: 10px; letter-spacing: 1px; margin-bottom: 14px; opacity: 0.5; }
+.card-desc { font-size: 13px; line-height: 1.7; margin-bottom: 20px; opacity: 0.75; }
+.card-methods { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+.method-tag { font-size: 10px; padding: 3px 10px; border-radius: 20px; }
+.ecb .method-tag { background: #1d4ed812; color: #1d4ed8; border: 1px solid #1d4ed825; }
+.cbc .method-tag { background: #3b82f612; color: #93c5fd; border: 1px solid #3b82f625; }
+.method-tag.star { background: #f59e0b12; color: #d97706; border-color: #f59e0b25; }
+.card-btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+.ecb .card-btn { background: #1d4ed8; color: #ffffff; }
+.cbc .card-btn { background: #3b82f6; color: #ffffff; }
+.card-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+.footer-note { text-align: center; font-size: 11px; opacity: 0.4; margin-top: 36px; z-index: 1; letter-spacing: 1px; color: #64748b; }
+
+.app-page { display: none; min-height: 100vh; flex-direction: column; }
+.app-page.active { display: flex; }
+.app-ecb { background: #ffffff; color: #0f172a; background-image: radial-gradient(ellipse 80% 40% at 50% 0%, #1d4ed810, transparent 60%), linear-gradient(rgba(29,78,216,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(29,78,216,0.03) 1px, transparent 1px); background-size: auto, 40px 40px, 40px 40px; }
+.app-cbc { background: #020617; color: #f8fafc; background-image: radial-gradient(ellipse 80% 40% at 50% 0%, #3b82f610, transparent 60%), linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: auto, 40px 40px, 40px 40px; }
+
+.app-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
+.app-ecb .app-nav { border-color: var(--ecb-border); background: rgba(255,255,255,0.9); }
+.app-cbc .app-nav { border-color: var(--cbc-border); background: rgba(2,6,23,0.9); }
+.nav-logo { font-weight: 800; font-size: 18px; letter-spacing: -1px; cursor: pointer; }
+.app-ecb .nav-logo { color: #1d4ed8; } .app-cbc .nav-logo { color: #93c5fd; }
+.nav-badge { font-size: 10px; font-weight: 700; letter-spacing: 3px; padding: 5px 14px; border-radius: 20px; }
+.app-ecb .nav-badge { background: #1d4ed820; color: #1d4ed8; border: 1px solid #1d4ed840; }
+.app-cbc .nav-badge { background: #3b82f620; color: #93c5fd; border: 1px solid #3b82f640; }
+.nav-back { background: none; border: 1px solid; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.app-ecb .nav-back { border-color: var(--ecb-border); color: var(--ecb-text); }
+.app-cbc .nav-back { border-color: var(--cbc-border); color: var(--cbc-text); }
+.nav-back:hover { background: rgba(0,0,0,0.03); }
+.app-cbc .nav-back:hover { background: rgba(255,255,255,0.06); }
+
+.app-content { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 36px 40px 60px; }
+.app-header { margin-bottom: 32px; }
+.app-title { font-size: clamp(26px, 4vw, 44px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 6px; }
+.app-ecb .app-title { color: #1d4ed8; } .app-cbc .app-title { color: #93c5fd; }
+
+.cipher-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.cipher-panel { border-radius: 14px; padding: 24px; }
+.app-ecb .cipher-panel { background: rgba(248,250,252,0.8); border: 1px solid var(--ecb-border); }
+.app-cbc .cipher-panel { background: rgba(30,41,59,0.5); border: 1px solid var(--cbc-border); }
+.panel-full { grid-column: 1 / -1; }
+.panel-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.app-ecb .panel-label { color: #1d4ed8; } .app-cbc .panel-label { color: #93c5fd; }
+.panel-label::after { content: ''; flex: 1; height: 1px; }
+.app-ecb .panel-label::after { background: var(--ecb-border); } .app-cbc .panel-label::after { background: var(--cbc-border); }
+
+/* REVISI: PANAH ALUR DIBIKIN LURUS DAN RAPI PAKAI FLEXBOX */
+.info-steps { display: flex; align-items: stretch; justify-content: space-between; gap: 5px; }
+.step { flex: 1; text-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+.step-content { width: 100%; position: relative; z-index: 2; }
+.step:not(:last-child)::after { content: '→'; position: absolute; right: -12px; top: 12px; font-size: 14px; z-index: 1; opacity: 0.5; }
+.step-box { border-radius: 7px; padding: 7px 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; background: #fff; width: 100%; }
+.app-ecb .step-box { background: #1d4ed815; color: #1d4ed8; border: 1px solid #1d4ed830; }
+.app-cbc .step-box { background: #3b82f615; color: #93c5fd; border: 1px solid #3b82f630; }
+.step-box.unique { background: rgba(245,158,11,0.12) !important; color: #d97706 !important; border-color: rgba(245,158,11,0.25) !important; }
+.step-desc { font-size: 9px; opacity: 0.6; line-height: 1.4; }
+
+.input-tabs { display: flex; gap: 4px; margin-bottom: 14px; padding: 4px; border-radius: 10px; }
+.app-ecb .input-tabs { background: rgba(0,0,0,0.04); }
+.app-cbc .input-tabs { background: rgba(0,0,0,0.3); }
+.tab-btn { flex: 1; padding: 8px; background: none; border: none; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+.app-ecb .tab-btn { color: #64748b; }
+.app-cbc .tab-btn { color: rgba(255,255,255,0.4); }
+.app-ecb .tab-btn.active { background: #ffffff; color: #1d4ed8; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.app-cbc .tab-btn.active { background: var(--cbc-surface); color: #93c5fd; }
+.tab-content { display: none; } .tab-content.active { display: block; }
+
+textarea, input[type="text"] { width: 100%; border-radius: 9px; font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.2s; resize: vertical; }
+.app-ecb textarea, .app-ecb input[type="text"] { background: #ffffff; color: #0f172a; border: 1px solid var(--ecb-border); }
+.app-ecb textarea:focus, .app-ecb input[type="text"]:focus { border-color: #1d4ed8; }
+.app-cbc textarea, .app-cbc input[type="text"] { background: rgba(0,0,0,0.4); color: #f8fafc; border: 1px solid var(--cbc-border); }
+.app-cbc textarea:focus, .app-cbc input[type="text"]:focus { border-color: #3b82f6; }
+textarea { padding: 14px; min-height: 120px; }
+input[type="text"] { padding: 10px 14px; }
+.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.input-group label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; font-weight: 600; }
+
+.file-drop { border-radius: 9px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+.app-ecb .file-drop { border: 2px dashed var(--ecb-border); background: rgba(29,78,216,0.02); }
+.app-cbc .file-drop { border: 2px dashed var(--cbc-border); background: rgba(59,130,246,0.02); }
+.app-ecb .file-drop:hover { border-color: #1d4ed8; background: rgba(29,78,216,0.05); }
+.app-cbc .file-drop:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+.file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.file-icon { font-size: 28px; margin-bottom: 6px; }
+.file-drop-text { font-size: 12px; opacity: 0.6; line-height: 1.6; }
+.file-name-display { font-size: 12px; margin-top: 8px; padding: 6px 12px; border-radius: 7px; display: none; font-weight: 600; }
+.app-ecb .file-name-display { background: #1d4ed815; color: #1d4ed8; }
+.app-cbc .file-name-display { background: #3b82f615; color: #93c5fd; }
+.file-preview-wrap { margin-top: 8px; display: none; text-align: center; }
+.file-preview-wrap img { max-width: 100%; max-height: 160px; border-radius: 8px; border: 1px solid; }
+.app-ecb .file-preview-wrap img { border-color: var(--ecb-border); }
+.app-cbc .file-preview-wrap img { border-color: var(--cbc-border); }
+.meta-notice { font-size: 11px; padding: 8px 12px; border-radius: 7px; margin-top: 8px; line-height: 1.5; }
+.app-ecb .meta-notice { background: #1d4ed810; color: #1d4ed8; border: 1px solid #1d4ed820; }
+.app-cbc .meta-notice { background: #3b82f610; color: #93c5fd; border: 1px solid #3b82f620; }
+
+.key-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.action-btn { padding: 13px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.app-ecb .btn-encrypt { background: #1d4ed8; color: #ffffff; }
+.app-ecb .btn-decrypt { background: transparent; border: 1px solid #1d4ed8; color: #1d4ed8; }
+.app-cbc .btn-encrypt { background: #3b82f6; color: #ffffff; }
+.app-cbc .btn-decrypt { background: transparent; border: 1px solid #3b82f6; color: #93c5fd; }
+.action-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.action-btn:active { transform: translateY(0); }
+
+.output-area { min-height: 140px; padding: 14px; border-radius: 9px; font-size: 13px; line-height: 1.8; word-break: break-all; }
+.app-ecb .output-area { background: #ffffff; border: 1px solid var(--ecb-border); color: var(--ecb-text); }
+.app-cbc .output-area { background: rgba(0,0,0,0.45); border: 1px solid var(--cbc-border); color: var(--cbc-text); }
+.output-placeholder { opacity: 0.4; font-style: italic; }
+.output-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.out-btn { padding: 8px 14px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; background: transparent; transition: all 0.2s; display: none; letter-spacing: 1px; }
+.app-ecb .out-btn { border-color: var(--ecb-border); color: #1d4ed8; }
+.app-cbc .out-btn { border-color: var(--cbc-border); color: #93c5fd; }
+.app-ecb .out-btn:hover { background: rgba(29,78,216,0.05); }
+.app-cbc .out-btn:hover { background: rgba(255,255,255,0.05); }
+.img-out-wrap { display: none; text-align: center; padding: 14px 0 0; }
+.img-out-wrap img { max-width: 100%; max-height: 240px; border-radius: 10px; border: 1px solid; }
+.app-ecb .img-out-wrap img { border-color: var(--ecb-border); }
+.app-cbc .img-out-wrap img { border-color: var(--cbc-border); }
+
+.status-bar { padding: 10px 14px; border-radius: 7px; font-size: 12px; margin-top: 10px; display: none; align-items: center; gap: 8px; font-weight: 600; }
+.status-bar.show { display: flex; }
+.status-success { background: #10b98115; color: #059669; border: 1px solid #10b98130; }
+.status-error { background: #ef444415; color: #dc2626; border: 1px solid #ef444430; }
+.status-info { background: #3b82f615; color: #2563eb; border: 1px solid #3b82f630; }
+.app-cbc .status-success { color: #34d399; }
+.app-cbc .status-error { color: #f87171; }
+.app-cbc .status-info { color: #60a5fa; }
+
+@media (max-width: 768px) {
+  .cipher-grid { grid-template-columns: 1fr; }
+  .panel-full { grid-column: 1; }
+  .app-nav, .app-content { padding-left: 20px; padding-right: 20px; }
+  .mode-cards { flex-direction: column; align-items: center; }
+  .mode-card { width: 100%; max-width: 360px; }
+  .key-row { grid-template-columns: 1fr; }
+  .step:not(:last-child)::after { display: none; } /* Sembunyikan panah di HP biar gak numpuk */
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.landing-header { animation: fadeUp 0.6s ease both; }
+.mode-card:nth-child(1) { animation: fadeUp 0.6s 0.1s ease both; }
+.mode-card:nth-child(2) { animation: fadeUp 0.6s 0.2s ease both; }
+.app-page.active .cipher-panel { animation: fadeUp 0.35s ease both; }
+.app-page.active .cipher-panel:nth-child(2) { animation-delay: 0.07s; }
+.app-page.active .cipher-panel:nth-child(3) { animation-delay: 0.14s; }
+</style>
+</head>
+<body>
+
+<div class="landing" id="landing">
+  <div class="grid-bg"></div>
+  <div class="landing-header">
+    <div class="brand">CipherBlock</div>
+    <div class="brand-sub">
+      Aplikasi Penyandian Data Digital · Block Cipher · Telkom University<br>
+      <span class="student-id">Nama : Saci | NIM : 101032</span>
+    </div>
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card ecb" onclick="showPage('ecb')">
+      <div class="card-badge">Mode 01</div>
+      <span class="card-icon">🔐</span>
+      <div class="card-title">ECB</div>
+      <div class="card-full">Electronic Codebook</div>
+      <div class="card-desc">Setiap blok dienkripsi secara independen. Tiga lapisan transformasi manual tanpa ketergantungan antar blok.</div>
+      <div class="card-methods">
+        <span class="method-tag">① XOR Key</span>
+        <span class="method-tag">② Reverse Blok</span>
+        <span class="method-tag">③ Circular Rotate</span>
+      </div>
+      <button class="card-btn">Masuk ke ECB →</button>
+    </div>
+    <div class="mode-card cbc" onclick="showPage('cbc')">
+      <div class="card-badge">Mode 02</div>
+      <span class="card-icon">🔗</span>
+      <div class="card-title">CBC</div>
+      <div class="card-full">Cipher Block Chaining</div>
+      <div class="card-desc">Setiap blok terhubung dengan ciphertext sebelumnya. IV + empat lapisan transformasi termasuk metode unik.</div>
+      <div class="card-methods">
+        <span class="method-tag">① XOR Prev Block</span>
+        <span class="method-tag">② XOR Key</span>
+        <span class="method-tag star">③ Nibble Swap ★</span>
+        <span class="method-tag">④ Circular Rotate</span>
+      </div>
+      <button class="card-btn">Masuk ke CBC →</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-page app-ecb" id="page-ecb">
+  <nav class="app-nav">
+    <span class="nav-logo" onclick="showPage('landing')">CipherBlock</span>
+    <div class="nav-badge">ECB · 3 METODE</div>
+    <button class="nav-back" onclick="showPage('landing')">← Kembali</button>
+  </nav>
+  <div class="app-content">
+    <div class="app-header">
+      <div class="app-title">ECB Mode</div>
+    </div>
+
+    <div class="cipher-panel panel-full" style="margin-bottom:20px;">
+      <div class="panel-label">Alur Enkripsi ECB</div>
+      <div class="info-steps">
+        <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/File</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">① XOR</div><div class="step-desc">Substitusi</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">② Reverse</div><div class="step-desc">Permutasi</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">③ Rotate</div><div class="step-desc">Rotasi</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Output</div><div class="step-desc">Hex / File</div></div></div>
+      </div>
+    </div>
+
+    <div class="cipher-grid">
+      <div class="cipher-panel">
+        <div class="panel-label">Input</div>
+        <div class="input-tabs" id="ecb-tabs">
+          <button class="tab-btn active" onclick="switchTab('ecb','text')">📝 Teks</button>
+          <button class="tab-btn" onclick="switchTab('ecb','file')">📁 File / Gambar</button>
+        </div>
+        <div class="tab-content active" id="ecb-tab-text">
+          <div class="input-group">
+            <label>Teks / Hex Ciphertext</label>
+            <textarea id="ecb-input" placeholder="Input teks atau hex..."></textarea>
+          </div>
+        </div>
+        <div class="tab-content" id="ecb-tab-file">
+          <div class="file-drop">
+            <input type="file" id="ecb-file-input" accept="*/*" onchange="handleFileSelect('ecb',this)">
+            <div class="file-icon">📂</div>
+            <div class="file-drop-text">Klik atau drag & drop<br><small>Gambar JPEG/PNG, PDF, TXT, dll</small></div>
+            <div class="file-name-display" id="ecb-file-name"></div>
+            <div class="file-preview-wrap" id="ecb-file-preview"><img id="ecb-preview-img" src="" alt=""></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cipher-panel">
+        <div class="panel-label">Konfigurasi & Aksi</div>
+        <div class="key-row">
+          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="ecb-key" value="mykey123" placeholder="kunci..."></div>
+          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="ecb-rotate" value="3" placeholder="1-7"></div>
+        </div>
+        <div class="input-group" style="margin-top:4px;">
+          <label>Kombinasi Metode</label>
+          <div style="font-size:11px;padding:10px 14px;border-radius:9px;background:rgba(0,0,0,0.3);border:1px solid var(--ecb-border);color:#00ff9d;line-height:1.8;">
+            ① XOR Key &nbsp;→&nbsp; ② Reverse Blok &nbsp;→&nbsp; ③ Circular Rotate
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="action-btn btn-encrypt" onclick="ecbProcess('encrypt')">🔒 Enkripsi</button>
+          <button class="action-btn btn-decrypt" onclick="ecbProcess('decrypt')">🔓 Dekripsi</button>
+        </div>
+        <div class="status-bar" id="ecb-status"></div>
+      </div>
+
+      <div class="cipher-panel panel-full">
+        <div class="panel-label">Output</div>
+        <div class="output-area" id="ecb-output"><span class="output-placeholder">Hasil tampil di sini...</span></div>
+        <div class="img-out-wrap" id="ecb-img-out"><img id="ecb-out-img" src="" alt="gambar terdekripsi"></div>
+        <div class="output-actions">
+          <button class="out-btn" id="ecb-copy-btn" onclick="copyOutput('ecb')">📋 Salin Teks</button>
+          <button class="out-btn" id="ecb-dl-btn" onclick="downloadOutput('ecb')">⬇️ Unduh File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-page app-cbc" id="page-cbc">
+  <nav class="app-nav">
+    <span class="nav-logo" onclick="showPage('landing')">CipherBlock</span>
+    <div class="nav-badge">CBC · 4 METODE</div>
+    <button class="nav-back" onclick="showPage('landing')">← Kembali</button>
+  </nav>
+  <div class="app-content">
+    <div class="app-header">
+      <div class="app-title">CBC Mode</div>
+    </div>
+
+    <div class="cipher-panel panel-full" style="margin-bottom:20px;">
+      <div class="panel-label">Alur Enkripsi CBC</div>
+      <div class="info-steps">
+        <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/File</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">① XOR Prev</div><div class="step-desc">CBC Chain</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">② XOR Key</div><div class="step-desc">Substitusi</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box unique">③ Nibble★</div><div class="step-desc">4-bit Swap</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">④ Rotate</div><div class="step-desc">Rotasi</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Output</div><div class="step-desc">Hex / File</div></div></div>
+      </div>
+    </div>
+
+    <div class="cipher-grid">
+      <div class="cipher-panel">
+        <div class="panel-label">Input</div>
+        <div class="input-tabs" id="cbc-tabs">
+          <button class="tab-btn active" onclick="switchTab('cbc','text')">📝 Teks</button>
+          <button class="tab-btn" onclick="switchTab('cbc','file')">📁 File / Gambar</button>
+        </div>
+        <div class="tab-content active" id="cbc-tab-text">
+          <div class="input-group">
+            <label>Teks / Hex Ciphertext</label>
+            <textarea id="cbc-input" placeholder="Input teks atau hex..."></textarea>
+          </div>
+        </div>
+        <div class="tab-content" id="cbc-tab-file">
+          <div class="file-drop">
+            <input type="file" id="cbc-file-input" accept="*/*" onchange="handleFileSelect('cbc',this)">
+            <div class="file-icon">📂</div>
+            <div class="file-drop-text">Klik atau drag & drop<br><small>Gambar JPEG/PNG, PDF, TXT, dll</small></div>
+            <div class="file-name-display" id="cbc-file-name"></div>
+            <div class="file-preview-wrap" id="cbc-file-preview"><img id="cbc-preview-img" src="" alt=""></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cipher-panel">
+        <div class="panel-label">Konfigurasi & Aksi</div>
+        <div class="key-row">
+          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="cbc-key" value="secretkey" placeholder="kunci..."></div>
+          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="cbc-rotate" value="3" placeholder="1-7"></div>
+        </div>
+        <div class="input-group" style="margin-top:4px;">
+          <label>Initialization Vector (IV)</label>
+          <input type="text" id="cbc-iv" value="iv123456" placeholder="8 karakter...">
+        </div>
+        <div class="input-group" style="margin-top:4px;">
+          <label>Kombinasi Metode</label>
+          <div style="font-size:11px;padding:10px 14px;border-radius:9px;background:rgba(0,0,0,0.3);border:1px solid var(--cbc-border);color:#a78bfa;line-height:1.9;">
+            ① XOR Prev Block &nbsp;→&nbsp; ② XOR Key &nbsp;→&nbsp; <span style="color:#ffb700;">③ Nibble Swap ★</span> &nbsp;→&nbsp; ④ Circular Rotate
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="action-btn btn-encrypt" onclick="cbcProcess('encrypt')">🔒 Enkripsi</button>
+          <button class="action-btn btn-decrypt" onclick="cbcProcess('decrypt')">🔓 Dekripsi</button>
+        </div>
+        <div class="status-bar" id="cbc-status"></div>
+      </div>
+
+      <div class="cipher-panel panel-full">
+        <div class="panel-label">Output</div>
+        <div class="output-area" id="cbc-output"><span class="output-placeholder">Hasil tampil di sini...</span></div>
+        <div class="img-out-wrap" id="cbc-img-out"><img id="cbc-out-img" src="" alt="gambar terdekripsi"></div>
+        <div class="output-actions">
+          <button class="out-btn" id="cbc-copy-btn" onclick="copyOutput('cbc')">📋 Salin Teks</button>
+          <button class="out-btn" id="cbc-dl-btn" onclick="downloadOutput('cbc')">⬇️ Unduh File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// PAGE ROUTING
+// ================================================================
+function showPage(p) {
+  document.getElementById('landing').style.display = 'none';
+  ['ecb','cbc'].forEach(m => document.getElementById('page-'+m).classList.remove('active'));
+  if (p === 'landing') document.getElementById('landing').style.display = 'flex';
+  else document.getElementById('page-'+p).classList.add('active');
+}
+function switchTab(mode, tab) {
+  document.querySelectorAll(`#${mode}-tabs .tab-btn`).forEach((t,i) =>
+    t.classList.toggle('active', (i===0&&tab==='text')||(i===1&&tab==='file')));
+  document.getElementById(`${mode}-tab-text`).classList.toggle('active', tab==='text');
+  document.getElementById(`${mode}-tab-file`).classList.toggle('active', tab==='file');
+}
+
+// ================================================================
+// METADATA EMBEDDING
+// ================================================================
+const MAGIC = [0x43,0x42,0x4B,0x56]; // "CBKV"
+
+function packWithMeta(encBytes, origFilename) {
+  const fnBytes = new TextEncoder().encode(origFilename);
+  const fnLen   = Math.min(fnBytes.length, 255);
+  const out     = new Uint8Array(4 + 1 + fnLen + encBytes.length);
+  out.set(MAGIC, 0);
+  out[4] = fnLen;
+  out.set(fnBytes.slice(0, fnLen), 5);
+  out.set(encBytes, 5 + fnLen);
+  return out;
+}
+
+function unpackMeta(bytes) {
+  if (bytes.length < 6) return null;
+  for (let i = 0; i < 4; i++) if (bytes[i] !== MAGIC[i]) return null;
+  const fnLen = bytes[4];
+  if (bytes.length < 5 + fnLen) return null;
+  const originalFilename = new TextDecoder().decode(bytes.slice(5, 5 + fnLen));
+  const payload = bytes.slice(5 + fnLen);
+  return { originalFilename, payload };
+}
+
+// ================================================================
+// FILE STATE
+// ================================================================
+const fileState = { ecb: null, cbc: null };
+const outState  = { ecb: null, cbc: null };
+
+function handleFileSelect(mode, input) {
+  const file = input.files[0];
+  if (!file) return;
+  fileState[mode] = file;
+  const el = document.getElementById(`${mode}-file-name`);
+  el.textContent = `📄 ${file.name}  (${fmtSize(file.size)})`;
+  el.style.display = 'block';
+  const pw = document.getElementById(`${mode}-file-preview`);
+  const pi = document.getElementById(`${mode}-preview-img`);
+  if (file.type.startsWith('image/')) {
+    const r = new FileReader();
+    r.onload = e => { pi.src = e.target.result; pw.style.display = 'block'; };
+    r.readAsDataURL(file);
+  } else {
+    pw.style.display = 'none';
+  }
+}
+
+function fmtSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ================================================================
+// CIPHER PRIMITIVES
+// ================================================================
+const BS = 8; 
+
+function keyToBytes(k, len) {
+  const o = [];
+  for (let i = 0; i < len; i++) o.push(k.charCodeAt(i % k.length));
+  return o;
+}
+
+function xorBlock(block, keyB) { return block.map((b,i) => b ^ keyB[i % keyB.length]); }
+function xorArr(a, b) { return a.map((v,i) => v ^ b[i]); }
+function reverseBlock(b) { return [...b].reverse(); }
+function rotL(b, n) { const r=n%b.length; return [...b.slice(r),...b.slice(0,r)]; }
+function rotR(b, n) { const r=n%b.length; return [...b.slice(b.length-r),...b.slice(0,b.length-r)]; }
+function nibbleSwap(b) { return b.map(x => ((x & 0x0F) << 4) | ((x & 0xF0) >> 4)); }
+
+function pad(bytes) {
+  const p = BS - (bytes.length % BS);
+  const o = new Uint8Array(bytes.length + p);
+  o.set(bytes);
+  for (let i = bytes.length; i < o.length; i++) o[i] = p;
+  return o;
+}
+function unpad(bytes) {
+  if (!bytes.length) return bytes;
+  const p = bytes[bytes.length - 1];
+  if (!p || p > BS) return bytes;
+  for (let i = bytes.length - p; i < bytes.length; i++) if (bytes[i] !== p) return bytes;
+  return bytes.slice(0, bytes.length - p);
+}
+
+function b2hex(b) { return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function hex2b(h) {
+  h = h.trim().replace(/\s+/g,'');
+  if (h.length%2) throw new Error('Panjang hex tidak valid (harus genap)');
+  const o = new Uint8Array(h.length/2);
+  for (let i=0;i<o.length;i++) {
+    const v = parseInt(h.substr(i*2,2),16);
+    if (isNaN(v)) throw new Error(`Karakter hex tidak valid di posisi ${i}`);
+    o[i]=v;
+  }
+  return o;
+}
+
+// ================================================================
+// ECB 
+// ================================================================
+function ecbEncBlock(blk, kB, rot) {
+  let b = xorBlock([...blk], kB);  
+  b = reverseBlock(b);              
+  b = rotL(b, rot);                 
+  return b;
+}
+function ecbDecBlock(blk, kB, rot) {
+  let b = rotR([...blk], rot);     
+  b = reverseBlock(b);              
+  b = xorBlock(b, kB);             
+  return b;
+}
+function ecbEncrypt(data, key, rot) {
+  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length);
+  for (let i=0;i<pd.length;i+=BS) o.set(ecbEncBlock(Array.from(pd.slice(i,i+BS)),kB,rot),i);
+  return o;
+}
+function ecbDecrypt(data, key, rot) {
+  if (data.length%BS) throw new Error(`Ukuran data keliru.`);
+  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length);
+  for (let i=0;i<data.length;i+=BS) o.set(ecbDecBlock(Array.from(data.slice(i,i+BS)),kB,rot),i);
+  return unpad(o);
+}
+
+// ================================================================
+// CBC
+// ================================================================
+function cbcEncBlock(blk, prev, kB, rot) {
+  let b = xorArr([...blk], prev);  
+  b = xorBlock(b, kB);              
+  b = nibbleSwap(b);                
+  b = rotL(b, rot);                 
+  return b;
+}
+function cbcDecBlock(blk, prev, kB, rot) {
+  let b = rotR([...blk], rot);     
+  b = nibbleSwap(b);                
+  b = xorBlock(b, kB);             
+  b = xorArr(b, prev);             
+  return b;
+}
+function cbcEncrypt(data, key, iv, rot) {
+  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length);
+  let prev=keyToBytes(iv,BS);
+  for (let i=0;i<pd.length;i+=BS) {
+    const enc=cbcEncBlock(Array.from(pd.slice(i,i+BS)),prev,kB,rot);
+    o.set(enc,i); prev=[...enc];
+  }
+  return o;
+}
+function cbcDecrypt(data, key, iv, rot) {
+  if (data.length%BS) throw new Error(`Ukuran data keliru.`);
+  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length);
+  let prev=keyToBytes(iv,BS);
+  for (let i=0;i<data.length;i+=BS) {
+    const blk=Array.from(data.slice(i,i+BS));
+    o.set(cbcDecBlock(blk,prev,kB,rot),i); prev=[...blk];
+  }
+  return unpad(o);
+}
+
+// ================================================================
+// UI HELPERS
+// ================================================================
+function getTab(m) { return document.getElementById(`${m}-tab-text`).classList.contains('active') ? 'text' : 'file'; }
+
+function setStatus(m, type, msg) {
+  const el=document.getElementById(`${m}-status`);
+  el.className=`status-bar show status-${type}`;
+  el.innerHTML=`${type==='success'?'✅':type==='error'?'❌':'ℹ️'} ${msg}`;
+}
+
+function showBtns(m, txt, file) {
+  document.getElementById(`${m}-copy-btn`).style.display = txt  ? 'inline-block' : 'none';
+  document.getElementById(`${m}-dl-btn`).style.display   = file ? 'inline-block' : 'none';
+}
+
+function renderImgOrFile(m, decBytes, origFilename) {
+  const mime = guessMime(origFilename);
+  outState[m] = { data: decBytes, name: `decrypted_${origFilename}`, mime };
+  const outEl   = document.getElementById(`${m}-output`);
+  const imgWrap = document.getElementById(`${m}-img-out`);
+  const imgEl   = document.getElementById(`${m}-out-img`);
+  if (mime.startsWith('image/')) {
+    const url = URL.createObjectURL(new Blob([decBytes],{type:mime}));
+    imgEl.src = url;
+    imgWrap.style.display = 'block';
+    outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">GAMBAR TERDEKRIPSI · ${fmtSize(decBytes.length)} · ${origFilename}</span>`;
+  } else {
+    imgWrap.style.display = 'none';
+    outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">FILE TERDEKRIPSI</span><br><br>` +
+      `📄 ${origFilename}<br>Ukuran: ${fmtSize(decBytes.length)}<br><br>` +
+      `<span style="opacity:.3;">Klik "Unduh File" untuk menyimpan.</span>`;
+  }
+  showBtns(m, false, true);
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function guessMime(name) {
+  const ext=(name||'').split('.').pop().toLowerCase();
+  return {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',
+          bmp:'image/bmp',pdf:'application/pdf',txt:'text/plain',json:'application/json',
+          mp4:'video/mp4',mp3:'audio/mpeg',wav:'audio/wav',zip:'application/zip'}[ext]||'application/octet-stream';
+}
+
+function copyOutput(m) {
+  navigator.clipboard.writeText(document.getElementById(`${m}-output`).innerText)
+    .then(()=>setStatus(m,'success','Teks disalin!'));
+}
+
+function downloadOutput(m) {
+  const s=outState[m]; if(!s) return;
+  const a=Object.assign(document.createElement('a'),{
+    href: URL.createObjectURL(new Blob([s.data],{type:s.mime||'application/octet-stream'})),
+    download: s.name
+  });
+  a.click();
+  setStatus(m,'success',`File diunduh`);
+}
+
+// ================================================================
+// ECB PROCESS
+// ================================================================
+async function ecbProcess(action) {
+  const key  = document.getElementById('ecb-key').value    || 'key';
+  const rot  = parseInt(document.getElementById('ecb-rotate').value) || 3;
+  const tab  = getTab('ecb');
+  const outEl    = document.getElementById('ecb-output');
+  const imgWrap  = document.getElementById('ecb-img-out');
+
+  try {
+    if (tab === 'text') {
+      const raw = document.getElementById('ecb-input').value;
+      if (!raw.trim()) { setStatus('ecb','error','Masukkan teks dulu'); return; }
+
+      if (action === 'encrypt') {
+        const bytes = new TextEncoder().encode(raw);
+        const enc   = ecbEncrypt(bytes, key, rot);
+        const hex   = b2hex(enc);
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">CIPHERTEXT HEX</span><br><br>${hex}`;
+        imgWrap.style.display='none';
+        outState.ecb = { data: enc, name:'ecb_encrypted.bin', mime:'application/octet-stream' };
+        showBtns('ecb', true, true);
+        setStatus('ecb','success',`Enkripsi berhasil!`);
+      } else {
+        const enc  = hex2b(raw);
+        const dec  = ecbDecrypt(enc, key, rot);
+        const text = new TextDecoder().decode(dec);
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">PLAINTEXT</span><br><br>${esc(text)}`;
+        imgWrap.style.display='none';
+        showBtns('ecb', true, false);
+        setStatus('ecb','success','Dekripsi berhasil!');
+      }
+
+    } else {
+      const file = fileState.ecb;
+      if (!file) { setStatus('ecb','error','Pilih file dulu'); return; }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+
+      if (action === 'encrypt') {
+        const enc    = ecbEncrypt(bytes, key, rot);
+        const packed = packWithMeta(enc, file.name);          
+        const hexPrev = b2hex(enc.slice(0,64));
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">HEX (64 byte)</span><br><br>${hexPrev}${enc.length>64?'…':''}`;
+        imgWrap.style.display='none';
+        outState.ecb = { data: packed, name:`ECB_${file.name}.cbk`, mime:'application/octet-stream' };
+        showBtns('ecb', true, true);
+        setStatus('ecb','success',`Enkripsi berhasil!`);
+      } else {
+        const meta = unpackMeta(bytes);
+        let encData, origName;
+        if (meta) {
+          encData  = meta.payload;
+          origName = meta.originalFilename;
+        } else {
+          encData  = bytes;
+          origName = file.name.replace(/^ECB_/,'').replace(/\.cbk$/,'');
+        }
+        const dec = ecbDecrypt(encData, key, rot);
+        renderImgOrFile('ecb', dec, origName);
+        setStatus('ecb','success',`Dekripsi berhasil!`);
+      }
+    }
+  } catch(e) {
+    setStatus('ecb','error', e.message || 'Terjadi kesalahan');
+    console.error(e);
+  }
+}
+
+// ================================================================
+// CBC PROCESS
+// ================================================================
+async function cbcProcess(action) {
+  const key  = document.getElementById('cbc-key').value    || 'key';
+  const iv   = document.getElementById('cbc-iv').value     || 'iv123456';
+  const rot  = parseInt(document.getElementById('cbc-rotate').value) || 3;
+  const tab  = getTab('cbc');
+  const outEl   = document.getElementById('cbc-output');
+  const imgWrap = document.getElementById('cbc-img-out');
+
+  try {
+    if (tab === 'text') {
+      const raw = document.getElementById('cbc-input').value;
+      if (!raw.trim()) { setStatus('cbc','error','Masukkan teks dulu'); return; }
+
+      if (action === 'encrypt') {
+        const bytes = new TextEncoder().encode(raw);
+        const enc   = cbcEncrypt(bytes, key, iv, rot);
+        const hex   = b2hex(enc);
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">CIPHERTEXT HEX</span><br><br>${hex}`;
+        imgWrap.style.display='none';
+        outState.cbc = { data: enc, name:'cbc_encrypted.bin', mime:'application/octet-stream' };
+        showBtns('cbc', true, true);
+        setStatus('cbc','success',`Enkripsi berhasil!`);
+      } else {
+        const enc  = hex2b(raw);
+        const dec  = cbcDecrypt(enc, key, iv, rot);
+        const text = new TextDecoder().decode(dec);
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">PLAINTEXT</span><br><br>${esc(text)}`;
+        imgWrap.style.display='none';
+        showBtns('cbc', true, false);
+        setStatus('cbc','success','Dekripsi berhasil!');
+      }
+
+    } else {
+      const file = fileState.cbc;
+      if (!file) { setStatus('cbc','error','Pilih file dulu'); return; }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+
+      if (action === 'encrypt') {
+        const enc    = cbcEncrypt(bytes, key, iv, rot);
+        const packed = packWithMeta(enc, file.name);
+        const hexPrev = b2hex(enc.slice(0,64));
+        outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">HEX (64 byte)</span><br><br>${hexPrev}${enc.length>64?'…':''}`;
+        imgWrap.style.display='none';
+        outState.cbc = { data: packed, name:`CBC_${file.name}.cbk`, mime:'application/octet-stream' };
+        showBtns('cbc', true, true);
+        setStatus('cbc','success',`Enkripsi berhasil!`);
+      } else {
+        const meta = unpackMeta(bytes);
+        let encData, origName;
+        if (meta) {
+          encData  = meta.payload;
+          origName = meta.originalFilename;
+        } else {
+          encData  = bytes;
+          origName = file.name.replace(/^CBC_/,'').replace(/\.cbk$/,'');
+        }
+        const dec = cbcDecrypt(encData, key, iv, rot);
+        renderImgOrFile('cbc', dec, origName);
+        setStatus('cbc','success',`Dekripsi berhasil!`);
+      }
+    }
+  } catch(e) {
+    setStatus('cbc','error', e.message || 'Terjadi kesalahan');
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
