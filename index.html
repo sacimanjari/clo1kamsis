@@ -315,7 +315,7 @@ textarea { padding: 14px; min-height: 120px; }
       <div class="info-steps">
         <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/Media</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 4B</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">① XOR</div><div class="step-desc">Substitusi</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">② Reverse</div><div class="step-desc">Permutasi</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">③ Rotate</div><div class="step-desc">Rotasi</div></div></div>
@@ -347,8 +347,8 @@ textarea { padding: 14px; min-height: 120px; }
       <div class="cipher-panel">
         <div class="panel-label">Konfigurasi & Aksi</div>
         <div class="key-row">
-          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="ecb-key" value="ky12"></div>
-          <div class="input-group"><label>Rotasi (1–3)</label><input type="text" id="ecb-rotate" value="2"></div>
+          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="ecb-key" value="mykey123"></div>
+          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="ecb-rotate" value="3"></div>
         </div>
         <div class="input-group" style="margin-top:4px;">
           <label>Kombinasi Metode</label>
@@ -389,7 +389,7 @@ textarea { padding: 14px; min-height: 120px; }
       <div class="info-steps">
         <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/Media</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 4B</div></div></div>
+        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">① XOR Prev</div><div class="step-desc">CBC Chain</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box">② XOR Key</div><div class="step-desc">Substitusi</div></div></div>
         <div class="step"><div class="step-content"><div class="step-box unique">③ Nibble★</div><div class="step-desc">4-bit Swap</div></div></div>
@@ -422,11 +422,11 @@ textarea { padding: 14px; min-height: 120px; }
       <div class="cipher-panel">
         <div class="panel-label">Konfigurasi & Aksi</div>
         <div class="key-row">
-          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="cbc-key" value="s3cr"></div>
-          <div class="input-group"><label>Rotasi (1–3)</label><input type="text" id="cbc-rotate" value="2"></div>
+          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="cbc-key" value="secretkey"></div>
+          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="cbc-rotate" value="3"></div>
         </div>
         <div class="input-group" style="margin-top:4px;">
-          <label>Initialization Vector (IV)</label><input type="text" id="cbc-iv" value="iv12">
+          <label>Initialization Vector (IV)</label><input type="text" id="cbc-iv" value="iv123456">
         </div>
         <div class="input-group" style="margin-top:4px;">
           <label>Kombinasi Metode</label>
@@ -474,30 +474,92 @@ function handleFileSelect(m, i) { const f = i.files[0]; if (!f) return; fileStat
 function renderImgOrFile(m, dec, origName) { const ext = (origName||'').split('.').pop().toLowerCase(); const mime = {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',pdf:'application/pdf',txt:'text/plain',mp4:'video/mp4',mp3:'audio/mpeg',wav:'audio/wav'}[ext]||'application/octet-stream'; outState[m] = { data: dec, name: `decrypted_${origName}`, mime }; const outEl = document.getElementById(`${m}-output`); const imgWrap = document.getElementById(`${m}-img-out`); const url = URL.createObjectURL(new Blob([dec],{type:mime})); let h = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">MEDIA TERDEKRIPSI · ${fmtSize(dec.length)} · ${origName}</span>`; if (mime.startsWith('image/')) { imgWrap.innerHTML = `<img src="${url}">`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else if (mime.startsWith('video/')) { imgWrap.innerHTML = `<video controls src="${url}"></video>`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else if (mime.startsWith('audio/')) { imgWrap.innerHTML = `<audio controls src="${url}"></audio>`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else { imgWrap.style.display = 'none'; outEl.innerHTML = h + `<br><br>📄 ${origName}<br>Ukuran: ${fmtSize(dec.length)}<br><br><span style="opacity:.3;">Klik "Unduh File" untuk menyimpan.</span>`; } showBtns(m, false, true); }
 
 // CRYPTO PRIMITIVES
-const BS = 4;
-function keyToBytes(k, len) { const o=[]; for(let i=0;i<len;i++) o.push(k.charCodeAt(i%k.length)); return o; }
+const BS = 8; // Blok diatur kembali ke 8-byte (64-bit)
+
+// Fungsi untuk memastikan Key dan IV sesuai dengan panjang blok.
+// Jika kurang, karakter akan diulang (padding/repeating) hingga mengisi 8 byte penuh.
+function keyToBytes(k, len) { 
+  const o = []; 
+  for(let i=0; i<len; i++) o.push(k.charCodeAt(i % k.length)); 
+  return o; 
+}
+
 function xorBlock(block, keyB) { return block.map((b,i) => b ^ keyB[i % keyB.length]); }
 function xorArr(a, b) { return a.map((v,i) => v ^ b[i]); }
 function reverseBlock(b) { return [...b].reverse(); }
 function rotL(b, n) { const r=n%b.length; return [...b.slice(r),...b.slice(0,r)]; }
 function rotR(b, n) { const r=n%b.length; return [...b.slice(b.length-r),...b.slice(0,b.length-r)]; }
 function nibbleSwap(b) { return b.map(x => ((x & 0x0F) << 4) | ((x & 0xF0) >> 4)); }
-function pad(bytes) { const p = BS - (bytes.length % BS); const o = new Uint8Array(bytes.length + p); o.set(bytes); for (let i = bytes.length; i < o.length; i++) o[i] = p; return o; }
-function unpad(bytes) { if (!bytes.length) return bytes; const p = bytes[bytes.length - 1]; if (!p || p > BS) return bytes; for (let i = bytes.length - p; i < bytes.length; i++) if (bytes[i] !== p) return bytes; return bytes.slice(0, bytes.length - p); }
+
+// Padding PKCS#7: Selalu mengisi blok secara utuh (termasuk full padding jika data pas kelipatan BS)
+function pad(bytes) { 
+  const p = BS - (bytes.length % BS); 
+  const o = new Uint8Array(bytes.length + p); 
+  o.set(bytes); 
+  for (let i = bytes.length; i < o.length; i++) o[i] = p; 
+  return o; 
+}
+
+function unpad(bytes) { 
+  if (!bytes.length) return bytes; 
+  const p = bytes[bytes.length - 1]; 
+  if (!p || p > BS) return bytes; 
+  for (let i = bytes.length - p; i < bytes.length; i++) if (bytes[i] !== p) return bytes; 
+  return bytes.slice(0, bytes.length - p); 
+}
+
 function b2hex(b) { return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
-function hex2b(h) { h = h.trim().replace(/\s+/g,''); if(h.length%2) throw new Error('Hex tidak genap'); const o = new Uint8Array(h.length/2); for(let i=0;i<o.length;i++){ const v=parseInt(h.substr(i*2,2),16); if(isNaN(v)) throw new Error('Hex invalid'); o[i]=v; } return o; }
+function hex2b(h) { 
+  h = h.trim().replace(/\s+/g,''); 
+  if(h.length%2) throw new Error('Hex tidak genap'); 
+  const o = new Uint8Array(h.length/2); 
+  for(let i=0; i<o.length; i++){ 
+    const v=parseInt(h.substr(i*2,2),16); 
+    if(isNaN(v)) throw new Error('Hex invalid'); 
+    o[i]=v; 
+  } 
+  return o; 
+}
 
-// ECB
-function ecbEncrypt(data, key, rot) { const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); for (let i=0;i<pd.length;i+=BS) o.set(rotL(reverseBlock(xorBlock(Array.from(pd.slice(i,i+BS)),kB)), rot),i); return o; }
-function ecbDecrypt(data, key, rot) { if (data.length%BS) throw new Error('Data keliru'); const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); for (let i=0;i<data.length;i+=BS) o.set(xorBlock(reverseBlock(rotR(Array.from(data.slice(i,i+BS)),rot)), kB),i); return unpad(o); }
+// ECB - Proses looping dengan step 8 byte (i += BS)
+function ecbEncrypt(data, key, rot) { 
+  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); 
+  for (let i=0; i<pd.length; i+=BS) o.set(rotL(reverseBlock(xorBlock(Array.from(pd.slice(i,i+BS)),kB)), rot),i); 
+  return o; 
+}
+function ecbDecrypt(data, key, rot) { 
+  if (data.length%BS) throw new Error('Data keliru'); 
+  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); 
+  for (let i=0; i<data.length; i+=BS) o.set(xorBlock(reverseBlock(rotR(Array.from(data.slice(i,i+BS)),rot)), kB),i); 
+  return unpad(o); 
+}
 
-// CBC
-function cbcEncrypt(data, key, iv, rot) { const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); let p=keyToBytes(iv,BS); for (let i=0;i<pd.length;i+=BS) { const enc=rotL(nibbleSwap(xorBlock(xorArr(Array.from(pd.slice(i,i+BS)),p),kB)),rot); o.set(enc,i); p=[...enc]; } return o; }
-function cbcDecrypt(data, key, iv, rot) { if (data.length%BS) throw new Error('Data keliru'); const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); let p=keyToBytes(iv,BS); for (let i=0;i<data.length;i+=BS) { const blk=Array.from(data.slice(i,i+BS)); o.set(xorArr(xorBlock(nibbleSwap(rotR(blk,rot)),kB),p),i); p=[...blk]; } return unpad(o); }
+// CBC - Proses looping dengan step 8 byte (i += BS) dan padding IV otomatis
+function cbcEncrypt(data, key, iv, rot) { 
+  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); 
+  let p=keyToBytes(iv,BS); 
+  for (let i=0; i<pd.length; i+=BS) { 
+    const enc=rotL(nibbleSwap(xorBlock(xorArr(Array.from(pd.slice(i,i+BS)),p),kB)),rot); 
+    o.set(enc,i); 
+    p=[...enc]; 
+  } 
+  return o; 
+}
+function cbcDecrypt(data, key, iv, rot) { 
+  if (data.length%BS) throw new Error('Data keliru'); 
+  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); 
+  let p=keyToBytes(iv,BS); 
+  for (let i=0; i<data.length; i+=BS) { 
+    const blk=Array.from(data.slice(i,i+BS)); 
+    o.set(xorArr(xorBlock(nibbleSwap(rotR(blk,rot)),kB),p),i); 
+    p=[...blk]; 
+  } 
+  return unpad(o); 
+}
 
 // MAIN PROCESS RUNNERS
 async function ecbProcess(action) {
-  const k = document.getElementById('ecb-key').value || 'key', r = parseInt(document.getElementById('ecb-rotate').value) || 2;
+  const k = document.getElementById('ecb-key').value || 'mykey123', r = parseInt(document.getElementById('ecb-rotate').value) || 3;
   const t = document.getElementById('ecb-tab-text').classList.contains('active') ? 'text' : 'file';
   const outEl = document.getElementById('ecb-output'), imgWrap = document.getElementById('ecb-img-out');
   try {
@@ -517,7 +579,7 @@ async function ecbProcess(action) {
 }
 
 async function cbcProcess(action) {
-  const k = document.getElementById('cbc-key').value || 'key', iv = document.getElementById('cbc-iv').value || 'iv12', r = parseInt(document.getElementById('cbc-rotate').value) || 2;
+  const k = document.getElementById('cbc-key').value || 'secretkey', iv = document.getElementById('cbc-iv').value || 'iv123456', r = parseInt(document.getElementById('cbc-rotate').value) || 3;
   const t = document.getElementById('cbc-tab-text').classList.contains('active') ? 'text' : 'file';
   const outEl = document.getElementById('cbc-output'), imgWrap = document.getElementById('cbc-img-out');
   try {
