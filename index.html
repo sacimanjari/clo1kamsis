@@ -493,7 +493,180 @@ footer{
   .section-doodle{right:7%;top:38px}
 }
 
-  </style>
+  
+/* ===== ADISTA editorial / photo-driven refresh ===== */
+.hero{
+  min-height:690px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+}
+.hero-grid{position:relative;z-index:2}
+.hero-copy{position:relative;z-index:4}
+.hero-copy p{max-width:570px;font-size:1.05rem}
+.hero-actions{margin-top:28px}
+.hero-note{margin-top:22px}
+.hero-photo-stage{
+  min-height:500px;
+  position:relative;
+  perspective:1000px;
+}
+.photo-card{
+  position:absolute;
+  overflow:hidden;
+  border:7px solid rgba(255,255,255,.92);
+  box-shadow:0 28px 65px rgba(58,39,80,.17);
+  background:#fff;
+  transition:transform .25s ease-out;
+  will-change:transform;
+}
+.photo-card img{
+  width:100%;height:100%;display:block;object-fit:cover;
+  filter:saturate(.92) contrast(.97);
+}
+.photo-main{
+  width:335px;height:415px;
+  right:90px;top:48px;
+  border-radius:38px;
+  transform:rotate(4deg);
+  z-index:3;
+  animation:photoBreathe 7s ease-in-out infinite;
+}
+.photo-main::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 55%,rgba(34,24,44,.48));
+  z-index:1;
+}
+.photo-caption{
+  position:absolute;left:20px;right:20px;bottom:18px;z-index:2;
+  color:#fff;display:flex;flex-direction:column;line-height:1.25;
+}
+.photo-caption b{font-size:1.15rem}.photo-caption span{font-size:.78rem;opacity:.88;margin-top:3px}
+.photo-small{
+  width:165px;height:205px;border-radius:28px;z-index:4;
+  display:flex;flex-direction:column;
+}
+.photo-small img{height:155px}
+.photo-small span{
+  height:38px;display:flex;align-items:center;padding:0 9px;
+  font-size:.65rem;font-weight:800;white-space:nowrap;background:#fff;
+}
+.photo-one{left:25px;top:70px;transform:rotate(-7deg);animation:floatPhoto 6s ease-in-out infinite}
+.photo-two{right:-2px;bottom:38px;transform:rotate(-5deg);animation:floatPhoto 6.8s -2s ease-in-out infinite}
+.photo-note{
+  position:absolute;left:22px;bottom:25px;z-index:5;
+  padding:14px 18px;background:#fff8d8;
+  border-radius:22px 22px 22px 6px;
+  font-size:.76rem;font-weight:800;line-height:1.35;
+  box-shadow:0 14px 35px rgba(87,65,25,.12);
+  transform:rotate(-4deg);
+  animation:noteWiggle 5s ease-in-out infinite;
+}
+.photo-note span{font-size:1.3rem;color:#d79d25}
+.hero-sticker{
+  position:absolute;right:2px;top:4px;z-index:5;
+  width:82px;height:82px;border-radius:50%;
+  background:#efacc9;color:#fff;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-size:.58rem;font-weight:900;line-height:1.1;text-align:center;
+  transform:rotate(11deg);
+  box-shadow:0 12px 26px rgba(150,72,110,.15);
+  animation:spinSticker 10s linear infinite;
+}
+.hero-sticker small{font-size:.55rem;font-weight:700}
+.discovery-strip{
+  position:relative;overflow:hidden;
+  padding:16px 0 20px;
+  background:#fff;
+  border-top:1px solid #eee7f4;border-bottom:1px solid #eee7f4;
+}
+.discovery-strip .container{display:flex;align-items:center;gap:22px;overflow:hidden}
+.strip-intro{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;
+  color:#7352a5;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;font-weight:900;
+}
+.strip-intro b{font-size:1.1rem}
+.discovery-track{
+  display:flex;gap:10px;width:max-content;
+  animation:marquee 32s linear infinite;
+}
+.discovery-strip:hover .discovery-track{animation-play-state:paused}
+.discovery-pill{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;
+  padding:9px 14px;border:1px solid #ece5f4;border-radius:999px;
+  background:#fcfbfe;color:#5e526b;font-size:.8rem;font-weight:800;
+}
+.discovery-pill:nth-child(3n+1){background:#fff8d9}
+.discovery-pill:nth-child(3n+2){background:#fff0f6}
+.discovery-pill:nth-child(3n){background:#f3edff}
+.discovery-pill i{font-style:normal;font-size:1rem}
+.section{scroll-margin-top:80px}
+.section-head{position:relative}
+.eyebrow{letter-spacing:.01em}
+.cards{align-items:stretch}
+.card .icon-box{
+  transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.card:hover .icon-box{transform:rotate(-7deg) scale(1.08)}
+.filter-buttons button{
+  transition:transform .2s ease,background .2s ease;
+}
+.filter-buttons button:hover{transform:translateY(-2px)}
+.modal{
+  backdrop-filter:blur(8px);
+}
+.modal-content{
+  animation:modalIn .35s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes photoBreathe{
+  0%,100%{transform:rotate(4deg) translate3d(0,0,0)}
+  50%{transform:rotate(2.5deg) translate3d(0,-9px)}
+}
+@keyframes floatPhoto{
+  0%,100%{translate:0 0}
+  50%{translate:0 -13px}
+}
+@keyframes noteWiggle{
+  0%,100%{transform:rotate(-4deg) translateY(0)}
+  50%{transform:rotate(-1deg) translateY(-6px)}
+}
+@keyframes spinSticker{
+  0%,100%{rotate:11deg}
+  50%{rotate:16deg}
+}
+@keyframes marquee{
+  to{transform:translateX(-50%)}
+}
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(18px) scale(.97)}
+  to{opacity:1;transform:none}
+}
+@media(max-width:900px){
+  .hero{min-height:auto;padding:74px 0 55px}
+  .hero-grid{grid-template-columns:1fr}
+  .hero-photo-stage{min-height:500px;margin-top:10px}
+  .photo-main{right:18%;width:310px}
+  .photo-one{left:3%}
+  .photo-two{right:1%}
+}
+@media(max-width:620px){
+  .hero-photo-stage{min-height:420px;transform:scale(.9);transform-origin:top center;margin-bottom:-30px}
+  .photo-main{width:255px;height:330px;right:12%;top:42px}
+  .photo-small{width:128px;height:164px}
+  .photo-small img{height:125px}
+  .photo-small span{font-size:.55rem;height:32px}
+  .photo-one{left:0;top:55px}
+  .photo-two{right:-2px;bottom:25px}
+  .photo-note{left:0;bottom:10px;font-size:.65rem}
+  .hero-sticker{right:0;top:0;width:68px;height:68px}
+  .discovery-strip .container{gap:12px}
+  .strip-intro{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .photo-main,.photo-small,.photo-note,.hero-sticker,.discovery-track{animation:none!important}
+}
+
+</style>
 </head>
 <body>
 
@@ -527,35 +700,48 @@ footer{
         </div>
         <div class="hero-note">✦ Satu tempat untuk menemukan lebih banyak kesempatan.</div>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-
-        <div class="hero-deco deco-orbit" aria-hidden="true">
+      <div class="hero-visual hero-photo-stage" aria-hidden="true">
+        <div class="hero-deco deco-orbit">
           <svg viewBox="0 0 420 360" fill="none">
             <path d="M54 278C101 205 126 73 232 54C318 38 376 91 388 151" stroke="currentColor" stroke-width="2.5" stroke-dasharray="7 9"/>
             <path d="M73 306C153 286 202 319 279 292C335 272 352 226 369 178" stroke="currentColor" stroke-width="2" opacity=".45"/>
             <circle cx="58" cy="278" r="7" fill="currentColor"/>
             <circle cx="388" cy="151" r="9" fill="currentColor"/>
-            <circle cx="278" cy="292" r="5" fill="currentColor"/>
           </svg>
         </div>
-        <div class="hero-deco deco-spark" aria-hidden="true">✦</div>
-        <div class="hero-deco deco-squiggle" aria-hidden="true">
-          <svg viewBox="0 0 100 55" fill="none">
-            <path d="M4 37C17 8 31 8 42 31C53 54 69 53 79 27C85 12 91 11 97 19" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-          </svg>
+        <div class="photo-card photo-main" data-parallax="10">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85" alt="">
+          <div class="photo-caption"><b>Temukan minatmu.</b><span>Mulai dari satu kegiatan.</span></div>
         </div>
-        <div class="hero-card hero-main">
-          <div class="mock-top"><span class="mini-brand">ADISTA Info</span><span class="tag">Untuk Pelajar</span></div>
-          <div class="mock-search">⌕ &nbsp; Cari lomba, ekskul, pelatihan...</div>
-          <div class="mock-cards">
-            <div class="mock-item"><div class="mock-icon">🏀</div><strong>Basket</strong><div class="muted" style="font-size:.72rem">Olahraga</div></div>
-            <div class="mock-item"><div class="mock-icon">💡</div><strong>Lomba Esai</strong><div class="muted" style="font-size:.72rem">Deadline 20 Okt</div></div>
-            <div class="mock-item"><div class="mock-icon">🌱</div><strong>Volunteer</strong><div class="muted" style="font-size:.72rem">Pendidikan</div></div>
-            <div class="mock-item"><div class="mock-icon">🎓</div><strong>Beasiswa</strong><div class="muted" style="font-size:.72rem">Pelajar</div></div>
-          </div>
+        <div class="photo-card photo-small photo-one" data-parallax="18">
+          <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=85" alt="">
+          <span>🤝 Kegiatan & komunitas</span>
         </div>
-        <div class="hero-card float-card"><div class="float-number">10+</div><div class="float-label">Ekskul yang bisa dijelajahi</div></div>
-        <div class="hero-card float-card bottom"><div class="float-number">15+</div><div class="float-label">Peluang untuk dicoba</div></div>
+        <div class="photo-card photo-small photo-two" data-parallax="24">
+          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=85" alt="">
+          <span>💻 Belajar hal baru</span>
+        </div>
+        <div class="photo-note" data-parallax="30"><span>✦</span> Ada banyak hal<br>yang bisa dicoba.</div>
+        <div class="hero-sticker">SCROLL<br><small>& discover</small> ↓</div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="discovery-strip" aria-label="Inspirasi kegiatan">
+    <div class="container">
+      <div class="strip-intro"><span>Jelajahi</span><b>→</b></div>
+      <div class="discovery-track">
+        <div class="discovery-pill"><i>🏀</i> Olahraga</div>
+        <div class="discovery-pill"><i>🎨</i> Kreatif</div>
+        <div class="discovery-pill"><i>💻</i> Teknologi</div>
+        <div class="discovery-pill"><i>🌱</i> Sosial</div>
+        <div class="discovery-pill"><i>🔬</i> Sains</div>
+        <div class="discovery-pill"><i>🎤</i> Organisasi</div>
+        <div class="discovery-pill"><i>📚</i> Akademik</div>
+        <div class="discovery-pill"><i>🏀</i> Olahraga</div>
+        <div class="discovery-pill"><i>🎨</i> Kreatif</div>
+        <div class="discovery-pill"><i>💻</i> Teknologi</div>
       </div>
     </div>
   </section>
@@ -1008,5 +1194,25 @@ route();
 })();
 
 </script>
+
+<script>
+(function(){
+  const stage=document.querySelector('.hero-photo-stage');
+  if(stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const items=stage.querySelectorAll('[data-parallax]');
+    stage.addEventListener('mousemove',e=>{
+      const r=stage.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      items.forEach(el=>{
+        const d=Number(el.dataset.parallax)||10;
+        el.style.translate=`${x*d}px ${y*d}px`;
+      });
+    });
+    stage.addEventListener('mouseleave',()=>items.forEach(el=>el.style.translate=''));
+  }
+})();
+</script>
+
 </body>
 </html>
