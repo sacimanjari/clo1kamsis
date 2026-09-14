@@ -1,602 +1,715 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CipherBlock — Enkripsi Data Digital</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root {
-  --ecb-primary: #1d4ed8; --ecb-dark: #ffffff; --ecb-mid: #f8fafc; --ecb-surface: #f1f5f9; --ecb-border: #1d4ed833; --ecb-text: #0f172a;
-  --cbc-primary: #3b82f6; --cbc-accent: #93c5fd; --cbc-dark: #020617; --cbc-mid: #0f172a; --cbc-surface: #1e293b; --cbc-border: #3b82f633; --cbc-text: #f8fafc;
-  --lrn-primary: #10b981; --lrn-border: #10b98140;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #ffffff; color: #0f172a; min-height: 100vh; overflow-x: hidden; }
-.landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 40px 0; }
-.landing::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 20% 30%, #1d4ed80d 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 70%, #3b82f60d 0%, transparent 60%); pointer-events: none; }
-.grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
-.landing-header { text-align: center; z-index: 1; margin-bottom: 48px; animation: fadeUp 0.6s ease both; }
-.brand { font-size: clamp(42px, 8vw, 96px); font-weight: 800; letter-spacing: -2px; line-height: 1; background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
-.brand-sub { font-size: 12px; letter-spacing: 4px; color: #64748b; text-transform: uppercase; line-height: 1.8; }
-.student-id { display: inline-block; margin-top: 15px; padding: 8px 24px; border-radius: 30px; font-weight: bold; background: rgba(29, 78, 216, 0.1); color: #1d4ed8; letter-spacing: 2px; border: 1px solid rgba(29, 78, 216, 0.2); }
-.mode-cards { display: flex; gap: 28px; z-index: 1; flex-wrap: wrap; justify-content: center; padding: 0 20px; max-width: 1200px; }
-.mode-card { width: 330px; border-radius: 20px; padding: 36px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; background: white; border: 1px solid #e2e8f0; }
-.mode-card.ecb { background: linear-gradient(145deg, #ffffff, #f8fafc); box-shadow: 0 10px 40px #1d4ed810; border-color: var(--ecb-border); }
-.mode-card.cbc { background: linear-gradient(145deg, #020617, #0f172a); box-shadow: 0 10px 40px #3b82f610; border-color: var(--cbc-border); color: #f8fafc; }
-.mode-card.learn { background: linear-gradient(145deg, #ffffff, #f0fdf4); box-shadow: 0 10px 40px #10b98110; border-color: var(--lrn-border); }
-.mode-card:hover { transform: translateY(-8px); }
-.card-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
-.ecb .card-badge { background: #1d4ed820; color: #1d4ed8; border: 1px solid #1d4ed840; }
-.cbc .card-badge { background: #3b82f620; color: #93c5fd; border: 1px solid #3b82f640; }
-.learn .card-badge { background: #10b98120; color: #059669; border: 1px solid #10b98140; }
-.card-icon { font-size: 48px; margin-bottom: 16px; display: block; }
-.card-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -1px; }
-.ecb .card-title { color: #1d4ed8; } .cbc .card-title { color: #93c5fd; } .learn .card-title { color: #059669; }
-.card-full { font-size: 10px; letter-spacing: 1px; margin-bottom: 14px; opacity: 0.5; }
-.card-desc { font-size: 13px; line-height: 1.7; margin-bottom: 20px; opacity: 0.75; }
-.card-btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
-.ecb .card-btn { background: #1d4ed8; color: #ffffff; } .cbc .card-btn { background: #3b82f6; color: #ffffff; } .learn .card-btn { background: #10b981; color: #ffffff; }
-.card-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ADISTA Info — Temukan ekskul, lomba, pelatihan, volunteer, beasiswa, dan berbagai peluang untuk siswa SMA.">
+  <title>ADISTA Info — Akses Digital Informasi & Prestasi</title>
+  <style>
+    :root{
+      --primary:#3157d5;
+      --primary-dark:#2444b2;
+      --primary-soft:#eef2ff;
+      --accent:#f5b942;
+      --ink:#182033;
+      --muted:#667085;
+      --line:#e7eaf0;
+      --bg:#f8f9fc;
+      --white:#fff;
+      --success:#198754;
+      --danger:#dc3545;
+      --shadow:0 12px 35px rgba(24,32,51,.08);
+      --radius:20px;
+      --max:1160px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);background:var(--bg);line-height:1.6;
+    }
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    a{text-decoration:none;color:inherit}
+    .container{width:min(var(--max),calc(100% - 40px));margin:auto}
+    .hidden{display:none!important}
+    .muted{color:var(--muted)}
+    .section{padding:78px 0}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:30px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:7px;color:var(--primary);
+      background:var(--primary-soft);padding:7px 12px;border-radius:999px;
+      font-size:.78rem;font-weight:800;margin-bottom:13px;
+    }
+    h1{font-size:clamp(2.6rem,6vw,5rem);line-height:1.02;letter-spacing:-.055em}
+    h2{font-size:clamp(1.8rem,3vw,2.65rem);line-height:1.12;letter-spacing:-.035em}
+    h3{line-height:1.25}
+    .section-title{max-width:650px}
+    .section-title p{margin-top:12px;color:var(--muted)}
+    .btn{
+      border:0;border-radius:12px;padding:12px 18px;font-weight:800;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-dark)}
+    .btn-outline{background:#fff;color:var(--primary);border:1px solid #d8def4}
+    .btn-ghost{background:transparent;color:var(--ink)}
+    .btn-danger{background:#fff0f1;color:var(--danger)}
+    .btn-sm{padding:8px 12px;font-size:.85rem}
 
-.app-page { display: none; min-height: 100vh; flex-direction: column; } .app-page.active { display: flex; }
-.app-ecb { background: #ffffff; color: #0f172a; } .app-cbc { background: #020617; color: #f8fafc; } .app-learn { background: #f8fafc; color: #0f172a; }
-.app-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
-.app-ecb .app-nav { border-color: var(--ecb-border); background: rgba(255,255,255,0.9); }
-.app-cbc .app-nav { border-color: var(--cbc-border); background: rgba(2,6,23,0.9); }
-.app-learn .app-nav { border-color: var(--lrn-border); background: rgba(248,250,252,0.9); }
-.nav-logo { font-weight: 800; font-size: 18px; letter-spacing: -1px; cursor: pointer; }
-.app-ecb .nav-logo { color: #1d4ed8; } .app-cbc .nav-logo { color: #93c5fd; } .app-learn .nav-logo { color: #059669; }
-.nav-badge { font-size: 10px; font-weight: 700; letter-spacing: 3px; padding: 5px 14px; border-radius: 20px; }
-.app-ecb .nav-badge { background: #1d4ed820; color: #1d4ed8; } .app-cbc .nav-badge { background: #3b82f620; color: #93c5fd; } .app-learn .nav-badge { background: #10b98120; color: #059669; }
-.nav-back { background: none; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-.app-cbc .nav-back { border-color: var(--cbc-border); color: white; }
-.app-content { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 36px 40px 60px; }
-.app-header { margin-bottom: 32px; }
-.app-title { font-size: clamp(26px, 4vw, 44px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 6px; }
-.app-ecb .app-title { color: #1d4ed8; } .app-cbc .app-title { color: #93c5fd; } .app-learn .app-title { color: #059669; }
+    /* NAV */
+    .navbar{
+      position:sticky;top:0;z-index:50;background:rgba(248,249,252,.9);
+      backdrop-filter:blur(16px);border-bottom:1px solid rgba(231,234,240,.8);
+    }
+    .nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:25px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.2rem}
+    .brand-mark{
+      width:38px;height:38px;border-radius:12px;background:var(--primary);color:#fff;
+      display:grid;place-items:center;font-weight:900;box-shadow:0 7px 18px rgba(49,87,213,.25);
+    }
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-links a{padding:9px 12px;border-radius:9px;color:#4c5569;font-size:.92rem;font-weight:650}
+    .nav-links a:hover,.nav-links a.active{background:#fff;color:var(--primary)}
+    .mobile-toggle{display:none;background:none;border:0;font-size:1.5rem}
+    .nav-cta{margin-left:8px}
 
-.cipher-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.cipher-panel { border-radius: 14px; padding: 24px; }
-.app-ecb .cipher-panel { background: rgba(248,250,252,0.8); border: 1px solid var(--ecb-border); }
-.app-cbc .cipher-panel { background: rgba(30,41,59,0.5); border: 1px solid var(--cbc-border); }
-.app-learn .cipher-panel { background: white; border: 1px solid var(--lrn-border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-.panel-full { grid-column: 1 / -1; }
-.panel-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.app-ecb .panel-label { color: #1d4ed8; } .app-cbc .panel-label { color: #93c5fd; } .app-learn .panel-label { color: #059669; }
+    /* HERO */
+    .hero{padding:80px 0 65px;overflow:hidden}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:55px}
+    .hero-copy p{font-size:1.1rem;color:var(--muted);max-width:610px;margin:22px 0 28px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .hero-note{display:flex;align-items:center;gap:9px;margin-top:20px;font-size:.85rem;color:var(--muted)}
+    .hero-visual{position:relative;min-height:410px}
+    .hero-card{
+      position:absolute;background:#fff;border:1px solid var(--line);border-radius:24px;
+      box-shadow:var(--shadow);padding:20px;
+    }
+    .hero-main{inset:30px 10px 25px 30px;transform:rotate(2deg);background:linear-gradient(145deg,#fff,#f1f4ff)}
+    .hero-main .mock-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+    .mini-brand{font-weight:900;color:var(--primary)}
+    .mock-search{height:46px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 14px;color:#98a0af;display:flex;align-items:center}
+    .mock-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+    .mock-item{padding:15px;border-radius:15px;background:#fff;border:1px solid var(--line)}
+    .mock-icon{font-size:1.6rem;margin-bottom:8px}
+    .mock-item strong{font-size:.9rem}
+    .float-card{z-index:2;right:-4px;top:0;width:180px}
+    .float-card.bottom{left:-5px;bottom:0;top:auto;width:190px}
+    .float-number{font-size:1.7rem;font-weight:900;color:var(--primary)}
+    .float-label{font-size:.8rem;color:var(--muted)}
 
-/* FLOW CSS */
-.info-steps { display: flex; align-items: stretch; justify-content: space-between; gap: 5px; }
-.step { flex: 1; text-align: center; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-.step-content { width: 100%; position: relative; z-index: 2; }
-.step:not(:last-child)::after { content: '→'; position: absolute; right: -12px; top: 12px; font-size: 14px; z-index: 1; opacity: 0.5; }
-.step-box { border-radius: 7px; padding: 7px 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; background: #fff; width: 100%; }
-.app-ecb .step-box { background: #1d4ed815; color: #1d4ed8; border: 1px solid #1d4ed830; }
-.app-cbc .step-box { background: #3b82f615; color: #93c5fd; border: 1px solid #3b82f630; }
-.step-box.unique { background: rgba(245,158,11,0.12) !important; color: #d97706 !important; border-color: rgba(245,158,11,0.25) !important; }
-.step-desc { font-size: 9px; opacity: 0.6; line-height: 1.4; }
+    /* CARDS */
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{
+      background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+      padding:22px;box-shadow:0 5px 20px rgba(24,32,51,.035);
+    }
+    .card:hover{box-shadow:var(--shadow)}
+    .icon-box{
+      width:46px;height:46px;border-radius:14px;background:var(--primary-soft);
+      display:grid;place-items:center;font-size:1.35rem;margin-bottom:16px;
+    }
+    .tag{display:inline-flex;padding:5px 9px;border-radius:999px;background:#f2f4f7;color:#5e6675;font-size:.72rem;font-weight:800}
+    .card p{color:var(--muted);font-size:.9rem;margin:8px 0 15px}
+    .meta{font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+    .card-footer{margin-top:17px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 
-/* VISUAL DIAGRAM CSS */
-.diagram-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; margin: 12px 0 20px; overflow-x: auto; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-.bit-row { display: flex; gap: 4px; justify-content: center; margin: 6px 0; font-family: 'Space Mono', monospace; align-items: center; }
-.bit { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #94a3b8; border-radius: 6px; font-size: 13px; font-weight: bold; color:#1e293b;}
-.bit.key { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-.bit.res { background: #ecfdf5; border-color: #6ee7b7; color: #059669; }
-.bit.hl { background: #fef08a; border-color: #facc15; color: #854d0e; }
-.nibble { padding: 6px 12px; border: 2px solid #3b82f6; border-radius: 8px; font-weight: bold; letter-spacing: 2px; }
-.desc-text { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 10px; }
-.desc-text strong { color: #0f172a; }
+    /* HIGHLIGHT */
+    .highlight{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .why-card{padding:28px;background:#fff;border:1px solid var(--line);border-radius:20px}
+    .why-card .num{font-size:.75rem;color:var(--primary);font-weight:900;margin-bottom:15px}
+    .why-card p{color:var(--muted);font-size:.9rem;margin-top:8px}
 
-/* INPUTS & BUTTONS */
-.input-tabs { display: flex; gap: 4px; margin-bottom: 14px; padding: 4px; border-radius: 10px; }
-.app-ecb .input-tabs { background: rgba(0,0,0,0.04); } .app-cbc .input-tabs { background: rgba(0,0,0,0.3); }
-.tab-btn { flex: 1; padding: 8px; background: none; border: none; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
-.app-ecb .tab-btn { color: #64748b; } .app-cbc .tab-btn { color: rgba(255,255,255,0.4); }
-.app-ecb .tab-btn.active { background: #ffffff; color: #1d4ed8; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.app-cbc .tab-btn.active { background: var(--cbc-surface); color: #93c5fd; }
-.tab-content { display: none; } .tab-content.active { display: block; }
-textarea, input[type="text"] { width: 100%; border-radius: 9px; font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.2s; resize: vertical; padding: 10px 14px;}
-.app-ecb textarea, .app-ecb input[type="text"] { background: #ffffff; color: #0f172a; border: 1px solid var(--ecb-border); }
-.app-cbc textarea, .app-cbc input[type="text"] { background: rgba(0,0,0,0.4); color: #f8fafc; border: 1px solid var(--cbc-border); }
-textarea { padding: 14px; min-height: 120px; }
-.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.input-group label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; font-weight: 600; }
+    /* CONTROLS */
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:25px}
+    .search-wrap{position:relative;flex:1;min-width:230px}
+    .search-wrap span{position:absolute;left:14px;top:10px;color:#8b93a3}
+    .search-wrap input{padding-left:40px}
+    input,select,textarea{
+      width:100%;border:1px solid #dfe3eb;background:#fff;border-radius:12px;
+      padding:11px 13px;outline:none;color:var(--ink);
+    }
+    input:focus,select:focus,textarea:focus{border-color:#8ca0e9;box-shadow:0 0 0 3px #eef2ff}
+    .filter-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    .filter-btn{
+      border:1px solid var(--line);background:#fff;color:#5e6675;border-radius:999px;
+      padding:9px 14px;font-weight:750;font-size:.82rem;
+    }
+    .filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .empty{text-align:center;padding:50px;color:var(--muted);grid-column:1/-1}
 
-.file-drop { border-radius: 9px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
-.app-ecb .file-drop { border: 2px dashed var(--ecb-border); background: rgba(29,78,216,0.02); }
-.app-cbc .file-drop { border: 2px dashed var(--cbc-border); background: rgba(59,130,246,0.02); }
-.file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.file-icon { font-size: 28px; margin-bottom: 6px; }
-.file-drop-text { font-size: 12px; opacity: 0.6; line-height: 1.6; }
-.file-name-display { font-size: 12px; margin-top: 8px; padding: 6px 12px; border-radius: 7px; display: none; font-weight: 600; }
-.file-preview-wrap { margin-top: 8px; display: none; text-align: center; width: 100%; }
-.file-preview-wrap img, .file-preview-wrap video { max-width: 100%; max-height: 180px; border-radius: 8px; border: 1px solid #cbd5e1; }
-.file-preview-wrap audio { width: 100%; margin-top: 10px; outline: none; }
+    /* DETAIL MODAL */
+    .modal{position:fixed;inset:0;z-index:100;background:rgba(18,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.show{display:flex}
+    .modal-box{background:#fff;width:min(620px,100%);max-height:90vh;overflow:auto;border-radius:24px;padding:28px;position:relative}
+    .modal-close{position:absolute;right:17px;top:15px;border:0;background:#f2f4f7;width:36px;height:36px;border-radius:50%;font-size:1.2rem}
+    .detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+    .detail-meta div{background:#f7f8fb;padding:12px;border-radius:12px;font-size:.84rem}
+    .detail-content{color:#555e70;font-size:.92rem}
+    .detail-content h4{color:var(--ink);margin:20px 0 7px}
+    .detail-content ul{padding-left:20px}
 
-.key-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-.action-btn { padding: 13px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.app-ecb .btn-encrypt { background: #1d4ed8; color: #ffffff; }
-.app-ecb .btn-decrypt { background: transparent; border: 1px solid #1d4ed8; color: #1d4ed8; }
-.app-cbc .btn-encrypt { background: #3b82f6; color: #ffffff; }
-.app-cbc .btn-decrypt { background: transparent; border: 1px solid #3b82f6; color: #93c5fd; }
-.action-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    /* FAQ / ABOUT / FEEDBACK */
+    .faq-list{max-width:850px;margin:auto}
+    .faq-item{background:#fff;border:1px solid var(--line);border-radius:15px;margin-bottom:10px;overflow:hidden}
+    .faq-question{width:100%;border:0;background:#fff;padding:18px 20px;text-align:left;font-weight:800;display:flex;justify-content:space-between;gap:15px}
+    .faq-answer{display:none;padding:0 20px 18px;color:var(--muted);font-size:.9rem}
+    .faq-item.open .faq-answer{display:block}
+    .faq-item.open .faq-question span{transform:rotate(45deg)}
+    .faq-question span{font-size:1.3rem;transition:.2s}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+    .vision{background:var(--primary);color:#fff;border-radius:25px;padding:35px;min-height:280px}
+    .vision p{color:#dfe5ff;margin-top:15px}
+    .mission{display:grid;gap:13px}
+    .mission div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px}
+    .mission b{color:var(--primary);margin-right:8px}
+    .feedback-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:35px;align-items:start}
+    .feedback-copy p{color:var(--muted);margin-top:12px}
+    .form-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:25px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:.8rem;font-weight:800;margin-bottom:6px}
+    textarea{resize:vertical;min-height:125px}
+    .success{background:#eaf8f0;color:#176b3c;padding:13px 15px;border-radius:12px;margin-bottom:15px;font-size:.88rem;font-weight:700}
 
-.output-area { min-height: 140px; padding: 14px; border-radius: 9px; font-size: 13px; line-height: 1.8; word-break: break-all; }
-.app-ecb .output-area { background: #ffffff; border: 1px solid var(--ecb-border); color: var(--ecb-text); }
-.app-cbc .output-area { background: rgba(0,0,0,0.45); border: 1px solid var(--cbc-border); color: var(--cbc-text); }
-.output-placeholder { opacity: 0.4; font-style: italic; }
-.output-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.out-btn { padding: 8px 14px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; background: transparent; transition: all 0.2s; display: none; letter-spacing: 1px; }
-.app-ecb .out-btn { border-color: var(--ecb-border); color: #1d4ed8; }
-.app-cbc .out-btn { border-color: var(--cbc-border); color: #93c5fd; }
-.img-out-wrap { display: none; text-align: center; padding: 14px 0 0; width: 100%; }
-.img-out-wrap img, .img-out-wrap video { max-width: 100%; max-height: 240px; border-radius: 10px; border: 1px solid #cbd5e1; }
-.img-out-wrap audio { width: 100%; outline: none; margin-top:10px; }
+    /* ADMIN */
+    #adminPage{background:#f2f4f8;min-height:calc(100vh - 72px)}
+    .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 72px)}
+    .admin-sidebar{background:#fff;border-right:1px solid var(--line);padding:25px}
+    .admin-sidebar button{width:100%;text-align:left;background:transparent;border:0;padding:11px 12px;border-radius:10px;margin:3px 0;font-weight:700;color:#5e6675}
+    .admin-sidebar button.active,.admin-sidebar button:hover{background:var(--primary-soft);color:var(--primary)}
+    .admin-content{padding:35px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:22px 0}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+    .stat strong{font-size:1.8rem;display:block}
+    .admin-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden}
+    .admin-table th,.admin-table td{padding:13px 15px;border-bottom:1px solid var(--line);text-align:left;font-size:.82rem}
+    .admin-table th{background:#f8f9fb}
+    .admin-actions{display:flex;gap:7px}
+    .login-box{width:min(420px,100%);margin:70px auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--shadow)}
+    .login-box p{color:var(--muted);font-size:.88rem;margin:8px 0 20px}
 
-.status-bar { padding: 10px 14px; border-radius: 7px; font-size: 12px; margin-top: 10px; display: none; align-items: center; gap: 8px; font-weight: 600; }
-.status-bar.show { display: flex; }
-.status-success { background: #10b98115; color: #059669; border: 1px solid #10b98130; }
-.status-error { background: #ef444415; color: #dc2626; border: 1px solid #ef444430; }
+    /* FOOTER */
+    footer{padding:45px 0 25px;background:#151b2c;color:#d8dcea}
+    .footer-grid{display:flex;justify-content:space-between;gap:30px}
+    .footer-brand{color:#fff;font-weight:900;font-size:1.15rem}
+    footer p{font-size:.82rem;color:#9ca5b9;margin-top:7px}
+    .footer-links{display:flex;gap:18px;font-size:.82rem}
+    .footer-links a:hover{color:#fff}
+    .copyright{border-top:1px solid #2a3145;margin-top:30px;padding-top:18px;color:#8e97aa;font-size:.75rem}
 
-@media (max-width: 768px) { .cipher-grid { grid-template-columns: 1fr; } .panel-full { grid-column: 1; } .mode-cards { flex-direction: column; align-items: center; } .mode-card { width: 100%; max-width: 360px; } .step:not(:last-child)::after { display: none; } }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.landing-header, .mode-card, .cipher-panel { animation: fadeUp 0.5s ease both; }
-</style>
+    @media(max-width:850px){
+      .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;flex-direction:column;align-items:stretch}
+      .nav-links.show{display:flex}
+      .nav-links a{text-align:left}
+      .nav-cta{margin:4px 0}
+      .mobile-toggle{display:block}
+      .hero-grid{grid-template-columns:1fr;gap:20px}
+      .hero{padding-top:55px}
+      .hero-visual{min-height:360px}
+      .cards,.why-grid{grid-template-columns:1fr 1fr}
+      .about-grid,.feedback-wrap{grid-template-columns:1fr}
+      .admin-layout{grid-template-columns:1fr}
+      .admin-sidebar{border-right:0;border-bottom:1px solid var(--line)}
+      .stats{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:570px){
+      .container{width:min(var(--max),calc(100% - 28px))}
+      .section{padding:55px 0}
+      .section-head{display:block}
+      .section-head .btn{margin-top:17px}
+      .cards,.why-grid,.stats{grid-template-columns:1fr}
+      .hero-visual{min-height:330px}
+      .hero-main{inset:30px 0 20px 0}
+      .float-card{right:-4px}
+      .float-card.bottom{left:-4px}
+      .mock-cards{grid-template-columns:1fr 1fr}
+      .detail-meta,.form-grid{grid-template-columns:1fr}
+      .admin-content{padding:22px 15px}
+      .admin-table{display:block;overflow-x:auto;white-space:nowrap}
+      .footer-grid{display:block}
+      .footer-links{margin-top:20px;flex-wrap:wrap}
+    }
+  </style>
 </head>
 <body>
 
-<div class="landing" id="landing">
-  <div class="grid-bg"></div>
-  <div class="landing-header">
-    <div class="brand">CipherBlock</div>
-    <div class="brand-sub">
-      Aplikasi Penyandian Data Digital · Block Cipher · Keamanan Sistem<br>
-      <span class="student-id">Nama : Saci Rani | NIM : 101032330095</span>
+<header class="navbar" id="publicNav">
+  <div class="container nav-inner">
+    <a class="brand" href="#home" onclick="goHome()">
+      <span class="brand-mark">A</span><span>ADISTA</span>
+    </a>
+    <button class="mobile-toggle" onclick="toggleMenu()" aria-label="Buka menu">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" onclick="closeMenu()">Home</a>
+      <a href="#eksul" onclick="closeMenu()">Ekskul</a>
+      <a href="#peluang" onclick="closeMenu()">Peluang</a>
+      <a href="#faq" onclick="closeMenu()">FAQ</a>
+      <a href="#about" onclick="closeMenu()">Tentang</a>
+      <a class="btn btn-primary nav-cta" href="#feedback" onclick="closeMenu()">Kirim Saran</a>
+    </nav>
+  </div>
+</header>
+
+<main id="publicPage">
+  <section class="hero" id="home">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Akses Digital Informasi & Prestasi</span>
+        <h1>Temukan informasi.<br><span style="color:var(--primary)">Coba peluang.</span><br>Kembangkan diri.</h1>
+        <p>Temukan berbagai ekskul, lomba, pelatihan, volunteer, beasiswa, dan peluang lainnya untuk mengembangkan minat dan pengalaman selama SMA.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#peluang">Lihat Peluang →</a>
+          <a class="btn btn-outline" href="#eksul">Lihat Ekskul</a>
+        </div>
+        <div class="hero-note">✦ Satu tempat untuk menemukan lebih banyak kesempatan.</div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-card hero-main">
+          <div class="mock-top"><span class="mini-brand">ADISTA Info</span><span class="tag">Untuk Pelajar</span></div>
+          <div class="mock-search">⌕ &nbsp; Cari lomba, ekskul, pelatihan...</div>
+          <div class="mock-cards">
+            <div class="mock-item"><div class="mock-icon">🏀</div><strong>Basket</strong><div class="muted" style="font-size:.72rem">Olahraga</div></div>
+            <div class="mock-item"><div class="mock-icon">💡</div><strong>Lomba Esai</strong><div class="muted" style="font-size:.72rem">Deadline 20 Okt</div></div>
+            <div class="mock-item"><div class="mock-icon">🌱</div><strong>Volunteer</strong><div class="muted" style="font-size:.72rem">Pendidikan</div></div>
+            <div class="mock-item"><div class="mock-icon">🎓</div><strong>Beasiswa</strong><div class="muted" style="font-size:.72rem">Pelajar</div></div>
+          </div>
+        </div>
+        <div class="hero-card float-card"><div class="float-number">10+</div><div class="float-label">Ekskul yang bisa dijelajahi</div></div>
+        <div class="hero-card float-card bottom"><div class="float-number">15+</div><div class="float-label">Peluang untuk dicoba</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="eksul">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="eyebrow">Jelajahi Kegiatan</span>
+          <h2>Ekskul sekolah, lebih mudah dikenali.</h2>
+          <p>Kenali kegiatan, jadwal, dan kontak pengurus sebelum memutuskan untuk ikut.</p>
+        </div>
+        <button class="btn btn-outline" onclick="document.getElementById('allEksul').scrollIntoView({behavior:'smooth'})">Lihat Semua Ekskul</button>
+      </div>
+      <div class="cards" id="featuredEksul"></div>
+    </div>
+  </section>
+
+  <section class="section highlight" id="peluang">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="eyebrow">Peluang Terbaru</span>
+          <h2>Siapa tahu, ini kesempatanmu.</h2>
+          <p>Dari lomba sampai volunteer, temukan kegiatan yang sesuai dengan minatmu.</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="search-wrap"><span>⌕</span><input id="opportunitySearch" type="search" placeholder="Cari peluang..." oninput="renderOpportunities()"></div>
+      </div>
+      <div class="filter-buttons" id="opportunityFilters"></div>
+      <div class="cards" id="opportunityGrid" style="margin-top:20px"></div>
+    </div>
+  </section>
+
+  <section class="section" id="allEksul">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="eyebrow">Online Extracurricular Fair</span>
+          <h2>Pilih kegiatan yang ingin kamu coba.</h2>
+          <p>Gunakan pencarian dan kategori untuk menemukan ekskul yang paling menarik buatmu.</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="search-wrap"><span>⌕</span><input id="eksulSearch" type="search" placeholder="Cari ekskul..." oninput="renderEksul()"></div>
+      </div>
+      <div class="filter-buttons" id="eksulFilters"></div>
+      <div class="cards" id="eksulGrid" style="margin-top:20px"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="eyebrow">Kenapa ADISTA?</span>
+          <h2>Mulai dari hal sederhana.</h2>
+        </div>
+      </div>
+      <div class="why-grid">
+        <div class="why-card"><div class="num">01 — MUDAH DITEMUKAN</div><h3>Informasi tidak tercecer.</h3><p>Tidak perlu mencari dari banyak grup atau akun untuk menemukan kegiatan yang sedang tersedia.</p></div>
+        <div class="why-card"><div class="num">02 — BISA MULAI SEKARANG</div><h3>Kesempatan untuk mencoba.</h3><p>Siswa dapat mengenal dan mencoba berbagai kegiatan selama masih di bangku SMA.</p></div>
+        <div class="why-card"><div class="num">03 — KENALI MINAT</div><h3>Belajar dari pengalaman.</h3><p>Pengalaman dari berbagai kegiatan dapat membantu siswa mengenali bidang yang mereka sukai.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="eyebrow">FAQ</span>
+          <h2>Masih punya pertanyaan?</h2>
+          <p>Beberapa hal yang mungkin ingin kamu ketahui tentang ADISTA.</p>
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apa itu ADISTA? <span>＋</span></button><div class="faq-answer">ADISTA adalah platform informasi yang membantu siswa menemukan ekskul dan berbagai peluang untuk mengembangkan minat dan pengalaman.</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apakah ADISTA hanya untuk siswa baru? <span>＋</span></button><div class="faq-answer">Tidak. Semua siswa dapat menggunakan ADISTA untuk mencari informasi dan peluang.</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apakah informasi di ADISTA gratis? <span>＋</span></button><div class="faq-answer">ADISTA hanya menjadi tempat untuk menemukan informasi. Ketentuan biaya mengikuti penyelenggara masing-masing kegiatan.</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Dari mana informasi kegiatan diperoleh? <span>＋</span></button><div class="faq-answer">Informasi dapat berasal dari sekolah, penyelenggara kegiatan, maupun sumber lain yang relevan dan kemudian dikurasi sebelum ditampilkan.</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Bagaimana jika saya ingin membagikan informasi lomba? <span>＋</span></button><div class="faq-answer">Hubungi admin atau gunakan fitur feedback untuk mengirimkan informasi.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about" style="background:#fff">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <span class="eyebrow">Tentang ADISTA</span>
+          <h2>Karena kesempatan berkembang seharusnya lebih mudah ditemukan.</h2>
+          <p class="muted" style="margin-top:15px">ADISTA dibuat dari gagasan sederhana: banyak kesempatan untuk berkembang yang sebenarnya tersedia bagi siswa, tetapi informasinya belum tentu mudah ditemukan.</p>
+          <p class="muted" style="margin-top:12px">ADISTA membantu siswa menemukan informasi, mencoba berbagai kegiatan, mendapatkan pengalaman, serta mengenali minat dan potensi diri.</p>
+        </div>
+        <div class="vision">
+          <div style="font-size:.78rem;font-weight:900;opacity:.8">VISI</div>
+          <h3 style="font-size:1.7rem;margin-top:12px">Menjadi ruang informasi yang membantu siswa menemukan lebih banyak kesempatan untuk berkembang.</h3>
+        </div>
+      </div>
+      <div style="margin-top:30px" class="mission">
+        <div><b>01</b> Memudahkan siswa menemukan informasi kegiatan dan peluang.</div>
+        <div><b>02</b> Membantu siswa mengenal berbagai pilihan kegiatan di sekolah.</div>
+        <div><b>03</b> Mendorong siswa untuk berani mencoba dan mengembangkan minatnya.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="feedback">
+    <div class="container feedback-wrap">
+      <div class="feedback-copy">
+        <span class="eyebrow">Suara Kamu</span>
+        <h2>Punya saran untuk ADISTA?</h2>
+        <p>ADISTA masih bisa terus dikembangkan. Sampaikan kritik, saran, atau informasi yang ingin kamu lihat di sini.</p>
+        <p style="font-size:.82rem;margin-top:18px">Tidak perlu login. Masukanmu membantu membuat ADISTA lebih berguna untuk siswa.</p>
+      </div>
+      <div class="form-card">
+        <div id="feedbackSuccess" class="success hidden">✓ Terima kasih! Masukan kamu sudah diterima.</div>
+        <form id="feedbackForm" onsubmit="submitFeedback(event)">
+          <div class="form-grid">
+            <div class="field"><label for="fbName">Nama <span class="muted">(opsional)</span></label><input id="fbName" placeholder="Nama kamu"></div>
+            <div class="field"><label for="fbClass">Kelas <span class="muted">(opsional)</span></label><input id="fbClass" placeholder="Contoh: X-2"></div>
+          </div>
+          <div class="field"><label for="fbType">Jenis feedback</label><select id="fbType"><option>Kritik</option><option>Saran</option><option>Permintaan informasi</option><option>Lainnya</option></select></div>
+          <div class="field"><label for="fbMessage">Pesan</label><textarea id="fbMessage" required placeholder="Tulis masukan kamu di sini..."></textarea></div>
+          <button class="btn btn-primary" type="submit">Kirim Masukan →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section id="adminPage" class="hidden">
+  <div id="adminLogin" class="container">
+    <div class="login-box">
+      <span class="eyebrow">Admin Demo</span>
+      <h2>Kelola ADISTA</h2>
+      <p>Prototype login — tidak menggunakan authentication sungguhan.</p>
+      <form onsubmit="adminLogin(event)">
+        <div class="field"><label>Username</label><input id="adminUser" required value="admin"></div>
+        <div class="field"><label>Password</label><input id="adminPass" type="password" required placeholder="Masukkan password"></div>
+        <div id="loginError" class="hidden" style="color:var(--danger);font-size:.8rem;margin-bottom:12px">Username atau password salah.</div>
+        <button class="btn btn-primary" style="width:100%">Masuk sebagai Admin</button>
+      </form>
+      <p style="margin-top:14px;font-size:.75rem">Demo: admin / adista123</p>
+      <button class="btn btn-ghost" style="width:100%;margin-top:5px" onclick="exitAdmin()">← Kembali ke website</button>
     </div>
   </div>
-  <div class="mode-cards">
-    <div class="mode-card ecb" onclick="showPage('ecb')" style="animation-delay: 0.1s;">
-      <div class="card-badge">Mode 01</div>
-      <span class="card-icon">🔐</span>
-      <div class="card-title">ECB</div>
-      <div class="card-full">Electronic Codebook</div>
-      <div class="card-desc">Setiap blok dienkripsi secara independen. Tiga lapisan transformasi manual tanpa ketergantungan antar blok.</div>
-      <button class="card-btn">Masuk ke ECB →</button>
+  <div id="adminDashboard" class="hidden">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="brand" style="margin-bottom:25px"><span class="brand-mark">A</span><span>ADISTA</span></div>
+        <button class="active" onclick="showAdminTab('dashboard',this)">▦ &nbsp; Dashboard</button>
+        <button onclick="showAdminTab('eksul',this)">◎ &nbsp; Ekskul</button>
+        <button onclick="showAdminTab('peluang',this)">◇ &nbsp; Peluang</button>
+        <button onclick="showAdminTab('feedback',this)">◌ &nbsp; Feedback</button>
+        <button onclick="exitAdmin()" style="margin-top:20px">↩ &nbsp; Keluar</button>
+      </aside>
+      <section class="admin-content">
+        <div id="adminDashboardTab">
+          <span class="eyebrow">Dashboard</span>
+          <h2>Selamat datang, Admin.</h2>
+          <p class="muted">Kelola konten ADISTA dari satu tempat.</p>
+          <div class="stats">
+            <div class="stat"><span class="muted">Jumlah Ekskul</span><strong id="statEksul">0</strong></div>
+            <div class="stat"><span class="muted">Peluang Aktif</span><strong id="statPeluang">0</strong></div>
+            <div class="stat"><span class="muted">Feedback Masuk</span><strong id="statFeedback">0</strong></div>
+          </div>
+          <div class="card"><h3>Alur prototype</h3><p style="margin-bottom:0">Konten yang ditambahkan di sini disimpan pada localStorage browser. Tidak ada database atau backend.</p></div>
+        </div>
+        <div id="adminEksulTab" class="hidden">
+          <div class="section-head" style="margin-bottom:20px"><div><span class="eyebrow">Content</span><h2>Kelola Ekskul</h2></div><button class="btn btn-primary" onclick="openAddEksul()">+ Tambah Ekskul</button></div>
+          <div id="adminEksulList"></div>
+        </div>
+        <div id="adminPeluangTab" class="hidden">
+          <div class="section-head" style="margin-bottom:20px"><div><span class="eyebrow">Content</span><h2>Kelola Peluang</h2></div><button class="btn btn-primary" onclick="openAddOpportunity()">+ Tambah Peluang</button></div>
+          <div id="adminOpportunityList"></div>
+        </div>
+        <div id="adminFeedbackTab" class="hidden">
+          <span class="eyebrow">Responses</span><h2>Feedback Masuk</h2><div id="adminFeedbackList" style="margin-top:20px"></div>
+        </div>
+      </section>
     </div>
-    
-    <div class="mode-card cbc" onclick="showPage('cbc')" style="animation-delay: 0.2s;">
-      <div class="card-badge">Mode 02</div>
-      <span class="card-icon">🔗</span>
-      <div class="card-title">CBC</div>
-      <div class="card-full">Cipher Block Chaining</div>
-      <div class="card-desc">Setiap blok terhubung dengan ciphertext sebelumnya. Memiliki metode unik Nibble Swap pada level bit.</div>
-      <button class="card-btn">Masuk ke CBC →</button>
-    </div>
+  </div>
+</section>
 
-    <div class="mode-card learn" onclick="showPage('learn')" style="animation-delay: 0.3s;">
-      <div class="card-badge">Teori 03</div>
-      <span class="card-icon">🧠</span>
-      <div class="card-title">Cara Kerja</div>
-      <div class="card-full">Visualisasi Konsep & Multimedia</div>
-      <div class="card-desc">Lihat langsung simulasi blok bergeser dan bertukar secara visual untuk memahami kriptografi di balik layar.</div>
-      <button class="card-btn">Pelajari Step-by-Step →</button>
+<footer id="publicFooter">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="footer-brand">ADISTA Info</div><p>Akses Digital Informasi & Prestasi</p><p>Temukan. Coba. Kembangkan.</p></div>
+      <div class="footer-links"><a href="#eksul">Ekskul</a><a href="#peluang">Peluang</a><a href="#faq">FAQ</a><a href="#about">Tentang</a><a href="#feedback">Kirim Saran</a></div>
     </div>
+    <div class="copyright">© 2026 ADISTA Info — Prototype Program Inovasi Siswa</div>
+  </div>
+</footer>
+
+<div class="modal" id="detailModal" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="hideModal()">×</button>
+    <div id="modalContent"></div>
   </div>
 </div>
 
-<div class="app-page app-learn" id="page-learn">
-  <nav class="app-nav">
-    <span class="nav-logo" onclick="showPage('landing')">CipherBlock</span>
-    <div class="nav-badge">TEORI ALGORITMA</div>
-    <button class="nav-back" onclick="showPage('landing')">← Kembali</button>
-  </nav>
-  <div class="app-content">
-    <div class="app-header">
-      <div class="app-title">Visualisasi Mesin Kriptografi</div>
-      <div class="app-subtitle" style="color:#64748b; margin-top:8px;">Melihat langsung apa yang terjadi di dalam blok data.</div>
-    </div>
-
-    <div class="cipher-panel panel-full" style="border-left: 4px solid #1d4ed8; margin-bottom:20px;">
-      <h3 style="color:#1d4ed8; margin-bottom:10px;">1. Substitusi (XOR dengan Kunci)</h3>
-      <p class="desc-text">Operasi biner untuk merusak wujud data asli. Jika bit teks dan bit kunci <strong>SAMA = 0</strong>. Jika <strong>BEDA = 1</strong>.</p>
-      
-      <div class="diagram-box">
-        <div style="font-size:11px; font-weight:bold; color:#64748b; margin-bottom:4px;">Teks Asli (Contoh Huruf 'a')</div>
-        <div class="bit-row">
-          <div class="bit">0</div><div class="bit">1</div><div class="bit">1</div><div class="bit">0</div><div class="bit">0</div><div class="bit">0</div><div class="bit">0</div><div class="bit">1</div>
-        </div>
-        <div style="font-size:11px; font-weight:bold; color:#1d4ed8; margin:8px 0 4px;">Kunci (Misal Huruf 'k') ⊕</div>
-        <div class="bit-row">
-          <div class="bit key">0</div><div class="bit key">1</div><div class="bit key">1</div><div class="bit key">0</div><div class="bit key">1</div><div class="bit key">0</div><div class="bit key">1</div><div class="bit key">1</div>
-        </div>
-        <div style="border-top: 2px dashed #cbd5e1; width: 280px; margin: 10px auto;"></div>
-        <div style="font-size:11px; font-weight:bold; color:#059669; margin-bottom:4px;">Hasil Substitusi (Karakter Berubah Total)</div>
-        <div class="bit-row">
-          <div class="bit res">0</div><div class="bit res">0</div><div class="bit res">0</div><div class="bit res">0</div><div class="bit res">1</div><div class="bit res">0</div><div class="bit res">1</div><div class="bit res">0</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cipher-panel panel-full" style="border-left: 4px solid #f59e0b; margin-bottom:20px;">
-      <h3 style="color:#d97706; margin-bottom:10px;">2. Permutasi ★ (Nibble Swap Khusus CBC)</h3>
-      <p class="desc-text">Satu Byte (8 bit) dibelah tepat di tengah. 4 bit sebelah kiri bertukar tempat secara silang dengan 4 bit sebelah kanan.</p>
-      
-      <div class="diagram-box">
-        <div style="font-size:11px; font-weight:bold; color:#64748b; margin-bottom:8px;">SEBELUM DITUKAR (1 Byte Asli)</div>
-        <div class="bit-row">
-          <div class="nibble" style="background:#eff6ff; color:#1d4ed8;">0 1 1 0</div>
-          <div class="nibble" style="background:#fef2f2; border-color:#ef4444; color:#b91c1c;">0 0 0 1</div>
-        </div>
-        
-        <div class="bit-row" style="margin: 15px 0;">
-          <div style="font-size:24px; color:#94a3b8; transform: rotate(-20deg);">↘</div>
-          <div style="width:40px;"></div>
-          <div style="font-size:24px; color:#94a3b8; transform: rotate(20deg);">↙</div>
-        </div>
-
-        <div style="font-size:11px; font-weight:bold; color:#059669; margin-bottom:8px;">SESUDAH DITUKAR (Karakter hancur berkeping-keping)</div>
-        <div class="bit-row">
-          <div class="nibble" style="background:#fef2f2; border-color:#ef4444; color:#b91c1c;">0 0 0 1</div>
-          <div class="nibble" style="background:#eff6ff; color:#1d4ed8;">0 1 1 0</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cipher-panel panel-full" style="border-left: 4px solid #10b981; margin-bottom:20px;">
-      <h3 style="color:#059669; margin-bottom:10px;">3. Transposisi (Rotate Left)</h3>
-      <p class="desc-text">Mengacak posisi karakter dalam 1 Blok (8 Karakter). Seluruh elemen digeser ke kiri. Elemen yang terlempar dari depan, akan dimasukkan (lompat) kembali dari belakang.</p>
-      
-      <div class="diagram-box">
-        <div style="font-size:11px; font-weight:bold; color:#64748b; margin-bottom:8px;">SEBELUM DIGESER (Urutan Normal)</div>
-        <div class="bit-row">
-          <div class="bit hl">k</div><div class="bit">a</div><div class="bit">m</div><div class="bit">p</div><div class="bit">u</div><div class="bit">s</div><div class="bit">t</div><div class="bit">e</div>
-        </div>
-        
-        <div style="font-size:14px; font-weight:bold; color:#94a3b8; margin: 15px 0;">↓ Geser Kiri 1 Langkah ↓</div>
-        
-        <div style="font-size:11px; font-weight:bold; color:#059669; margin-bottom:8px;">SESUDAH DIGESER (Huruf 'k' lompat ke paling belakang)</div>
-        <div class="bit-row">
-          <div class="bit">a</div><div class="bit">m</div><div class="bit">p</div><div class="bit">u</div><div class="bit">s</div><div class="bit">t</div><div class="bit">e</div><div class="bit hl" style="background:#d1fae5; border-color:#059669;">k</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cipher-panel panel-full" style="border-left: 4px solid #8b5cf6; margin-bottom:20px;">
-      <h3 style="color:#7c3aed; margin-bottom:10px;">4. Diagram Rantai CBC (The Chaining)</h3>
-      <p class="desc-text">Kunci keamanan tertinggi CBC ada pada ikatan rantainya. Blok 2 tidak bisa diproses jika Blok 1 belum selesai. Jika satu bit saja diubah di awal, seluruh hasil ke belakang akan berubah total.</p>
-      
-      <div class="diagram-box" style="text-align:left; padding: 25px; overflow-x: auto;">
-        <div style="display:flex; align-items:center; gap:10px; min-width: 600px;">
-          <div style="padding:10px; background:#f8fafc; border:2px solid #cbd5e1; border-radius:8px; font-weight:bold;">Blok 1 ("kampus")</div>
-          <div style="font-weight:bold; color:#3b82f6;">⊕ (XOR dg IV Acak)</div>
-          <div>➔ (Masuk Mesin) ➔</div>
-          <div style="padding:10px; background:#eff6ff; border:2px solid #3b82f6; border-radius:8px; font-weight:bold; color:#1d4ed8;">CIPHERTEXT 1</div>
-        </div>
-        
-        <div style="border-left:2px solid #3b82f6; height:30px; margin-left: 550px;"></div>
-        
-        <div style="display:flex; align-items:center; gap:10px; min-width: 600px;">
-          <div style="padding:10px; background:#f8fafc; border:2px solid #cbd5e1; border-radius:8px; font-weight:bold;">Blok 2 ("telkom")</div>
-          <div style="font-weight:bold; color:#10b981;">⊕ (XOR dg Ciphertext 1)</div>
-          <div>➔ (Masuk Mesin) ➔</div>
-          <div style="padding:10px; background:#ecfdf5; border:2px solid #10b981; border-radius:8px; font-weight:bold; color:#059669;">CIPHERTEXT 2</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cipher-panel panel-full" style="border-left: 4px solid #f43f5e; background:#fff1f2;">
-      <div class="panel-label" style="color:#e11d48;">5. Kriptografi pada File Video (MP4) & Audio (MP3)</div>
-      <div style="display:grid; grid-template-columns:1fr; gap:15px; margin-top:10px;">
-        <div style="padding:15px; background:white; border-radius:8px; border:1px solid #fecdd3;">
-          <h4 style="color:#be123c; margin-bottom:8px;">Agnostik Data & Looping Jutaan Blok</h4>
-          <p class="desc-text" style="font-size:13px; margin:0;">File MP4 sebesar 2MB murni dibaca sebagai <strong>2.000.000 byte angka biner</strong>. Mesin JavaScript kita akan melakukan perulangan (looping) ECB/CBC sebanyak <strong>250.000 kali putaran</strong> secara manual untuk mengacak byte piksel/audio menjadi angka tak bermakna.</p>
-        </div>
-        <div style="padding:15px; background:white; border-radius:8px; border:1px solid #fecdd3;">
-          <h4 style="color:#be123c; margin-bottom:8px;">Ekstensi Rusak (.cbk) & Pemulihan</h4>
-          <p class="desc-text" style="font-size:13px; margin:0;">Karena strukturnya sudah diacak, file tersebut akan kehilangan *header* aslinya sehingga tidak bisa diputar. Aplikasi mengemasnya menjadi file <code>.cbk</code>. Saat didekripsi dengan kunci yang benar, susunan byte kembali utuh, dan file bisa diputar kembali di browser secara instan.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div class="app-page app-ecb" id="page-ecb">
-  <nav class="app-nav">
-    <span class="nav-logo" onclick="showPage('landing')">CipherBlock</span>
-    <div class="nav-badge">ECB · 3 METODE</div>
-    <button class="nav-back" onclick="showPage('landing')">← Kembali</button>
-  </nav>
-  <div class="app-content">
-    <div class="app-header"><div class="app-title">ECB Mode</div></div>
-    <div class="cipher-panel panel-full" style="margin-bottom:20px;">
-      <div class="panel-label">Alur Enkripsi ECB</div>
-      <div class="info-steps">
-        <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/Media</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">① XOR</div><div class="step-desc">Substitusi</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">② Reverse</div><div class="step-desc">Permutasi</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">③ Rotate</div><div class="step-desc">Rotasi</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Output</div><div class="step-desc">Hex / File</div></div></div>
-      </div>
-    </div>
-
-    <div class="cipher-grid">
-      <div class="cipher-panel">
-        <div class="panel-label">Input</div>
-        <div class="input-tabs" id="ecb-tabs">
-          <button class="tab-btn active" onclick="switchTab('ecb','text')">📝 Teks</button>
-          <button class="tab-btn" onclick="switchTab('ecb','file')">📁 File Media</button>
-        </div>
-        <div class="tab-content active" id="ecb-tab-text">
-          <div class="input-group"><textarea id="ecb-input" placeholder="Input teks atau hex..."></textarea></div>
-        </div>
-        <div class="tab-content" id="ecb-tab-file">
-          <div class="file-drop">
-            <input type="file" id="ecb-file-input" accept="*/*" onchange="handleFileSelect('ecb',this)">
-            <div class="file-icon">📂</div>
-            <div class="file-drop-text">Klik atau drag & drop<br><small>Gambar, Video (MP4), Audio (MP3), PDF</small></div>
-            <div class="file-name-display" id="ecb-file-name"></div>
-            <div class="file-preview-wrap" id="ecb-file-preview"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="cipher-panel">
-        <div class="panel-label">Konfigurasi & Aksi</div>
-        <div class="key-row">
-          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="ecb-key" value="mykey123"></div>
-          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="ecb-rotate" value="3"></div>
-        </div>
-        <div class="input-group" style="margin-top:4px;">
-          <label>Kombinasi Metode</label>
-          <div style="font-size:11px;padding:10px;border-radius:9px;background:rgba(0,0,0,0.3);border:1px solid var(--ecb-border);color:#00ff9d;line-height:1.8;">
-            ① XOR Key &nbsp;→&nbsp; ② Reverse Blok &nbsp;→&nbsp; ③ Circular Rotate
-          </div>
-        </div>
-        <div class="action-row">
-          <button class="action-btn btn-encrypt" onclick="ecbProcess('encrypt')">🔒 Enkripsi</button>
-          <button class="action-btn btn-decrypt" onclick="ecbProcess('decrypt')">🔓 Dekripsi</button>
-        </div>
-        <div class="status-bar" id="ecb-status"></div>
-      </div>
-
-      <div class="cipher-panel panel-full">
-        <div class="panel-label">Output</div>
-        <div class="output-area" id="ecb-output"><span class="output-placeholder">Hasil tampil di sini...</span></div>
-        <div class="img-out-wrap" id="ecb-img-out"></div>
-        <div class="output-actions">
-          <button class="out-btn" id="ecb-copy-btn" onclick="copyOutput('ecb')">📋 Salin Teks</button>
-          <button class="out-btn" id="ecb-dl-btn" onclick="downloadOutput('ecb')">⬇️ Unduh File</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="app-page app-cbc" id="page-cbc">
-  <nav class="app-nav">
-    <span class="nav-logo" onclick="showPage('landing')">CipherBlock</span>
-    <div class="nav-badge">CBC · 4 METODE</div>
-    <button class="nav-back" onclick="showPage('landing')">← Kembali</button>
-  </nav>
-  <div class="app-content">
-    <div class="app-header"><div class="app-title">CBC Mode</div></div>
-    <div class="cipher-panel panel-full" style="margin-bottom:20px;">
-      <div class="panel-label">Alur Enkripsi CBC</div>
-      <div class="info-steps">
-        <div class="step"><div class="step-content"><div class="step-box">Input</div><div class="step-desc">Teks/Media</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Encode</div><div class="step-desc">Byte Array</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Padding</div><div class="step-desc">Kelipatan 8B</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">① XOR Prev</div><div class="step-desc">CBC Chain</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">② XOR Key</div><div class="step-desc">Substitusi</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box unique">③ Nibble★</div><div class="step-desc">4-bit Swap</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">④ Rotate</div><div class="step-desc">Rotasi</div></div></div>
-        <div class="step"><div class="step-content"><div class="step-box">Output</div><div class="step-desc">Hex / File</div></div></div>
-      </div>
-    </div>
-
-    <div class="cipher-grid">
-      <div class="cipher-panel">
-        <div class="panel-label">Input</div>
-        <div class="input-tabs" id="cbc-tabs">
-          <button class="tab-btn active" onclick="switchTab('cbc','text')">📝 Teks</button>
-          <button class="tab-btn" onclick="switchTab('cbc','file')">📁 File Media</button>
-        </div>
-        <div class="tab-content active" id="cbc-tab-text">
-          <div class="input-group"><textarea id="cbc-input" placeholder="Input teks atau hex..."></textarea></div>
-        </div>
-        <div class="tab-content" id="cbc-tab-file">
-          <div class="file-drop">
-            <input type="file" id="cbc-file-input" accept="*/*" onchange="handleFileSelect('cbc',this)">
-            <div class="file-icon">📂</div>
-            <div class="file-drop-text">Klik atau drag & drop<br><small>Gambar, Video (MP4), Audio (MP3), PDF</small></div>
-            <div class="file-name-display" id="cbc-file-name"></div>
-            <div class="file-preview-wrap" id="cbc-file-preview"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="cipher-panel">
-        <div class="panel-label">Konfigurasi & Aksi</div>
-        <div class="key-row">
-          <div class="input-group"><label>Kunci Enkripsi</label><input type="text" id="cbc-key" value="secretkey"></div>
-          <div class="input-group"><label>Rotasi (1–7)</label><input type="text" id="cbc-rotate" value="3"></div>
-        </div>
-        <div class="input-group" style="margin-top:4px;">
-          <label>Initialization Vector (IV)</label><input type="text" id="cbc-iv" value="iv123456">
-        </div>
-        <div class="input-group" style="margin-top:4px;">
-          <label>Kombinasi Metode</label>
-          <div style="font-size:11px;padding:10px;border-radius:9px;background:rgba(0,0,0,0.3);border:1px solid var(--cbc-border);color:#a78bfa;line-height:1.9;">
-            ① XOR Prev Block &nbsp;→&nbsp; ② XOR Key &nbsp;→&nbsp; <span style="color:#ffb700;">③ Nibble Swap ★</span> &nbsp;→&nbsp; ④ Circular Rotate
-          </div>
-        </div>
-        <div class="action-row">
-          <button class="action-btn btn-encrypt" onclick="cbcProcess('encrypt')">🔒 Enkripsi</button>
-          <button class="action-btn btn-decrypt" onclick="cbcProcess('decrypt')">🔓 Dekripsi</button>
-        </div>
-        <div class="status-bar" id="cbc-status"></div>
-      </div>
-
-      <div class="cipher-panel panel-full">
-        <div class="panel-label">Output</div>
-        <div class="output-area" id="cbc-output"><span class="output-placeholder">Hasil tampil di sini...</span></div>
-        <div class="img-out-wrap" id="cbc-img-out"></div>
-        <div class="output-actions">
-          <button class="out-btn" id="cbc-copy-btn" onclick="copyOutput('cbc')">📋 Salin Teks</button>
-          <button class="out-btn" id="cbc-dl-btn" onclick="downloadOutput('cbc')">⬇️ Unduh File</button>
-        </div>
-      </div>
-    </div>
+<div class="modal" id="adminFormModal" onclick="closeAdminModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="hideAdminModal()">×</button>
+    <div id="adminFormContent"></div>
   </div>
 </div>
 
 <script>
-// UI & ROUTING
-function showPage(p) { document.getElementById('landing').style.display = 'none'; ['ecb','cbc','learn'].forEach(m => document.getElementById('page-'+m).classList.remove('active')); if (p === 'landing') document.getElementById('landing').style.display = 'flex'; else document.getElementById('page-'+p).classList.add('active'); }
-function switchTab(m, t) { document.querySelectorAll(`#${m}-tabs .tab-btn`).forEach((b,i) => b.classList.toggle('active', (i===0&&t==='text')||(i===1&&t==='file'))); document.getElementById(`${m}-tab-text`).classList.toggle('active', t==='text'); document.getElementById(`${m}-tab-file`).classList.toggle('active', t==='file'); }
-function setStatus(m, t, msg) { const el=document.getElementById(`${m}-status`); el.className=`status-bar show status-${t}`; el.innerHTML=`${t==='success'?'✅':t==='error'?'❌':'ℹ️'} ${msg}`; }
-function showBtns(m, t, f) { document.getElementById(`${m}-copy-btn`).style.display = t ? 'inline-block' : 'none'; document.getElementById(`${m}-dl-btn`).style.display = f ? 'inline-block' : 'none'; }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function copyOutput(m) { navigator.clipboard.writeText(document.getElementById(`${m}-output`).innerText).then(()=>setStatus(m,'success','Teks disalin!')); }
-function downloadOutput(m) { const s=outState[m]; if(!s) return; const a=Object.assign(document.createElement('a'),{href: URL.createObjectURL(new Blob([s.data],{type:s.mime||'application/octet-stream'})), download: s.name}); a.click(); setStatus(m,'success',`File diunduh`); }
+const defaultEksul = [
+  {id:1,name:"Basket",category:"Olahraga",icon:"🏀",desc:"Mengembangkan kemampuan bermain basket melalui latihan rutin, permainan tim, dan kompetisi.",schedule:"Selasa & Kamis, 15.30",place:"Lapangan Sekolah",contact:"08xx-xxxx-1001",activities:"Latihan teknik, sparring, dan persiapan kompetisi."},
+  {id:2,name:"English Club",category:"Bahasa",icon:"🌐",desc:"Tempat mengembangkan kemampuan bahasa Inggris melalui conversation, games, dan kegiatan kreatif.",schedule:"Jumat, 15.30",place:"Ruang Bahasa",contact:"08xx-xxxx-1002",activities:"Conversation, public speaking, games, dan English event."},
+  {id:3,name:"Karya Ilmiah Remaja",category:"Akademik",icon:"🔬",desc:"Ruang untuk siswa yang tertarik melakukan penelitian, eksperimen, dan membuat karya ilmiah.",schedule:"Rabu, 15.30",place:"Laboratorium",contact:"08xx-xxxx-1003",activities:"Eksperimen, penelitian sederhana, dan persiapan lomba."},
+  {id:4,name:"Pramuka",category:"Sosial",icon:"🏕️",desc:"Belajar kepemimpinan, kerja sama, kemandirian, dan keterampilan melalui kegiatan kepramukaan.",schedule:"Sabtu, 08.00",place:"Lapangan Sekolah",contact:"08xx-xxxx-1004",activities:"Latihan rutin, kegiatan sosial, dan perkemahan."},
+  {id:5,name:"Paskibra",category:"Organisasi",icon:"🇮🇩",desc:"Membangun kedisiplinan, tanggung jawab, kekompakan, dan kemampuan baris-berbaris.",schedule:"Senin & Kamis, 15.30",place:"Lapangan Sekolah",contact:"08xx-xxxx-1005",activities:"PBB, latihan upacara, dan kegiatan kepemimpinan."},
+  {id:6,name:"Musik",category:"Seni",icon:"🎸",desc:"Wadah bagi siswa yang ingin belajar dan berekspresi melalui musik bersama teman-teman.",schedule:"Rabu, 16.00",place:"Ruang Musik",contact:"08xx-xxxx-1006",activities:"Latihan band, vokal, dan penampilan sekolah."},
+  {id:7,name:"Desain & Multimedia",category:"Seni",icon:"🎨",desc:"Belajar dasar desain visual, fotografi, video, dan pembuatan konten kreatif.",schedule:"Kamis, 15.30",place:"Lab Multimedia",contact:"08xx-xxxx-1007",activities:"Desain poster, fotografi, video, dan konten sekolah."},
+  {id:8,name:"Robotika",category:"Akademik",icon:"🤖",desc:"Mengenal elektronika, pemrograman, dan perakitan robot melalui proyek sederhana.",schedule:"Jumat, 15.30",place:"Lab Komputer",contact:"08xx-xxxx-1008",activities:"Arduino, sensor, robot sederhana, dan kompetisi."},
+  {id:9,name:"Jurnalistik",category:"Organisasi",icon:"📰",desc:"Melatih kemampuan menulis, wawancara, fotografi, dan menyampaikan informasi.",schedule:"Selasa, 15.30",place:"Ruang OSIS",contact:"08xx-xxxx-1009",activities:"Majalah sekolah, berita, wawancara, dan liputan acara."},
+  {id:10,name:"Futsal",category:"Olahraga",icon:"⚽",desc:"Kegiatan olahraga tim untuk meningkatkan kemampuan futsal sekaligus membangun sportivitas.",schedule:"Rabu & Jumat, 16.00",place:"Lapangan Futsal",contact:"08xx-xxxx-1010",activities:"Latihan teknik, sparring, dan turnamen antar sekolah."}
+];
 
-// METADATA & MULTIMEDIA
-const fileState = { ecb: null, cbc: null }; const outState  = { ecb: null, cbc: null };
-const MAGIC = [0x43,0x42,0x4B,0x56]; // "CBKV"
-function packWithMeta(enc, fn) { const fb = new TextEncoder().encode(fn); const fl = Math.min(fb.length, 255); const o = new Uint8Array(5 + fl + enc.length); o.set(MAGIC, 0); o[4] = fl; o.set(fb.slice(0, fl), 5); o.set(enc, 5 + fl); return o; }
-function unpackMeta(b) { if (b.length < 6) return null; for (let i=0; i<4; i++) if (b[i] !== MAGIC[i]) return null; const fl = b[4]; if (b.length < 5 + fl) return null; return { originalFilename: new TextDecoder().decode(b.slice(5, 5 + fl)), payload: b.slice(5 + fl) }; }
-function fmtSize(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(1) + ' MB'; }
-function handleFileSelect(m, i) { const f = i.files[0]; if (!f) return; fileState[m] = f; document.getElementById(`${m}-file-name`).textContent = `📄 ${f.name} (${fmtSize(f.size)})`; document.getElementById(`${m}-file-name`).style.display = 'block'; const pw = document.getElementById(`${m}-file-preview`); const url = URL.createObjectURL(f); if (f.type.startsWith('image/')) { pw.innerHTML = `<img src="${url}">`; pw.style.display = 'block'; } else if (f.type.startsWith('video/')) { pw.innerHTML = `<video controls src="${url}"></video>`; pw.style.display = 'block'; } else if (f.type.startsWith('audio/')) { pw.innerHTML = `<audio controls src="${url}"></audio>`; pw.style.display = 'block'; } else { pw.style.display = 'none'; } }
-function renderImgOrFile(m, dec, origName) { const ext = (origName||'').split('.').pop().toLowerCase(); const mime = {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',pdf:'application/pdf',txt:'text/plain',mp4:'video/mp4',mp3:'audio/mpeg',wav:'audio/wav'}[ext]||'application/octet-stream'; outState[m] = { data: dec, name: `decrypted_${origName}`, mime }; const outEl = document.getElementById(`${m}-output`); const imgWrap = document.getElementById(`${m}-img-out`); const url = URL.createObjectURL(new Blob([dec],{type:mime})); let h = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">MEDIA TERDEKRIPSI · ${fmtSize(dec.length)} · ${origName}</span>`; if (mime.startsWith('image/')) { imgWrap.innerHTML = `<img src="${url}">`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else if (mime.startsWith('video/')) { imgWrap.innerHTML = `<video controls src="${url}"></video>`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else if (mime.startsWith('audio/')) { imgWrap.innerHTML = `<audio controls src="${url}"></audio>`; imgWrap.style.display = 'block'; outEl.innerHTML = h; } else { imgWrap.style.display = 'none'; outEl.innerHTML = h + `<br><br>📄 ${origName}<br>Ukuran: ${fmtSize(dec.length)}<br><br><span style="opacity:.3;">Klik "Unduh File" untuk menyimpan.</span>`; } showBtns(m, false, true); }
+const defaultOpportunities = [
+  {id:1,title:"Lomba Esai Nasional 2026",organizer:"Pelajar Berkarya",category:"Lomba",deadline:"20 Oktober 2026",location:"Online",desc:"Kompetisi menulis esai untuk siswa SMA dengan tema inovasi dan masa depan pendidikan.",requirements:["Siswa SMA/sederajat","Esai maksimal 1.500 kata","Karya belum pernah memenangkan kompetisi lain"],link:"#"},
+  {id:2,title:"Pelatihan Digital untuk Pelajar",organizer:"Ruang Belajar Digital",category:"Pelatihan",deadline:"5 Oktober 2026",location:"Online",desc:"Pelatihan dasar desain, produktivitas digital, dan pengenalan teknologi untuk pelajar.",requirements:["Siswa SMA/sederajat","Memiliki akses internet","Mengikuti seluruh sesi"],link:"#"},
+  {id:3,title:"Volunteer Pendidikan",organizer:"Sahabat Belajar",category:"Volunteer",deadline:"12 Oktober 2026",location:"Bandung",desc:"Kesempatan menjadi relawan dalam kegiatan belajar bersama untuk siswa sekolah dasar.",requirements:["Usia 15–18 tahun","Bersedia mengikuti briefing","Memiliki komitmen kegiatan"],link:"#"},
+  {id:4,title:"Beasiswa Pelajar Berprestasi",organizer:"Generasi Maju",category:"Beasiswa",deadline:"30 September 2026",location:"Nasional",desc:"Program dukungan pendidikan untuk pelajar dengan prestasi akademik maupun non-akademik.",requirements:["Siswa SMA","Memiliki prestasi atau kegiatan aktif","Mengikuti proses seleksi"],link:"#"},
+  {id:5,title:"Kompetisi Coding Pelajar",organizer:"Tech Youth Indonesia",category:"Lomba",deadline:"25 Oktober 2026",location:"Online",desc:"Kompetisi pemrograman tingkat pelajar untuk mengasah logika dan kemampuan problem solving.",requirements:["Siswa SMA/sederajat","Dasar pemrograman","Registrasi individu"],link:"#"},
+  {id:6,title:"Workshop Public Speaking",organizer:"Speak Up Community",category:"Pelatihan",deadline:"8 Oktober 2026",location:"Online",desc:"Workshop interaktif untuk melatih kepercayaan diri dan kemampuan berbicara di depan umum.",requirements:["Pelajar SMA","Aktif mengikuti sesi"],link:"#"},
+  {id:7,title:"Volunteer Lingkungan Sekolah",organizer:"Green Youth",category:"Volunteer",deadline:"18 Oktober 2026",location:"Cimahi",desc:"Kegiatan edukasi lingkungan dan aksi bersih bersama pelajar.",requirements:["Pelajar SMA","Membawa perlengkapan pribadi","Mengikuti briefing"],link:"#"},
+  {id:8,title:"Beasiswa Talenta Muda",organizer:"Yayasan Pendidikan Nusantara",category:"Beasiswa",deadline:"15 Oktober 2026",location:"Nasional",desc:"Dukungan pendidikan bagi siswa yang aktif mengembangkan bakat dan kegiatan positif.",requirements:["Siswa kelas X–XII","Dokumen prestasi","Surat rekomendasi sekolah"],link:"#"},
+  {id:9,title:"Lomba Poster Digital Pelajar",organizer:"Kreasi Muda",category:"Lomba",deadline:"2 November 2026",location:"Online",desc:"Tantang kreativitasmu dengan membuat poster digital bertema sekolah dan lingkungan.",requirements:["Siswa SMA","1 karya per peserta","Format JPG/PNG"],link:"#"},
+  {id:10,title:"Pelatihan Dasar Robotika",organizer:"Future Engineer Club",category:"Pelatihan",deadline:"10 Oktober 2026",location:"Jakarta",desc:"Pengenalan robotika dan elektronika melalui proyek sederhana yang dapat diikuti pemula.",requirements:["Siswa SMA","Tidak wajib punya pengalaman"],link:"#"},
+  {id:11,title:"Volunteer Literasi Anak",organizer:"Baca Bersama",category:"Volunteer",deadline:"22 Oktober 2026",location:"Bandung",desc:"Mendampingi kegiatan membaca dan permainan edukatif bersama anak-anak.",requirements:["Usia minimal 15 tahun","Komunikatif","Bersedia mengikuti kegiatan"],link:"#"},
+  {id:12,title:"Lomba Presentasi Sains",organizer:"Science Student Forum",category:"Lomba",deadline:"5 November 2026",location:"Online",desc:"Kompetisi presentasi proyek sains untuk siswa SMA.",requirements:["Tim 2–3 siswa","Proposal proyek","Presentasi maksimal 10 menit"],link:"#"}
+];
 
-// CRYPTO PRIMITIVES
-const BS = 8; // Blok diatur kembali ke 8-byte (64-bit)
+let ekskul = JSON.parse(localStorage.getItem("adista_eksul") || "null") || defaultEksul;
+let opportunities = JSON.parse(localStorage.getItem("adista_opportunities") || "null") || defaultOpportunities;
+let feedbacks = JSON.parse(localStorage.getItem("adista_feedback") || "[]");
+let selectedEksulCategory = "Semua";
+let selectedOppCategory = "Semua";
 
-// Fungsi untuk memastikan Key dan IV sesuai dengan panjang blok.
-// Jika kurang, karakter akan diulang (padding/repeating) hingga mengisi 8 byte penuh.
-function keyToBytes(k, len) { 
-  const o = []; 
-  for(let i=0; i<len; i++) o.push(k.charCodeAt(i % k.length)); 
-  return o; 
+function saveData(){
+  localStorage.setItem("adista_eksul",JSON.stringify(ekskul));
+  localStorage.setItem("adista_opportunities",JSON.stringify(opportunities));
+  localStorage.setItem("adista_feedback",JSON.stringify(feedbacks));
 }
+function escapeHTML(str){
+  return String(str ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function categoryButtons(containerId,categories,selected,onClick){
+  document.getElementById(containerId).innerHTML=categories.map(c=>`<button class="filter-btn ${c===selected?"active":""}" onclick="${onClick}('${escapeHTML(c)}')">${escapeHTML(c)}</button>`).join("");
+}
+function renderEksulFilters(){
+  const cats=["Semua",...new Set(ekskul.map(x=>x.category))];
+  categoryButtons("eksulFilters",cats,selectedEksulCategory,"setEksulCategory");
+}
+function renderEksul(){
+  renderEksulFilters();
+  const q=(document.getElementById("eksulSearch")?.value||"").toLowerCase();
+  const list=ekskul.filter(x=>(selectedEksulCategory==="Semua"||x.category===selectedEksulCategory)&&`${x.name} ${x.category} ${x.desc}`.toLowerCase().includes(q));
+  const grid=document.getElementById("eksulGrid");
+  if(!list.length){grid.innerHTML='<div class="empty">Ekskul yang kamu cari belum ditemukan.</div>';return}
+  grid.innerHTML=list.map(eksulCard).join("");
+}
+function setEksulCategory(c){selectedEksulCategory=c;renderEksul()}
+function eksulCard(x){
+  return `<article class="card">
+    <div class="icon-box">${x.icon}</div>
+    <span class="tag">${escapeHTML(x.category)}</span>
+    <h3 style="margin-top:10px">${escapeHTML(x.name)}</h3>
+    <p>${escapeHTML(x.desc)}</p>
+    <div class="meta"><span>◷ ${escapeHTML(x.schedule)}</span><span>⌖ ${escapeHTML(x.place)}</span></div>
+    <div class="card-footer"><span class="muted" style="font-size:.76rem">${escapeHTML(x.contact)}</span><button class="btn btn-outline btn-sm" onclick="showEksul(${x.id})">Lihat Detail</button></div>
+  </article>`;
+}
+function renderFeatured(){
+  document.getElementById("featuredEksul").innerHTML=ekskul.slice(0,6).map(eksulCard).join("");
+}
+function showEksul(id){
+  const x=ekskul.find(a=>a.id===id);if(!x)return;
+  document.getElementById("modalContent").innerHTML=`
+    <div class="icon-box">${x.icon}</div><span class="tag">${escapeHTML(x.category)}</span>
+    <h2 style="margin-top:12px">${escapeHTML(x.name)}</h2><p class="muted" style="margin-top:8px">${escapeHTML(x.desc)}</p>
+    <div class="detail-meta"><div><b>Jadwal</b><br>${escapeHTML(x.schedule)}</div><div><b>Tempat</b><br>${escapeHTML(x.place)}</div><div><b>Kontak Pengurus</b><br>${escapeHTML(x.contact)}</div><div><b>Kategori</b><br>${escapeHTML(x.category)}</div></div>
+    <div class="detail-content"><h4>Kegiatan</h4><p>${escapeHTML(x.activities)}</p></div>
+    <div style="margin-top:24px"><a class="btn btn-primary" href="https://wa.me/6280000000000" target="_blank" rel="noopener">Tertarik? Hubungi Pengurus →</a></div>`;
+  document.getElementById("detailModal").classList.add("show");
+}
+function renderOpportunityFilters(){
+  const cats=["Semua","Lomba","Pelatihan","Volunteer","Beasiswa"];
+  categoryButtons("opportunityFilters",cats,selectedOppCategory,"setOppCategory");
+}
+function renderOpportunities(){
+  renderOpportunityFilters();
+  const q=(document.getElementById("opportunitySearch")?.value||"").toLowerCase();
+  const list=opportunities.filter(x=>(selectedOppCategory==="Semua"||x.category===selectedOppCategory)&&`${x.title} ${x.organizer} ${x.category} ${x.desc}`.toLowerCase().includes(q));
+  const grid=document.getElementById("opportunityGrid");
+  if(!list.length){grid.innerHTML='<div class="empty">Peluang yang kamu cari belum ditemukan.</div>';return}
+  grid.innerHTML=list.map(x=>`<article class="card">
+    <span class="tag">${escapeHTML(x.category)}</span>
+    <h3 style="margin-top:12px">${escapeHTML(x.title)}</h3>
+    <p>${escapeHTML(x.desc)}</p>
+    <div class="meta"><span>🏢 ${escapeHTML(x.organizer)}</span><span>⏳ Deadline: ${escapeHTML(x.deadline)}</span><span>⌖ ${escapeHTML(x.location)}</span></div>
+    <div class="card-footer"><span class="muted" style="font-size:.75rem">Info peluang</span><button class="btn btn-primary btn-sm" onclick="showOpportunity(${x.id})">Lihat Detail</button></div>
+  </article>`).join("");
+}
+function setOppCategory(c){selectedOppCategory=c;renderOpportunities()}
+function showOpportunity(id){
+  const x=opportunities.find(a=>a.id===id);if(!x)return;
+  document.getElementById("modalContent").innerHTML=`
+    <span class="tag">${escapeHTML(x.category)}</span><h2 style="margin-top:12px">${escapeHTML(x.title)}</h2>
+    <p class="muted" style="margin-top:8px">${escapeHTML(x.desc)}</p>
+    <div class="detail-meta"><div><b>Penyelenggara</b><br>${escapeHTML(x.organizer)}</div><div><b>Deadline</b><br>${escapeHTML(x.deadline)}</div><div><b>Kategori</b><br>${escapeHTML(x.category)}</div><div><b>Lokasi</b><br>${escapeHTML(x.location)}</div></div>
+    <div class="detail-content"><h4>Persyaratan</h4><ul>${(x.requirements||[]).map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul><h4>Deskripsi</h4><p>${escapeHTML(x.desc)}</p></div>
+    <div style="margin-top:24px"><a class="btn btn-primary" href="${x.link||"#"}" onclick="if((this.getAttribute('href')||'#')==='#'){event.preventDefault();alert('Link pendaftaran masih berupa dummy pada prototype.')}">Daftar / Lihat Informasi →</a></div>`;
+  document.getElementById("detailModal").classList.add("show");
+}
+function hideModal(){document.getElementById("detailModal").classList.remove("show")}
+function closeModal(e){if(e.target.id==="detailModal")hideModal()}
+function toggleFaq(btn){btn.parentElement.classList.toggle("open")}
+function submitFeedback(e){
+  e.preventDefault();
+  feedbacks.unshift({id:Date.now(),name:document.getElementById("fbName").value||"Anonim",className:document.getElementById("fbClass").value||"-",type:document.getElementById("fbType").value,message:document.getElementById("fbMessage").value,date:new Date().toLocaleString("id-ID")});
+  saveData();
+  document.getElementById("feedbackForm").reset();
+  document.getElementById("feedbackSuccess").classList.remove("hidden");
+  setTimeout(()=>document.getElementById("feedbackSuccess").classList.add("hidden"),4000);
+}
+function toggleMenu(){document.getElementById("navLinks").classList.toggle("show")}
+function closeMenu(){document.getElementById("navLinks").classList.remove("show")}
+function goHome(){showPublic();closeMenu()}
 
-function xorBlock(block, keyB) { return block.map((b,i) => b ^ keyB[i % keyB.length]); }
-function xorArr(a, b) { return a.map((v,i) => v ^ b[i]); }
-function reverseBlock(b) { return [...b].reverse(); }
-function rotL(b, n) { const r=n%b.length; return [...b.slice(r),...b.slice(0,r)]; }
-function rotR(b, n) { const r=n%b.length; return [...b.slice(b.length-r),...b.slice(0,b.length-r)]; }
-function nibbleSwap(b) { return b.map(x => ((x & 0x0F) << 4) | ((x & 0xF0) >> 4)); }
+/* ADMIN */
+function showAdmin(){
+  document.getElementById("publicPage").classList.add("hidden");
+  document.getElementById("publicNav").classList.add("hidden");
+  document.getElementById("publicFooter").classList.add("hidden");
+  document.getElementById("adminPage").classList.remove("hidden");
+  window.scrollTo(0,0);
+  if(sessionStorage.getItem("adista_admin")==="1"){
+    document.getElementById("adminLogin").classList.add("hidden");
+    document.getElementById("adminDashboard").classList.remove("hidden");
+    renderAdmin();
+  }else{
+    document.getElementById("adminLogin").classList.remove("hidden");
+    document.getElementById("adminDashboard").classList.add("hidden");
+  }
+}
+function showPublic(){
+  document.getElementById("publicPage").classList.remove("hidden");
+  document.getElementById("publicNav").classList.remove("hidden");
+  document.getElementById("publicFooter").classList.remove("hidden");
+  document.getElementById("adminPage").classList.add("hidden");
+}
+function adminLogin(e){
+  e.preventDefault();
+  if(document.getElementById("adminUser").value==="admin"&&document.getElementById("adminPass").value==="adista123"){
+    sessionStorage.setItem("adista_admin","1");showAdmin();
+  }else document.getElementById("loginError").classList.remove("hidden");
+}
+function exitAdmin(){sessionStorage.removeItem("adista_admin");showPublic();history.pushState({},"","#home")}
+function showAdminTab(tab,btn){
+  document.querySelectorAll("#adminDashboardTab,#adminEksulTab,#adminPeluangTab,#adminFeedbackTab").forEach(x=>x.classList.add("hidden"));
+  document.querySelectorAll(".admin-sidebar button").forEach(x=>x.classList.remove("active"));
+  document.getElementById("admin"+tab.charAt(0).toUpperCase()+tab.slice(1)+"Tab").classList.remove("hidden");
+  if(btn)btn.classList.add("active");
+  renderAdmin();
+}
+function renderAdmin(){
+  document.getElementById("statEksul").textContent=ekskul.length;
+  document.getElementById("statPeluang").textContent=opportunities.length;
+  document.getElementById("statFeedback").textContent=feedbacks.length;
+  document.getElementById("adminEksulList").innerHTML=`<table class="admin-table"><thead><tr><th>Nama</th><th>Kategori</th><th>Jadwal</th><th>Aksi</th></tr></thead><tbody>${ekskul.map(x=>`<tr><td>${x.icon} ${escapeHTML(x.name)}</td><td>${escapeHTML(x.category)}</td><td>${escapeHTML(x.schedule)}</td><td><div class="admin-actions"><button class="btn btn-outline btn-sm" onclick="editEksul(${x.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteEksul(${x.id})">Hapus</button></div></td></tr>`).join("")}</tbody></table>`;
+  document.getElementById("adminOpportunityList").innerHTML=`<table class="admin-table"><thead><tr><th>Judul</th><th>Kategori</th><th>Deadline</th><th>Aksi</th></tr></thead><tbody>${opportunities.map(x=>`<tr><td>${escapeHTML(x.title)}</td><td>${escapeHTML(x.category)}</td><td>${escapeHTML(x.deadline)}</td><td><div class="admin-actions"><button class="btn btn-outline btn-sm" onclick="editOpportunity(${x.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteOpportunity(${x.id})">Hapus</button></div></td></tr>`).join("")}</tbody></table>`;
+  document.getElementById("adminFeedbackList").innerHTML=feedbacks.length?feedbacks.map(f=>`<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:10px"><strong>${escapeHTML(f.type)}</strong><span class="muted" style="font-size:.75rem">${escapeHTML(f.date)}</span></div><p style="margin:8px 0">${escapeHTML(f.message)}</p><span class="tag">${escapeHTML(f.name)} · ${escapeHTML(f.className)}</span></div>`).join(""):'<div class="card"><p>Belum ada feedback masuk.</p></div>';
+}
+function openAddEksul(){openEksulForm()}
+function editEksul(id){openEksulForm(ekskul.find(x=>x.id===id))}
+function openEksulForm(x=null){
+  document.getElementById("adminFormContent").innerHTML=`<span class="eyebrow">${x?"Edit":"Tambah"} Ekskul</span><h2>${x?"Edit Ekskul":"Tambah Ekskul"}</h2>
+  <form onsubmit="saveEksulForm(event,${x?.id||0})" style="margin-top:20px">
+  <div class="form-grid"><div class="field"><label>Nama</label><input id="afName" required value="${escapeHTML(x?.name||"")}"></div><div class="field"><label>Ikon</label><input id="afIcon" value="${escapeHTML(x?.icon||"⭐")}"></div></div>
+  <div class="form-grid"><div class="field"><label>Kategori</label><select id="afCat">${["Olahraga","Seni","Akademik","Organisasi","Bahasa","Sosial"].map(c=>`<option ${c===x?.category?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Jadwal</label><input id="afSchedule" required value="${escapeHTML(x?.schedule||"")}"></div></div>
+  <div class="field"><label>Tempat</label><input id="afPlace" required value="${escapeHTML(x?.place||"")}"></div><div class="field"><label>Kontak</label><input id="afContact" value="${escapeHTML(x?.contact||"")}"></div><div class="field"><label>Deskripsi</label><textarea id="afDesc" required>${escapeHTML(x?.desc||"")}</textarea></div><div class="field"><label>Kegiatan</label><textarea id="afActivities">${escapeHTML(x?.activities||"")}</textarea></div>
+  <button class="btn btn-primary">Simpan</button></form>`;
+  document.getElementById("adminFormModal").classList.add("show");
+}
+function saveEksulForm(e,id){
+  e.preventDefault();
+  const data={id:id||Date.now(),name:document.getElementById("afName").value,icon:document.getElementById("afIcon").value||"⭐",category:document.getElementById("afCat").value,schedule:document.getElementById("afSchedule").value,place:document.getElementById("afPlace").value,contact:document.getElementById("afContact").value,desc:document.getElementById("afDesc").value,activities:document.getElementById("afActivities").value};
+  if(id)ekskul=ekskul.map(x=>x.id===id?data:x);else ekskul.push(data);
+  saveData();hideAdminModal();renderAdmin();renderEksul();renderFeatured();
+}
+function deleteEksul(id){if(confirm("Hapus ekskul ini?")){ekskul=ekskul.filter(x=>x.id!==id);saveData();renderAdmin();renderEksul();renderFeatured()}}
+function openAddOpportunity(){openOpportunityForm()}
+function editOpportunity(id){openOpportunityForm(opportunities.find(x=>x.id===id))}
+function openOpportunityForm(x=null){
+  document.getElementById("adminFormContent").innerHTML=`<span class="eyebrow">${x?"Edit":"Tambah"} Peluang</span><h2>${x?"Edit Peluang":"Tambah Peluang"}</h2>
+  <form onsubmit="saveOpportunityForm(event,${x?.id||0})" style="margin-top:20px">
+  <div class="field"><label>Judul</label><input id="opTitle" required value="${escapeHTML(x?.title||"")}"></div>
+  <div class="form-grid"><div class="field"><label>Kategori</label><select id="opCat">${["Lomba","Pelatihan","Volunteer","Beasiswa"].map(c=>`<option ${c===x?.category?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Deadline</label><input id="opDeadline" required value="${escapeHTML(x?.deadline||"")}"></div></div>
+  <div class="form-grid"><div class="field"><label>Penyelenggara</label><input id="opOrganizer" required value="${escapeHTML(x?.organizer||"")}"></div><div class="field"><label>Lokasi</label><input id="opLocation" required value="${escapeHTML(x?.location||"")}"></div></div>
+  <div class="field"><label>Deskripsi</label><textarea id="opDesc" required>${escapeHTML(x?.desc||"")}</textarea></div><div class="field"><label>Persyaratan (pisahkan dengan koma)</label><input id="opReq" value="${escapeHTML((x?.requirements||[]).join(", "))}"></div>
+  <button class="btn btn-primary">Simpan</button></form>`;
+  document.getElementById("adminFormModal").classList.add("show");
+}
+function saveOpportunityForm(e,id){
+  e.preventDefault();
+  const data={id:id||Date.now(),title:document.getElementById("opTitle").value,category:document.getElementById("opCat").value,deadline:document.getElementById("opDeadline").value,organizer:document.getElementById("opOrganizer").value,location:document.getElementById("opLocation").value,desc:document.getElementById("opDesc").value,requirements:document.getElementById("opReq").value.split(",").map(x=>x.trim()).filter(Boolean),link:"#"};
+  if(id)opportunities=opportunities.map(x=>x.id===id?data:x);else opportunities.push(data);
+  saveData();hideAdminModal();renderAdmin();renderOpportunities();
+}
+function deleteOpportunity(id){if(confirm("Hapus peluang ini?")){opportunities=opportunities.filter(x=>x.id!==id);saveData();renderAdmin();renderOpportunities()}}
+function hideAdminModal(){document.getElementById("adminFormModal").classList.remove("show")}
+function closeAdminModal(e){if(e.target.id==="adminFormModal")hideAdminModal()}
 
-// Padding PKCS#7: Selalu mengisi blok secara utuh (termasuk full padding jika data pas kelipatan BS)
-function pad(bytes) { 
-  const p = BS - (bytes.length % BS); 
-  const o = new Uint8Array(bytes.length + p); 
-  o.set(bytes); 
-  for (let i = bytes.length; i < o.length; i++) o[i] = p; 
-  return o; 
+function route(){
+  if(location.hash==="#admin"){showAdmin()}else{showPublic();if(location.hash==="#home"||!location.hash)window.scrollTo(0,0)}
 }
+window.addEventListener("hashchange",route);
 
-function unpad(bytes) { 
-  if (!bytes.length) return bytes; 
-  const p = bytes[bytes.length - 1]; 
-  if (!p || p > BS) return bytes; 
-  for (let i = bytes.length - p; i < bytes.length; i++) if (bytes[i] !== p) return bytes; 
-  return bytes.slice(0, bytes.length - p); 
-}
-
-function b2hex(b) { return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
-function hex2b(h) { 
-  h = h.trim().replace(/\s+/g,''); 
-  if(h.length%2) throw new Error('Hex tidak genap'); 
-  const o = new Uint8Array(h.length/2); 
-  for(let i=0; i<o.length; i++){ 
-    const v=parseInt(h.substr(i*2,2),16); 
-    if(isNaN(v)) throw new Error('Hex invalid'); 
-    o[i]=v; 
-  } 
-  return o; 
-}
-
-// ECB - Proses looping dengan step 8 byte (i += BS)
-function ecbEncrypt(data, key, rot) { 
-  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); 
-  for (let i=0; i<pd.length; i+=BS) o.set(rotL(reverseBlock(xorBlock(Array.from(pd.slice(i,i+BS)),kB)), rot),i); 
-  return o; 
-}
-function ecbDecrypt(data, key, rot) { 
-  if (data.length%BS) throw new Error('Data keliru'); 
-  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); 
-  for (let i=0; i<data.length; i+=BS) o.set(xorBlock(reverseBlock(rotR(Array.from(data.slice(i,i+BS)),rot)), kB),i); 
-  return unpad(o); 
-}
-
-// CBC - Proses looping dengan step 8 byte (i += BS) dan padding IV otomatis
-function cbcEncrypt(data, key, iv, rot) { 
-  const pd=pad(data), kB=keyToBytes(key,BS), o=new Uint8Array(pd.length); 
-  let p=keyToBytes(iv,BS); 
-  for (let i=0; i<pd.length; i+=BS) { 
-    const enc=rotL(nibbleSwap(xorBlock(xorArr(Array.from(pd.slice(i,i+BS)),p),kB)),rot); 
-    o.set(enc,i); 
-    p=[...enc]; 
-  } 
-  return o; 
-}
-function cbcDecrypt(data, key, iv, rot) { 
-  if (data.length%BS) throw new Error('Data keliru'); 
-  const kB=keyToBytes(key,BS), o=new Uint8Array(data.length); 
-  let p=keyToBytes(iv,BS); 
-  for (let i=0; i<data.length; i+=BS) { 
-    const blk=Array.from(data.slice(i,i+BS)); 
-    o.set(xorArr(xorBlock(nibbleSwap(rotR(blk,rot)),kB),p),i); 
-    p=[...blk]; 
-  } 
-  return unpad(o); 
-}
-
-// MAIN PROCESS RUNNERS
-async function ecbProcess(action) {
-  const k = document.getElementById('ecb-key').value || 'mykey123', r = parseInt(document.getElementById('ecb-rotate').value) || 3;
-  const t = document.getElementById('ecb-tab-text').classList.contains('active') ? 'text' : 'file';
-  const outEl = document.getElementById('ecb-output'), imgWrap = document.getElementById('ecb-img-out');
-  try {
-    if (t === 'text') {
-      const raw = document.getElementById('ecb-input').value; if (!raw.trim()) return setStatus('ecb','error','Teks kosong');
-      if (action === 'encrypt') { const enc = ecbEncrypt(new TextEncoder().encode(raw), k, r); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">CIPHERTEXT HEX</span><br><br>${b2hex(enc)}`; imgWrap.style.display='none'; outState.ecb = { data: enc, name:'ecb_encrypted.bin', mime:'application/octet-stream' }; showBtns('ecb', true, true); setStatus('ecb','success','Enkripsi sukses!'); } 
-      else { const dec = ecbDecrypt(hex2b(raw), k, r); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">PLAINTEXT</span><br><br>${esc(new TextDecoder().decode(dec))}`; imgWrap.style.display='none'; showBtns('ecb', true, false); setStatus('ecb','success','Dekripsi sukses!'); }
-    } else {
-      const file = fileState.ecb; if (!file) return setStatus('ecb','error','Pilih file'); const bytes = new Uint8Array(await file.arrayBuffer());
-      if (action === 'encrypt') {
-        setStatus('ecb', 'info', 'Memproses...'); setTimeout(() => { try { const enc = ecbEncrypt(bytes, k, r), packed = packWithMeta(enc, file.name); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">HEX (64 byte)</span><br><br>${b2hex(enc.slice(0,64))}…`; imgWrap.style.display='none'; outState.ecb = { data: packed, name:`ECB_${file.name}.cbk`, mime:'application/octet-stream' }; showBtns('ecb', true, true); setStatus('ecb','success',`Sukses: ${fmtSize(enc.length)}`); } catch(e) { setStatus('ecb','error',e.message); } }, 50);
-      } else {
-        setStatus('ecb', 'info', 'Mendekripsi...'); setTimeout(() => { try { const m = unpackMeta(bytes); const dec = ecbDecrypt(m ? m.payload : bytes, k, r); renderImgOrFile('ecb', dec, m ? m.originalFilename : file.name.replace(/^ECB_/,'').replace(/\.cbk$/,'')); setStatus('ecb','success','Media siap diputar'); } catch(e) { setStatus('ecb','error',e.message); } }, 50);
-      }
-    }
-  } catch(e) { setStatus('ecb','error', e.message); }
-}
-
-async function cbcProcess(action) {
-  const k = document.getElementById('cbc-key').value || 'secretkey', iv = document.getElementById('cbc-iv').value || 'iv123456', r = parseInt(document.getElementById('cbc-rotate').value) || 3;
-  const t = document.getElementById('cbc-tab-text').classList.contains('active') ? 'text' : 'file';
-  const outEl = document.getElementById('cbc-output'), imgWrap = document.getElementById('cbc-img-out');
-  try {
-    if (t === 'text') {
-      const raw = document.getElementById('cbc-input').value; if (!raw.trim()) return setStatus('cbc','error','Teks kosong');
-      if (action === 'encrypt') { const enc = cbcEncrypt(new TextEncoder().encode(raw), k, iv, r); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">CIPHERTEXT HEX</span><br><br>${b2hex(enc)}`; imgWrap.style.display='none'; outState.cbc = { data: enc, name:'cbc_encrypted.bin', mime:'application/octet-stream' }; showBtns('cbc', true, true); setStatus('cbc','success','Enkripsi sukses!'); } 
-      else { const dec = cbcDecrypt(hex2b(raw), k, iv, r); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">PLAINTEXT</span><br><br>${esc(new TextDecoder().decode(dec))}`; imgWrap.style.display='none'; showBtns('cbc', true, false); setStatus('cbc','success','Dekripsi sukses!'); }
-    } else {
-      const file = fileState.cbc; if (!file) return setStatus('cbc','error','Pilih file'); const bytes = new Uint8Array(await file.arrayBuffer());
-      if (action === 'encrypt') {
-        setStatus('cbc', 'info', 'Memproses...'); setTimeout(() => { try { const enc = cbcEncrypt(bytes, k, iv, r), packed = packWithMeta(enc, file.name); outEl.innerHTML = `<span style="opacity:.4;font-size:10px;letter-spacing:2px;">HEX (64 byte)</span><br><br>${b2hex(enc.slice(0,64))}…`; imgWrap.style.display='none'; outState.cbc = { data: packed, name:`CBC_${file.name}.cbk`, mime:'application/octet-stream' }; showBtns('cbc', true, true); setStatus('cbc','success',`Sukses: ${fmtSize(enc.length)}`); } catch(e) { setStatus('cbc','error',e.message); } }, 50);
-      } else {
-        setStatus('cbc', 'info', 'Mendekripsi...'); setTimeout(() => { try { const m = unpackMeta(bytes); const dec = cbcDecrypt(m ? m.payload : bytes, k, iv, r); renderImgOrFile('cbc', dec, m ? m.originalFilename : file.name.replace(/^CBC_/,'').replace(/\.cbk$/,'')); setStatus('cbc','success','Media siap diputar'); } catch(e) { setStatus('cbc','error',e.message); } }, 50);
-      }
-    }
-  } catch(e) { setStatus('cbc','error', e.message); }
-}
+renderEksul();
+renderFeatured();
+renderOpportunities();
+route();
 </script>
 </body>
 </html>
