@@ -1,715 +1,1179 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ADISTA Info — Temukan ekskul, lomba, pelatihan, volunteer, beasiswa, dan berbagai peluang untuk siswa SMA.">
-  <title>ADISTA Info — Akses Digital Informasi & Prestasi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADISTA Info - Akses Digital Informasi & Prestasi</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React & Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    :root{
-      --primary:#3157d5;
-      --primary-dark:#2444b2;
-      --primary-soft:#eef2ff;
-      --accent:#f5b942;
-      --ink:#182033;
-      --muted:#667085;
-      --line:#e7eaf0;
-      --bg:#f8f9fc;
-      --white:#fff;
-      --success:#198754;
-      --danger:#dc3545;
-      --shadow:0 12px 35px rgba(24,32,51,.08);
-      --radius:20px;
-      --max:1160px;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--ink);background:var(--bg);line-height:1.6;
-    }
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    a{text-decoration:none;color:inherit}
-    .container{width:min(var(--max),calc(100% - 40px));margin:auto}
-    .hidden{display:none!important}
-    .muted{color:var(--muted)}
-    .section{padding:78px 0}
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:30px}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:7px;color:var(--primary);
-      background:var(--primary-soft);padding:7px 12px;border-radius:999px;
-      font-size:.78rem;font-weight:800;margin-bottom:13px;
-    }
-    h1{font-size:clamp(2.6rem,6vw,5rem);line-height:1.02;letter-spacing:-.055em}
-    h2{font-size:clamp(1.8rem,3vw,2.65rem);line-height:1.12;letter-spacing:-.035em}
-    h3{line-height:1.25}
-    .section-title{max-width:650px}
-    .section-title p{margin-top:12px;color:var(--muted)}
-    .btn{
-      border:0;border-radius:12px;padding:12px 18px;font-weight:800;
-      display:inline-flex;align-items:center;justify-content:center;gap:8px;
-      transition:.2s ease;
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-primary:hover{background:var(--primary-dark)}
-    .btn-outline{background:#fff;color:var(--primary);border:1px solid #d8def4}
-    .btn-ghost{background:transparent;color:var(--ink)}
-    .btn-danger{background:#fff0f1;color:var(--danger)}
-    .btn-sm{padding:8px 12px;font-size:.85rem}
-
-    /* NAV */
-    .navbar{
-      position:sticky;top:0;z-index:50;background:rgba(248,249,252,.9);
-      backdrop-filter:blur(16px);border-bottom:1px solid rgba(231,234,240,.8);
-    }
-    .nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:25px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.2rem}
-    .brand-mark{
-      width:38px;height:38px;border-radius:12px;background:var(--primary);color:#fff;
-      display:grid;place-items:center;font-weight:900;box-shadow:0 7px 18px rgba(49,87,213,.25);
-    }
-    .nav-links{display:flex;align-items:center;gap:4px}
-    .nav-links a{padding:9px 12px;border-radius:9px;color:#4c5569;font-size:.92rem;font-weight:650}
-    .nav-links a:hover,.nav-links a.active{background:#fff;color:var(--primary)}
-    .mobile-toggle{display:none;background:none;border:0;font-size:1.5rem}
-    .nav-cta{margin-left:8px}
-
-    /* HERO */
-    .hero{padding:80px 0 65px;overflow:hidden}
-    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:55px}
-    .hero-copy p{font-size:1.1rem;color:var(--muted);max-width:610px;margin:22px 0 28px}
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-    .hero-note{display:flex;align-items:center;gap:9px;margin-top:20px;font-size:.85rem;color:var(--muted)}
-    .hero-visual{position:relative;min-height:410px}
-    .hero-card{
-      position:absolute;background:#fff;border:1px solid var(--line);border-radius:24px;
-      box-shadow:var(--shadow);padding:20px;
-    }
-    .hero-main{inset:30px 10px 25px 30px;transform:rotate(2deg);background:linear-gradient(145deg,#fff,#f1f4ff)}
-    .hero-main .mock-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
-    .mini-brand{font-weight:900;color:var(--primary)}
-    .mock-search{height:46px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 14px;color:#98a0af;display:flex;align-items:center}
-    .mock-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
-    .mock-item{padding:15px;border-radius:15px;background:#fff;border:1px solid var(--line)}
-    .mock-icon{font-size:1.6rem;margin-bottom:8px}
-    .mock-item strong{font-size:.9rem}
-    .float-card{z-index:2;right:-4px;top:0;width:180px}
-    .float-card.bottom{left:-5px;bottom:0;top:auto;width:190px}
-    .float-number{font-size:1.7rem;font-weight:900;color:var(--primary)}
-    .float-label{font-size:.8rem;color:var(--muted)}
-
-    /* CARDS */
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .card{
-      background:#fff;border:1px solid var(--line);border-radius:var(--radius);
-      padding:22px;box-shadow:0 5px 20px rgba(24,32,51,.035);
-    }
-    .card:hover{box-shadow:var(--shadow)}
-    .icon-box{
-      width:46px;height:46px;border-radius:14px;background:var(--primary-soft);
-      display:grid;place-items:center;font-size:1.35rem;margin-bottom:16px;
-    }
-    .tag{display:inline-flex;padding:5px 9px;border-radius:999px;background:#f2f4f7;color:#5e6675;font-size:.72rem;font-weight:800}
-    .card p{color:var(--muted);font-size:.9rem;margin:8px 0 15px}
-    .meta{font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:5px}
-    .card-footer{margin-top:17px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-
-    /* HIGHLIGHT */
-    .highlight{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-    .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-    .why-card{padding:28px;background:#fff;border:1px solid var(--line);border-radius:20px}
-    .why-card .num{font-size:.75rem;color:var(--primary);font-weight:900;margin-bottom:15px}
-    .why-card p{color:var(--muted);font-size:.9rem;margin-top:8px}
-
-    /* CONTROLS */
-    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:25px}
-    .search-wrap{position:relative;flex:1;min-width:230px}
-    .search-wrap span{position:absolute;left:14px;top:10px;color:#8b93a3}
-    .search-wrap input{padding-left:40px}
-    input,select,textarea{
-      width:100%;border:1px solid #dfe3eb;background:#fff;border-radius:12px;
-      padding:11px 13px;outline:none;color:var(--ink);
-    }
-    input:focus,select:focus,textarea:focus{border-color:#8ca0e9;box-shadow:0 0 0 3px #eef2ff}
-    .filter-buttons{display:flex;gap:8px;flex-wrap:wrap}
-    .filter-btn{
-      border:1px solid var(--line);background:#fff;color:#5e6675;border-radius:999px;
-      padding:9px 14px;font-weight:750;font-size:.82rem;
-    }
-    .filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-    .empty{text-align:center;padding:50px;color:var(--muted);grid-column:1/-1}
-
-    /* DETAIL MODAL */
-    .modal{position:fixed;inset:0;z-index:100;background:rgba(18,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px}
-    .modal.show{display:flex}
-    .modal-box{background:#fff;width:min(620px,100%);max-height:90vh;overflow:auto;border-radius:24px;padding:28px;position:relative}
-    .modal-close{position:absolute;right:17px;top:15px;border:0;background:#f2f4f7;width:36px;height:36px;border-radius:50%;font-size:1.2rem}
-    .detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
-    .detail-meta div{background:#f7f8fb;padding:12px;border-radius:12px;font-size:.84rem}
-    .detail-content{color:#555e70;font-size:.92rem}
-    .detail-content h4{color:var(--ink);margin:20px 0 7px}
-    .detail-content ul{padding-left:20px}
-
-    /* FAQ / ABOUT / FEEDBACK */
-    .faq-list{max-width:850px;margin:auto}
-    .faq-item{background:#fff;border:1px solid var(--line);border-radius:15px;margin-bottom:10px;overflow:hidden}
-    .faq-question{width:100%;border:0;background:#fff;padding:18px 20px;text-align:left;font-weight:800;display:flex;justify-content:space-between;gap:15px}
-    .faq-answer{display:none;padding:0 20px 18px;color:var(--muted);font-size:.9rem}
-    .faq-item.open .faq-answer{display:block}
-    .faq-item.open .faq-question span{transform:rotate(45deg)}
-    .faq-question span{font-size:1.3rem;transition:.2s}
-    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
-    .vision{background:var(--primary);color:#fff;border-radius:25px;padding:35px;min-height:280px}
-    .vision p{color:#dfe5ff;margin-top:15px}
-    .mission{display:grid;gap:13px}
-    .mission div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px}
-    .mission b{color:var(--primary);margin-right:8px}
-    .feedback-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:35px;align-items:start}
-    .feedback-copy p{color:var(--muted);margin-top:12px}
-    .form-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:25px}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .field{margin-bottom:14px}
-    .field label{display:block;font-size:.8rem;font-weight:800;margin-bottom:6px}
-    textarea{resize:vertical;min-height:125px}
-    .success{background:#eaf8f0;color:#176b3c;padding:13px 15px;border-radius:12px;margin-bottom:15px;font-size:.88rem;font-weight:700}
-
-    /* ADMIN */
-    #adminPage{background:#f2f4f8;min-height:calc(100vh - 72px)}
-    .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 72px)}
-    .admin-sidebar{background:#fff;border-right:1px solid var(--line);padding:25px}
-    .admin-sidebar button{width:100%;text-align:left;background:transparent;border:0;padding:11px 12px;border-radius:10px;margin:3px 0;font-weight:700;color:#5e6675}
-    .admin-sidebar button.active,.admin-sidebar button:hover{background:var(--primary-soft);color:var(--primary)}
-    .admin-content{padding:35px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:22px 0}
-    .stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
-    .stat strong{font-size:1.8rem;display:block}
-    .admin-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden}
-    .admin-table th,.admin-table td{padding:13px 15px;border-bottom:1px solid var(--line);text-align:left;font-size:.82rem}
-    .admin-table th{background:#f8f9fb}
-    .admin-actions{display:flex;gap:7px}
-    .login-box{width:min(420px,100%);margin:70px auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--shadow)}
-    .login-box p{color:var(--muted);font-size:.88rem;margin:8px 0 20px}
-
-    /* FOOTER */
-    footer{padding:45px 0 25px;background:#151b2c;color:#d8dcea}
-    .footer-grid{display:flex;justify-content:space-between;gap:30px}
-    .footer-brand{color:#fff;font-weight:900;font-size:1.15rem}
-    footer p{font-size:.82rem;color:#9ca5b9;margin-top:7px}
-    .footer-links{display:flex;gap:18px;font-size:.82rem}
-    .footer-links a:hover{color:#fff}
-    .copyright{border-top:1px solid #2a3145;margin-top:30px;padding-top:18px;color:#8e97aa;font-size:.75rem}
-
-    @media(max-width:850px){
-      .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;flex-direction:column;align-items:stretch}
-      .nav-links.show{display:flex}
-      .nav-links a{text-align:left}
-      .nav-cta{margin:4px 0}
-      .mobile-toggle{display:block}
-      .hero-grid{grid-template-columns:1fr;gap:20px}
-      .hero{padding-top:55px}
-      .hero-visual{min-height:360px}
-      .cards,.why-grid{grid-template-columns:1fr 1fr}
-      .about-grid,.feedback-wrap{grid-template-columns:1fr}
-      .admin-layout{grid-template-columns:1fr}
-      .admin-sidebar{border-right:0;border-bottom:1px solid var(--line)}
-      .stats{grid-template-columns:1fr 1fr}
-    }
-    @media(max-width:570px){
-      .container{width:min(var(--max),calc(100% - 28px))}
-      .section{padding:55px 0}
-      .section-head{display:block}
-      .section-head .btn{margin-top:17px}
-      .cards,.why-grid,.stats{grid-template-columns:1fr}
-      .hero-visual{min-height:330px}
-      .hero-main{inset:30px 0 20px 0}
-      .float-card{right:-4px}
-      .float-card.bottom{left:-4px}
-      .mock-cards{grid-template-columns:1fr 1fr}
-      .detail-meta,.form-grid{grid-template-columns:1fr}
-      .admin-content{padding:22px 15px}
-      .admin-table{display:block;overflow-x:auto;white-space:nowrap}
-      .footer-grid{display:block}
-      .footer-links{margin-top:20px;flex-wrap:wrap}
-    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <div id="root"></div>
 
-<header class="navbar" id="publicNav">
-  <div class="container nav-inner">
-    <a class="brand" href="#home" onclick="goHome()">
-      <span class="brand-mark">A</span><span>ADISTA</span>
-    </a>
-    <button class="mobile-toggle" onclick="toggleMenu()" aria-label="Buka menu">☰</button>
-    <nav class="nav-links" id="navLinks">
-      <a href="#home" onclick="closeMenu()">Home</a>
-      <a href="#eksul" onclick="closeMenu()">Ekskul</a>
-      <a href="#peluang" onclick="closeMenu()">Peluang</a>
-      <a href="#faq" onclick="closeMenu()">FAQ</a>
-      <a href="#about" onclick="closeMenu()">Tentang</a>
-      <a class="btn btn-primary nav-cta" href="#feedback" onclick="closeMenu()">Kirim Saran</a>
-    </nav>
-  </div>
-</header>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-<main id="publicPage">
-  <section class="hero" id="home">
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow">Akses Digital Informasi & Prestasi</span>
-        <h1>Temukan informasi.<br><span style="color:var(--primary)">Coba peluang.</span><br>Kembangkan diri.</h1>
-        <p>Temukan berbagai ekskul, lomba, pelatihan, volunteer, beasiswa, dan peluang lainnya untuk mengembangkan minat dan pengalaman selama SMA.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#peluang">Lihat Peluang →</a>
-          <a class="btn btn-outline" href="#eksul">Lihat Ekskul</a>
+    // --- DUMMY DATA ---
+    const INITIAL_EKSKUL = [
+      { id: 1, name: "English Club", category: "Bahasa", desc: "Wadah mengasah percakapan, debat, dan persiapan TOEFL/IELTS dengan santai.", schedule: "Jumat, 15.30 WIB", room: "Lab Bahasa", contact: "0812-3456-7890 (Sarah)" },
+      { id: 2, name: "Karya Ilmiah Remaja (KIR)", category: "Akademik", desc: "Penelitian sains, eksperimen sederhana, hingga persiapan kompetisi riset nasional.", schedule: "Rabu, 15.45 WIB", room: "Lab Fisika", contact: "0821-4567-8901 (Rian)" },
+      { id: 3, name: "Basket Putra/Putri", category: "Olahraga", desc: "Latihan fundamental, strategi tanding, dan persiapan turnamen antarsekolah (DBL).", schedule: "Selasa & Kamis, 16.00 WIB", room: "Lapangan Utama", contact: "0838-1234-5678 (Bima)" },
+      { id: 4, name: "Pramuka Inti", category: "Organisasi", desc: "Pendidikan kepanduan, kepemimpinan lapangan, pioneering, dan survival outdoor.", schedule: "Sabtu, 08.00 WIB", room: "Sanggar Pramuka", contact: "0857-9876-5432 (Nadia)" },
+      { id: 5, name: "Seni Musik & Band", category: "Seni", desc: "Berekspresi lewat aransemen lagu, instrumen musik, dan persiapan pensi sekolah.", schedule: "Senin, 15.30 WIB", room: "Ruang Musik", contact: "0813-2468-1357 (Kevin)" },
+      { id: 6, name: "Paskibra", category: "Organisasi", desc: "Kedisiplinan, baris-berbaris formal, serta persiapan seleksi Paskibraka daerah.", schedule: "Rabu & Jumat, 15.30 WIB", room: "Lapangan Upacara", contact: "0877-1122-3344 (Aura)" },
+      { id: 7, name: "IT & Multimedia Club", category: "Akademik", desc: "Belajar coding pemula, desain poster, editing video, dan eksplorasi tools AI.", schedule: "Kamis, 15.30 WIB", room: "Lab Komputer 2", contact: "0896-5544-3322 (Dito)" },
+      { id: 8, name: "Teater Sastra", category: "Seni", desc: "Olah vokal, ekspresi panggung, penulisan naskah drama, dan produksi pentas mini.", schedule: "Senin, 15.45 WIB", room: "Aula Lantai 2", contact: "0812-9988-7766 (Putri)" }
+    ];
+
+    const INITIAL_PELUANG = [
+      {
+        id: 1,
+        title: "Lomba Esai Nasional Pelajar 2026",
+        organizer: "Universitas Indonesia",
+        category: "Lomba",
+        deadline: "20 Oktober 2026",
+        type: "Online",
+        desc: "Kompetisi menulis gagasan inovatif seputar transisi energi hijau dan kepedulian lingkungan untuk siswa SMA/sederajat.",
+        req: "Siswa aktif SMA/SMK sederajat (Kelas 10-12), karya orisinal belum pernah juara, format PDF max 5 halaman.",
+        link: "https://example.com/daftar-esai"
+      },
+      {
+        id: 2,
+        title: "Bootcamp Desain Digital & AI Siswa",
+        organizer: "Yayasan Kreasi Muda",
+        category: "Pelatihan",
+        deadline: "5 Oktober 2026",
+        type: "Online (Weekend)",
+        desc: "Pelatihan 4 pekan belajar UI/UX, dasar prompt engineering, dan portofolio kreatif gratis khusus pelajar.",
+        req: "Memiliki laptop pribadi, berkomitmen mengikuti 4 sesi via Zoom, usia 15-18 tahun.",
+        link: "https://example.com/bootcamp-digital"
+      },
+      {
+        id: 3,
+        title: "Relawan Mengajar Baca Anak Pesisir",
+        organizer: "Komunitas Taman Buku",
+        category: "Volunteer",
+        deadline: "12 November 2026",
+        type: "Offline (Jabodetabek)",
+        desc: "Aksi turun ke lapangan setiap akhir pekan mendampingi anak-anak usia dini belajar literasi dasar dan dongeng.",
+        req: "Suka berinteraksi dengan anak kecil, bersedia hadir minimal 2 kali pertemuan sebulan.",
+        link: "https://example.com/volunteer-tamanbuku"
+      },
+      {
+        id: 4,
+        title: "Beasiswa Pemimpin Muda Indonesia 2026",
+        organizer: "Bakhti Nusa Foundation",
+        category: "Beasiswa",
+        deadline: "30 November 2026",
+        type: "Online Selection",
+        desc: "Bantuan biaya penunjang pendidikan Rp1.500.000/semester plus pembinaan mentorship kepemimpinan.",
+        req: "Rapor semester terakhir minimal rata-rata 80, aktif organisasi/ekskul, surat rekomendasi guru BK.",
+        link: "https://example.com/beasiswa-pemimpin"
+      },
+      {
+        id: 5,
+        title: "Olimpiade Sains & Coding SMA",
+        organizer: "Forum IT Muda Indonesia",
+        category: "Lomba",
+        deadline: "15 Oktober 2026",
+        type: "Hybrid",
+        desc: "Kompetisi problem-solving logika pemrograman Python dasar dan pemecahan matematika terapan.",
+        req: "Individu, siswa SMA/sederajat, tidak perlu pengalaman advance (soal berjenjang pemula-menengah).",
+        link: "https://example.com/olimpiade-coding"
+      },
+      {
+        id: 6,
+        title: "Workshop Public Speaking & Debat",
+        organizer: "Youth Speak Up",
+        category: "Pelatihan",
+        deadline: "28 September 2026",
+        type: "Online (1 Hari)",
+        desc: "Kupas tuntas cara percaya diri presentasi di depan kelas, teknik argumentasi, dan mengontrol demam panggung.",
+        req: "Terbuka untuk semua jenjang SMA, tidak ada syarat nilai akademik.",
+        link: "https://example.com/workshop-debat"
+      }
+    ];
+
+    const FAQ_LIST = [
+      {
+        q: "Apa itu ADISTA?",
+        a: "ADISTA (Akses Digital Informasi & Prestasi) adalah platform terpadu yang membantu siswa SMA menemukan informasi ekskul, lomba, pelatihan, kerelawanan, hingga beasiswa tanpa harus bingung mencari di berbagai grup chat."
+      },
+      {
+        q: "Apakah ADISTA hanya untuk siswa baru kelas X?",
+        a: "Tidak. Siswa kelas XI dan XII yang butuh wadah kegiatan, portofolio prestasi buat persiapan SNBP/kuliah, atau beasiswa juga bisa memanfaatkannya."
+      },
+      {
+        q: "Apakah semua informasi peluang di ADISTA gratis?",
+        a: "ADISTA berfungsi sebagai kurator informasi. Sebagian besar peluang yang dikurasi gratis, namun jika ada biaya administrasi, itu mengikuti ketentuan dari pihak penyelenggara terkait."
+      },
+      {
+        q: "Dari mana data kegiatan ini berasal?",
+        a: "Informasi dikumpulkan dari pengurus ekskul sekolah, pengumuman resmi OSIS, kemitraan instansi, serta kiriman rekomendasi dari sesama siswa yang telah dikurasi."
+      },
+      {
+        q: "Bagaimana jika ekskul saya mau update jadwal atau kontak?",
+        a: "Pengurus ekskul bisa menghubungi perwakilan admin sekolah atau mengirim pembaruan lewat halaman Kirim Saran/Feedback."
+      }
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [page, setPage] = useState('home');
+      const [ekskulList, setEkskulList] = useState(INITIAL_EKSKUL);
+      const [peluangList, setPeluangList] = useState(INITIAL_PELUANG);
+      const [feedbacks, setFeedbacks] = useState([
+        { id: 1, name: "Aldi (X-2)", type: "Saran", text: "Tolong tambah kontak WhatsApp ekskul Fotografi ya kak!", date: "10 Sept 2026" },
+        { id: 2, name: "Anonim", type: "Permintaan informasi", text: "Ada info beasiswa buat anak SMK yang setara ga?", date: "12 Sept 2026" }
+      ]);
+      const [selectedPeluang, setSelectedPeluang] = useState(null);
+      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+      const navigateTo = (target) => {
+        setPage(target);
+        setMobileMenuOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      return (
+        <div className="flex flex-col min-h-screen">
+          {/* NAVBAR */}
+          <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+              <div 
+                onClick={() => navigateTo('home')} 
+                className="cursor-pointer flex items-center gap-2"
+              >
+                <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-brand-500/30">
+                  A
+                </div>
+                <div>
+                  <span className="font-extrabold text-xl tracking-tight text-slate-900">ADISTA</span>
+                  <span className="hidden sm:inline ml-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">Info</span>
+                </div>
+              </div>
+
+              {/* Desktop Nav */}
+              <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
+                <button onClick={() => navigateTo('home')} className={`hover:text-brand-600 transition ${page === 'home' ? 'text-brand-600' : ''}`}>Beranda</button>
+                <button onClick={() => navigateTo('ekskul')} className={`hover:text-brand-600 transition ${page === 'ekskul' ? 'text-brand-600' : ''}`}>Ekskul</button>
+                <button onClick={() => navigateTo('peluang')} className={`hover:text-brand-600 transition ${page === 'peluang' ? 'text-brand-600' : ''}`}>Peluang</button>
+                <button onClick={() => navigateTo('faq')} className={`hover:text-brand-600 transition ${page === 'faq' ? 'text-brand-600' : ''}`}>FAQ</button>
+                <button onClick={() => navigateTo('about')} className={`hover:text-brand-600 transition ${page === 'about' ? 'text-brand-600' : ''}`}>Tentang</button>
+              </nav>
+
+              <div className="hidden md:flex items-center gap-3">
+                <button 
+                  onClick={() => navigateTo('feedback')} 
+                  className="text-sm font-semibold bg-brand-600 text-white px-4 py-2 rounded-xl hover:bg-brand-700 transition shadow-sm shadow-brand-500/20 active:scale-95"
+                >
+                  Kirim Saran
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
+
+            {/* Mobile dropdown */}
+            {mobileMenuOpen && (
+              <div className="md:hidden bg-white border-b border-slate-100 px-4 py-4 space-y-3 text-sm font-medium">
+                <button onClick={() => navigateTo('home')} className="block w-full text-left py-2 text-slate-700">Beranda</button>
+                <button onClick={() => navigateTo('ekskul')} className="block w-full text-left py-2 text-slate-700">Ekskul Sekolah</button>
+                <button onClick={() => navigateTo('peluang')} className="block w-full text-left py-2 text-slate-700">Peluang & Prestasi</button>
+                <button onClick={() => navigateTo('faq')} className="block w-full text-left py-2 text-slate-700">FAQ</button>
+                <button onClick={() => navigateTo('about')} className="block w-full text-left py-2 text-slate-700">Tentang ADISTA</button>
+                <button onClick={() => navigateTo('feedback')} className="w-full text-center py-2.5 bg-brand-600 text-white rounded-xl font-semibold">Kirim Saran</button>
+              </div>
+            )}
+          </header>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-1">
+            {page === 'home' && <HomePage navigateTo={navigateTo} ekskul={ekskulList} peluang={peluangList} setSelectedPeluang={setSelectedPeluang} />}
+            {page === 'ekskul' && <EkskulPage ekskul={ekskulList} />}
+            {page === 'peluang' && <PeluangPage peluang={peluangList} setSelectedPeluang={setSelectedPeluang} />}
+            {page === 'faq' && <FaqPage navigateTo={navigateTo} />}
+            {page === 'about' && <AboutPage navigateTo={navigateTo} />}
+            {page === 'feedback' && <FeedbackPage feedbacks={feedbacks} setFeedbacks={setFeedbacks} />}
+            {page === 'admin' && (
+              <AdminPage 
+                ekskul={ekskulList} 
+                setEkskul={setEkskulList} 
+                peluang={peluangList} 
+                setPeluang={setPeluangList}
+                feedbacks={feedbacks}
+                navigateTo={navigateTo}
+              />
+            )}
+          </main>
+
+          {/* DETAIL MODAL FOR PELUANG */}
+          {selectedPeluang && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                <button 
+                  onClick={() => setSelectedPeluang(null)}
+                  className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+
+                <div className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-50 text-brand-600 mb-3">
+                  {selectedPeluang.category} • {selectedPeluang.type}
+                </div>
+
+                <h3 className="text-2xl font-bold text-slate-900 mb-1">{selectedPeluang.title}</h3>
+                <p className="text-sm text-slate-500 font-medium mb-6">Diselenggarakan oleh: <span className="text-slate-800 font-semibold">{selectedPeluang.organizer}</span></p>
+
+                <div className="space-y-4 text-sm text-slate-600">
+                  <div>
+                    <h4 className="font-semibold text-slate-800 mb-1">Deskripsi Kegiatan</h4>
+                    <p className="leading-relaxed">{selectedPeluang.desc}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-800 mb-1">Batas Pendaftaran</h4>
+                    <p className="inline-flex items-center text-rose-600 font-semibold bg-rose-50 px-3 py-1 rounded-lg">
+                      🗓 {selectedPeluang.deadline}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-800 mb-1">Syarat & Ketentuan</h4>
+                    <p className="leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">{selectedPeluang.req}</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex gap-3">
+                  <a 
+                    href={selectedPeluang.link} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex-1 text-center bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition shadow-md shadow-brand-500/20"
+                  >
+                    Buka Link Pendaftaran
+                  </a>
+                  <button 
+                    onClick={() => setSelectedPeluang(null)}
+                    className="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* FOOTER */}
+          <footer className="bg-white border-t border-slate-100 mt-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-700 text-sm">ADISTA Info</span>
+                <span>• Inovasi Informasi Siswa SMA © 2026</span>
+              </div>
+              <div className="flex items-center gap-6">
+                <button onClick={() => navigateTo('home')} className="hover:text-slate-800">Beranda</button>
+                <button onClick={() => navigateTo('feedback')} className="hover:text-slate-800">Saran</button>
+                <button onClick={() => navigateTo('admin')} className="text-slate-400 hover:text-brand-600 font-medium flex items-center gap-1">
+                  <span>🔒 Portal Admin</span>
+                </button>
+              </div>
+            </div>
+          </footer>
         </div>
-        <div class="hero-note">✦ Satu tempat untuk menemukan lebih banyak kesempatan.</div>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="hero-card hero-main">
-          <div class="mock-top"><span class="mini-brand">ADISTA Info</span><span class="tag">Untuk Pelajar</span></div>
-          <div class="mock-search">⌕ &nbsp; Cari lomba, ekskul, pelatihan...</div>
-          <div class="mock-cards">
-            <div class="mock-item"><div class="mock-icon">🏀</div><strong>Basket</strong><div class="muted" style="font-size:.72rem">Olahraga</div></div>
-            <div class="mock-item"><div class="mock-icon">💡</div><strong>Lomba Esai</strong><div class="muted" style="font-size:.72rem">Deadline 20 Okt</div></div>
-            <div class="mock-item"><div class="mock-icon">🌱</div><strong>Volunteer</strong><div class="muted" style="font-size:.72rem">Pendidikan</div></div>
-            <div class="mock-item"><div class="mock-icon">🎓</div><strong>Beasiswa</strong><div class="muted" style="font-size:.72rem">Pelajar</div></div>
-          </div>
-        </div>
-        <div class="hero-card float-card"><div class="float-number">10+</div><div class="float-label">Ekskul yang bisa dijelajahi</div></div>
-        <div class="hero-card float-card bottom"><div class="float-number">15+</div><div class="float-label">Peluang untuk dicoba</div></div>
-      </div>
-    </div>
-  </section>
+      );
+    }
 
-  <section class="section" id="eksul">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-title">
-          <span class="eyebrow">Jelajahi Kegiatan</span>
-          <h2>Ekskul sekolah, lebih mudah dikenali.</h2>
-          <p>Kenali kegiatan, jadwal, dan kontak pengurus sebelum memutuskan untuk ikut.</p>
-        </div>
-        <button class="btn btn-outline" onclick="document.getElementById('allEksul').scrollIntoView({behavior:'smooth'})">Lihat Semua Ekskul</button>
-      </div>
-      <div class="cards" id="featuredEksul"></div>
-    </div>
-  </section>
-
-  <section class="section highlight" id="peluang">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-title">
-          <span class="eyebrow">Peluang Terbaru</span>
-          <h2>Siapa tahu, ini kesempatanmu.</h2>
-          <p>Dari lomba sampai volunteer, temukan kegiatan yang sesuai dengan minatmu.</p>
-        </div>
-      </div>
-      <div class="controls">
-        <div class="search-wrap"><span>⌕</span><input id="opportunitySearch" type="search" placeholder="Cari peluang..." oninput="renderOpportunities()"></div>
-      </div>
-      <div class="filter-buttons" id="opportunityFilters"></div>
-      <div class="cards" id="opportunityGrid" style="margin-top:20px"></div>
-    </div>
-  </section>
-
-  <section class="section" id="allEksul">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-title">
-          <span class="eyebrow">Online Extracurricular Fair</span>
-          <h2>Pilih kegiatan yang ingin kamu coba.</h2>
-          <p>Gunakan pencarian dan kategori untuk menemukan ekskul yang paling menarik buatmu.</p>
-        </div>
-      </div>
-      <div class="controls">
-        <div class="search-wrap"><span>⌕</span><input id="eksulSearch" type="search" placeholder="Cari ekskul..." oninput="renderEksul()"></div>
-      </div>
-      <div class="filter-buttons" id="eksulFilters"></div>
-      <div class="cards" id="eksulGrid" style="margin-top:20px"></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-title">
-          <span class="eyebrow">Kenapa ADISTA?</span>
-          <h2>Mulai dari hal sederhana.</h2>
-        </div>
-      </div>
-      <div class="why-grid">
-        <div class="why-card"><div class="num">01 — MUDAH DITEMUKAN</div><h3>Informasi tidak tercecer.</h3><p>Tidak perlu mencari dari banyak grup atau akun untuk menemukan kegiatan yang sedang tersedia.</p></div>
-        <div class="why-card"><div class="num">02 — BISA MULAI SEKARANG</div><h3>Kesempatan untuk mencoba.</h3><p>Siswa dapat mengenal dan mencoba berbagai kegiatan selama masih di bangku SMA.</p></div>
-        <div class="why-card"><div class="num">03 — KENALI MINAT</div><h3>Belajar dari pengalaman.</h3><p>Pengalaman dari berbagai kegiatan dapat membantu siswa mengenali bidang yang mereka sukai.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="faq">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-title">
-          <span class="eyebrow">FAQ</span>
-          <h2>Masih punya pertanyaan?</h2>
-          <p>Beberapa hal yang mungkin ingin kamu ketahui tentang ADISTA.</p>
-        </div>
-      </div>
-      <div class="faq-list">
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apa itu ADISTA? <span>＋</span></button><div class="faq-answer">ADISTA adalah platform informasi yang membantu siswa menemukan ekskul dan berbagai peluang untuk mengembangkan minat dan pengalaman.</div></div>
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apakah ADISTA hanya untuk siswa baru? <span>＋</span></button><div class="faq-answer">Tidak. Semua siswa dapat menggunakan ADISTA untuk mencari informasi dan peluang.</div></div>
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Apakah informasi di ADISTA gratis? <span>＋</span></button><div class="faq-answer">ADISTA hanya menjadi tempat untuk menemukan informasi. Ketentuan biaya mengikuti penyelenggara masing-masing kegiatan.</div></div>
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Dari mana informasi kegiatan diperoleh? <span>＋</span></button><div class="faq-answer">Informasi dapat berasal dari sekolah, penyelenggara kegiatan, maupun sumber lain yang relevan dan kemudian dikurasi sebelum ditampilkan.</div></div>
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(this)">Bagaimana jika saya ingin membagikan informasi lomba? <span>＋</span></button><div class="faq-answer">Hubungi admin atau gunakan fitur feedback untuk mengirimkan informasi.</div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="about" style="background:#fff">
-    <div class="container">
-      <div class="about-grid">
+    // --- 1. HOME PAGE ---
+    function HomePage({ navigateTo, ekskul, peluang, setSelectedPeluang }) {
+      return (
         <div>
-          <span class="eyebrow">Tentang ADISTA</span>
-          <h2>Karena kesempatan berkembang seharusnya lebih mudah ditemukan.</h2>
-          <p class="muted" style="margin-top:15px">ADISTA dibuat dari gagasan sederhana: banyak kesempatan untuk berkembang yang sebenarnya tersedia bagi siswa, tetapi informasinya belum tentu mudah ditemukan.</p>
-          <p class="muted" style="margin-top:12px">ADISTA membantu siswa menemukan informasi, mencoba berbagai kegiatan, mendapatkan pengalaman, serta mengenali minat dan potensi diri.</p>
-        </div>
-        <div class="vision">
-          <div style="font-size:.78rem;font-weight:900;opacity:.8">VISI</div>
-          <h3 style="font-size:1.7rem;margin-top:12px">Menjadi ruang informasi yang membantu siswa menemukan lebih banyak kesempatan untuk berkembang.</h3>
-        </div>
-      </div>
-      <div style="margin-top:30px" class="mission">
-        <div><b>01</b> Memudahkan siswa menemukan informasi kegiatan dan peluang.</div>
-        <div><b>02</b> Membantu siswa mengenal berbagai pilihan kegiatan di sekolah.</div>
-        <div><b>03</b> Mendorong siswa untuk berani mencoba dan mengembangkan minatnya.</div>
-      </div>
-    </div>
-  </section>
+          {/* HERO SECTION */}
+          <section className="pt-16 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold mb-6">
+              ✨ Akses Digital Informasi & Prestasi Siswa SMA
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-6">
+              Temukan informasi.<br/>
+              <span className="text-brand-600">Coba peluang.</span> Kembangkan diri.
+            </h1>
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Satu tempat ringkas untuk menemukan ekskul, lomba, pelatihan, volunteer, dan beasiswa tanpa khawatir ketinggalan info penting di grup chat.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <button 
+                onClick={() => navigateTo('peluang')} 
+                className="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm transition shadow-lg shadow-brand-500/25 active:scale-95"
+              >
+                Lihat Peluang Aktif
+              </button>
+              <button 
+                onClick={() => navigateTo('ekskul')} 
+                className="px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-200 transition active:scale-95 shadow-sm"
+              >
+                Jelajahi Ekskul
+              </button>
+            </div>
+          </section>
 
-  <section class="section" id="feedback">
-    <div class="container feedback-wrap">
-      <div class="feedback-copy">
-        <span class="eyebrow">Suara Kamu</span>
-        <h2>Punya saran untuk ADISTA?</h2>
-        <p>ADISTA masih bisa terus dikembangkan. Sampaikan kritik, saran, atau informasi yang ingin kamu lihat di sini.</p>
-        <p style="font-size:.82rem;margin-top:18px">Tidak perlu login. Masukanmu membantu membuat ADISTA lebih berguna untuk siswa.</p>
-      </div>
-      <div class="form-card">
-        <div id="feedbackSuccess" class="success hidden">✓ Terima kasih! Masukan kamu sudah diterima.</div>
-        <form id="feedbackForm" onsubmit="submitFeedback(event)">
-          <div class="form-grid">
-            <div class="field"><label for="fbName">Nama <span class="muted">(opsional)</span></label><input id="fbName" placeholder="Nama kamu"></div>
-            <div class="field"><label for="fbClass">Kelas <span class="muted">(opsional)</span></label><input id="fbClass" placeholder="Contoh: X-2"></div>
+          {/* KENAPA ADISTA? */}
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+            <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl">
+              <div className="max-w-xl mb-10">
+                <span className="text-xs font-bold tracking-widest text-brand-300 uppercase">Kenapa Harus ADISTA?</span>
+                <h2 className="text-2xl sm:text-3xl font-bold mt-2">Dibuat khusus agar masa SMA kamu tidak hampa peluang</h2>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-6">
+                <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/50">
+                  <div className="text-2xl mb-3">📍</div>
+                  <h3 className="font-bold text-lg mb-2 text-white">Lebih Mudah Ditemukan</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">Gak ada lagi poster lomba yang tenggelam di grup WhatsApp kelas atau story Instagram yang hilang 24 jam.</p>
+                </div>
+                <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/50">
+                  <div className="text-2xl mb-3">🌱</div>
+                  <h3 className="font-bold text-lg mb-2 text-white">Bisa Mulai Sekarang</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">Gak perlu nunggu kelas 12 untuk aktif. Dari kelas 10 kamu sudah bisa eksplorasi ekskul dan kegiatan seru.</p>
+                </div>
+                <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/50">
+                  <div className="text-2xl mb-3">🎯</div>
+                  <h3 className="font-bold text-lg mb-2 text-white">Kenali Minat & Portofolio</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">Cari tahu apa yang beneran kamu suka lewat pengalaman nyata, bukan sekadar teori di buku.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SPOTLIGHT EKSKUL */}
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <span className="text-xs font-bold tracking-wider text-brand-600 uppercase">Kegiatan Sekolah</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Ekskul Unggulan</h2>
+              </div>
+              <button onClick={() => navigateTo('ekskul')} className="text-sm font-bold text-brand-600 hover:text-brand-700">
+                Lihat Semua ({ekskul.length}) →
+              </button>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ekskul.slice(0, 3).map(item => (
+                <div key={item.id} className="bg-white p-6 rounded-2xl border border-slate-200/80 hover:border-brand-300 transition-all hover:shadow-md flex flex-col justify-between">
+                  <div>
+                    <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 mb-3">{item.category}</span>
+                    <h3 className="font-bold text-xl text-slate-900 mb-2">{item.name}</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4">{item.desc}</p>
+                  </div>
+                  <div className="pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                    <p>🕒 {item.schedule}</p>
+                    <p>📍 {item.room}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* PELUANG TERBARU */}
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <span className="text-xs font-bold tracking-wider text-brand-600 uppercase">Kompetisi & Pengembangan</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Peluang Pilihan Pelajar</h2>
+              </div>
+              <button onClick={() => navigateTo('peluang')} className="text-sm font-bold text-brand-600 hover:text-brand-700">
+                Cek Selengkapnya →
+              </button>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {peluang.slice(0, 3).map(item => (
+                <div key={item.id} className="bg-white p-6 rounded-2xl border border-slate-200/80 hover:border-brand-300 transition-all hover:shadow-md flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-600">{item.category}</span>
+                      <span className="text-[11px] text-slate-400 font-medium">Batas: {item.deadline}</span>
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-900 mb-1 line-clamp-2">{item.title}</h3>
+                    <p className="text-xs text-slate-500 font-medium mb-3">Oleh {item.organizer}</p>
+                    <p className="text-sm text-slate-600 line-clamp-2 mb-6">{item.desc}</p>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedPeluang(item)}
+                    className="w-full py-2.5 rounded-xl bg-slate-50 hover:bg-brand-50 text-brand-700 font-bold text-xs transition border border-slate-200"
+                  >
+                    Lihat Detail & Syarat
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // --- 2. EKSKUL PAGE ---
+    function EkskulPage({ ekskul }) {
+      const [search, setSearch] = useState('');
+      const [category, setCategory] = useState('Semua');
+
+      const categories = ['Semua', 'Olahraga', 'Seni', 'Akademik', 'Organisasi', 'Bahasa'];
+
+      const filtered = ekskul.filter(item => {
+        const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.desc.toLowerCase().includes(search.toLowerCase());
+        const matchCat = category === 'Semua' || item.category === category;
+        return matchSearch && matchCat;
+      });
+
+      return (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+          <div className="max-w-2xl mb-8">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Katalog Ekskul Sekolah</h1>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base">Temukan komunitas yang cocok buat bakat, minat, dan nongkrong produktif kamu sepulang sekolah.</p>
           </div>
-          <div class="field"><label for="fbType">Jenis feedback</label><select id="fbType"><option>Kritik</option><option>Saran</option><option>Permintaan informasi</option><option>Lainnya</option></select></div>
-          <div class="field"><label for="fbMessage">Pesan</label><textarea id="fbMessage" required placeholder="Tulis masukan kamu di sini..."></textarea></div>
-          <button class="btn btn-primary" type="submit">Kirim Masukan →</button>
-        </form>
-      </div>
-    </div>
-  </section>
-</main>
 
-<section id="adminPage" class="hidden">
-  <div id="adminLogin" class="container">
-    <div class="login-box">
-      <span class="eyebrow">Admin Demo</span>
-      <h2>Kelola ADISTA</h2>
-      <p>Prototype login — tidak menggunakan authentication sungguhan.</p>
-      <form onsubmit="adminLogin(event)">
-        <div class="field"><label>Username</label><input id="adminUser" required value="admin"></div>
-        <div class="field"><label>Password</label><input id="adminPass" type="password" required placeholder="Masukkan password"></div>
-        <div id="loginError" class="hidden" style="color:var(--danger);font-size:.8rem;margin-bottom:12px">Username atau password salah.</div>
-        <button class="btn btn-primary" style="width:100%">Masuk sebagai Admin</button>
-      </form>
-      <p style="margin-top:14px;font-size:.75rem">Demo: admin / adista123</p>
-      <button class="btn btn-ghost" style="width:100%;margin-top:5px" onclick="exitAdmin()">← Kembali ke website</button>
-    </div>
-  </div>
-  <div id="adminDashboard" class="hidden">
-    <div class="admin-layout">
-      <aside class="admin-sidebar">
-        <div class="brand" style="margin-bottom:25px"><span class="brand-mark">A</span><span>ADISTA</span></div>
-        <button class="active" onclick="showAdminTab('dashboard',this)">▦ &nbsp; Dashboard</button>
-        <button onclick="showAdminTab('eksul',this)">◎ &nbsp; Ekskul</button>
-        <button onclick="showAdminTab('peluang',this)">◇ &nbsp; Peluang</button>
-        <button onclick="showAdminTab('feedback',this)">◌ &nbsp; Feedback</button>
-        <button onclick="exitAdmin()" style="margin-top:20px">↩ &nbsp; Keluar</button>
-      </aside>
-      <section class="admin-content">
-        <div id="adminDashboardTab">
-          <span class="eyebrow">Dashboard</span>
-          <h2>Selamat datang, Admin.</h2>
-          <p class="muted">Kelola konten ADISTA dari satu tempat.</p>
-          <div class="stats">
-            <div class="stat"><span class="muted">Jumlah Ekskul</span><strong id="statEksul">0</strong></div>
-            <div class="stat"><span class="muted">Peluang Aktif</span><strong id="statPeluang">0</strong></div>
-            <div class="stat"><span class="muted">Feedback Masuk</span><strong id="statFeedback">0</strong></div>
+          {/* Search & Filter */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex-1 relative">
+              <input 
+                type="text" 
+                placeholder="Cari nama ekskul atau kata kunci..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 shadow-sm"
+              />
+              <span className="absolute left-4 top-3.5 text-slate-400">🔍</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition ${
+                    category === cat 
+                      ? 'bg-brand-600 text-white shadow-sm' 
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
-          <div class="card"><h3>Alur prototype</h3><p style="margin-bottom:0">Konten yang ditambahkan di sini disimpan pada localStorage browser. Tidak ada database atau backend.</p></div>
+
+          {/* Grid Cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(item => (
+              <div key={item.id} className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg">{item.category}</span>
+                    <span className="text-[11px] text-slate-400 font-medium">📍 {item.room}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{item.name}</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed mb-6">{item.desc}</p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 space-y-3">
+                  <div className="text-xs text-slate-500">
+                    <p className="font-semibold text-slate-700">Jadwal Rutin:</p>
+                    <p>{item.schedule}</p>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p className="font-semibold text-slate-700">Kontak Person:</p>
+                    <p>{item.contact}</p>
+                  </div>
+                  <a 
+                    href={`https://wa.me/6281234567890?text=Halo%20kak,%20saya%20tertarik%20tanya%20info%20ekskul%20${encodeURIComponent(item.name)}`}
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="block text-center w-full py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl font-bold text-xs transition"
+                  >
+                    Hubungi Pengurus
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+              <p className="text-slate-400 text-sm">Tidak ada ekskul yang cocok dengan pencarian "{search}".</p>
+            </div>
+          )}
         </div>
-        <div id="adminEksulTab" class="hidden">
-          <div class="section-head" style="margin-bottom:20px"><div><span class="eyebrow">Content</span><h2>Kelola Ekskul</h2></div><button class="btn btn-primary" onclick="openAddEksul()">+ Tambah Ekskul</button></div>
-          <div id="adminEksulList"></div>
+      );
+    }
+
+    // --- 3. PELUANG PAGE ---
+    function PeluangPage({ peluang, setSelectedPeluang }) {
+      const [category, setCategory] = useState('Semua');
+      const [search, setSearch] = useState('');
+
+      const tabs = ['Semua', 'Lomba', 'Pelatihan', 'Volunteer', 'Beasiswa'];
+
+      const filtered = peluang.filter(item => {
+        const matchSearch = item.title.toLowerCase().includes(search.toLowerCase()) || item.organizer.toLowerCase().includes(search.toLowerCase());
+        const matchCat = category === 'Semua' || item.category === category;
+        return matchSearch && matchCat;
+      });
+
+      return (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+          <div className="max-w-2xl mb-8">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Katalog Peluang & Prestasi</h1>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base">Mulai bangun sertifikat, pengalaman kerelawanan, dan portofolio prestasi sebelum lulus.</p>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex-1 relative">
+              <input 
+                type="text" 
+                placeholder="Cari lomba, beasiswa, penyelenggara..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 shadow-sm"
+              />
+              <span className="absolute left-4 top-3.5 text-slate-400">🔍</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
+              {tabs.map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setCategory(tab)}
+                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition ${
+                    category === tab 
+                      ? 'bg-brand-600 text-white shadow-sm' 
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(item => (
+              <div key={item.id} className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-brand-50 text-brand-600">{item.category}</span>
+                    <span className="text-[11px] text-slate-500 font-medium">📍 {item.type}</span>
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900 mb-1">{item.title}</h3>
+                  <p className="text-xs font-medium text-slate-500 mb-4">Oleh {item.organizer}</p>
+                  <p className="text-sm text-slate-600 line-clamp-3 mb-6">{item.desc}</p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-xs mb-4">
+                    <span className="text-slate-400">Deadline:</span>
+                    <span className="font-semibold text-rose-600">{item.deadline}</span>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedPeluang(item)}
+                    className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white font-bold text-xs transition"
+                  >
+                    Lihat Detail
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+              <p className="text-slate-400 text-sm">Tidak ditemukan peluang untuk kategori atau kata kunci ini.</p>
+            </div>
+          )}
         </div>
-        <div id="adminPeluangTab" class="hidden">
-          <div class="section-head" style="margin-bottom:20px"><div><span class="eyebrow">Content</span><h2>Kelola Peluang</h2></div><button class="btn btn-primary" onclick="openAddOpportunity()">+ Tambah Peluang</button></div>
-          <div id="adminOpportunityList"></div>
+      );
+    }
+
+    // --- 4. FAQ PAGE ---
+    function FaqPage({ navigateTo }) {
+      const [openIdx, setOpenIdx] = useState(0);
+
+      return (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h1>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base">Pertanyaan yang sering diajukan mengenai pemanfaatan platform ADISTA Info.</p>
+          </div>
+
+          <div className="space-y-4">
+            {FAQ_LIST.map((item, idx) => (
+              <div 
+                key={idx} 
+                className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm transition"
+              >
+                <button 
+                  onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+                  className="w-full p-5 text-left font-bold text-slate-800 flex justify-between items-center gap-4 hover:bg-slate-50"
+                >
+                  <span className="text-base">{item.q}</span>
+                  <span className="text-xl text-slate-400">{openIdx === idx ? '−' : '+'}</span>
+                </button>
+                {openIdx === idx && (
+                  <div className="px-5 pb-5 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center bg-brand-50 p-6 rounded-2xl border border-brand-100">
+            <p className="text-sm font-semibold text-brand-900">Punya pertanyaan lain atau ingin berkolaborasi?</p>
+            <button 
+              onClick={() => navigateTo('feedback')} 
+              className="mt-3 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 px-5 py-2.5 rounded-xl transition"
+            >
+              Hubungi Tim Kami Lewat Form
+            </button>
+          </div>
         </div>
-        <div id="adminFeedbackTab" class="hidden">
-          <span class="eyebrow">Responses</span><h2>Feedback Masuk</h2><div id="adminFeedbackList" style="margin-top:20px"></div>
+      );
+    }
+
+    // --- 5. ABOUT PAGE ---
+    function AboutPage({ navigateTo }) {
+      return (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+          <div className="mb-12">
+            <span className="text-xs font-bold tracking-widest text-brand-600 uppercase">Tentang Kami</span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">ADISTA Info</h1>
+            <p className="text-lg text-slate-600 mt-4 leading-relaxed font-normal">
+              ADISTA (Akses Digital Informasi & Prestasi) dibuat dari gagasan sederhana: 
+              banyak kesempatan untuk berkembang yang sebenarnya tersedia bagi siswa, tetapi informasinya belum tentu mudah ditemukan.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-8 mb-12">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center mb-4">
+                🎯
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Visi Kami</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                “Menjadi ruang informasi yang membantu siswa menemukan lebih banyak kesempatan untuk berkembang.”
+              </p>
+            </div>
+
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center mb-4">
+                🚀
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Misi Utama</h3>
+              <ul className="text-sm text-slate-600 space-y-2 list-disc list-inside">
+                <li>Memudahkan siswa menemukan informasi kegiatan dan peluang tanpa tersebar.</li>
+                <li>Membantu siswa mengenal berbagai pilihan kegiatan dan ekskul di sekolah.</li>
+                <li>Mendorong siswa berani mencoba dan mengembangkan minat sejak bangku awal SMA.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm text-center">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Program Inovasi Siswa Mandiri</h2>
+            <p className="text-sm text-slate-600 max-w-xl mx-auto mb-6">
+              Prototype ini dirancang untuk mempermudah ekosistem kesiswaan dan OSIS dalam menyalurkan pengumuman penting secara terstruktur.
+            </p>
+            <button 
+              onClick={() => navigateTo('home')}
+              className="px-6 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-brand-600 transition"
+            >
+              Kembali ke Beranda
+            </button>
+          </div>
         </div>
-      </section>
-    </div>
-  </div>
-</section>
+      );
+    }
 
-<footer id="publicFooter">
-  <div class="container">
-    <div class="footer-grid">
-      <div><div class="footer-brand">ADISTA Info</div><p>Akses Digital Informasi & Prestasi</p><p>Temukan. Coba. Kembangkan.</p></div>
-      <div class="footer-links"><a href="#eksul">Ekskul</a><a href="#peluang">Peluang</a><a href="#faq">FAQ</a><a href="#about">Tentang</a><a href="#feedback">Kirim Saran</a></div>
-    </div>
-    <div class="copyright">© 2026 ADISTA Info — Prototype Program Inovasi Siswa</div>
-  </div>
-</footer>
+    // --- 6. FEEDBACK PAGE ---
+    function FeedbackPage({ feedbacks, setFeedbacks }) {
+      const [name, setName] = useState('');
+      const [grade, setGrade] = useState('');
+      const [type, setType] = useState('Saran');
+      const [message, setMessage] = useState('');
+      const [submitted, setSubmitted] = useState(false);
 
-<div class="modal" id="detailModal" onclick="closeModal(event)">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="hideModal()">×</button>
-    <div id="modalContent"></div>
-  </div>
-</div>
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!message.trim()) return;
 
-<div class="modal" id="adminFormModal" onclick="closeAdminModal(event)">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="hideAdminModal()">×</button>
-    <div id="adminFormContent"></div>
-  </div>
-</div>
+        const newFeedback = {
+          id: Date.now(),
+          name: name.trim() ? `${name.trim()} (${grade.trim() || 'Siswa'})` : 'Anonim',
+          type,
+          text: message,
+          date: 'Baru saja'
+        };
 
-<script>
-const defaultEksul = [
-  {id:1,name:"Basket",category:"Olahraga",icon:"🏀",desc:"Mengembangkan kemampuan bermain basket melalui latihan rutin, permainan tim, dan kompetisi.",schedule:"Selasa & Kamis, 15.30",place:"Lapangan Sekolah",contact:"08xx-xxxx-1001",activities:"Latihan teknik, sparring, dan persiapan kompetisi."},
-  {id:2,name:"English Club",category:"Bahasa",icon:"🌐",desc:"Tempat mengembangkan kemampuan bahasa Inggris melalui conversation, games, dan kegiatan kreatif.",schedule:"Jumat, 15.30",place:"Ruang Bahasa",contact:"08xx-xxxx-1002",activities:"Conversation, public speaking, games, dan English event."},
-  {id:3,name:"Karya Ilmiah Remaja",category:"Akademik",icon:"🔬",desc:"Ruang untuk siswa yang tertarik melakukan penelitian, eksperimen, dan membuat karya ilmiah.",schedule:"Rabu, 15.30",place:"Laboratorium",contact:"08xx-xxxx-1003",activities:"Eksperimen, penelitian sederhana, dan persiapan lomba."},
-  {id:4,name:"Pramuka",category:"Sosial",icon:"🏕️",desc:"Belajar kepemimpinan, kerja sama, kemandirian, dan keterampilan melalui kegiatan kepramukaan.",schedule:"Sabtu, 08.00",place:"Lapangan Sekolah",contact:"08xx-xxxx-1004",activities:"Latihan rutin, kegiatan sosial, dan perkemahan."},
-  {id:5,name:"Paskibra",category:"Organisasi",icon:"🇮🇩",desc:"Membangun kedisiplinan, tanggung jawab, kekompakan, dan kemampuan baris-berbaris.",schedule:"Senin & Kamis, 15.30",place:"Lapangan Sekolah",contact:"08xx-xxxx-1005",activities:"PBB, latihan upacara, dan kegiatan kepemimpinan."},
-  {id:6,name:"Musik",category:"Seni",icon:"🎸",desc:"Wadah bagi siswa yang ingin belajar dan berekspresi melalui musik bersama teman-teman.",schedule:"Rabu, 16.00",place:"Ruang Musik",contact:"08xx-xxxx-1006",activities:"Latihan band, vokal, dan penampilan sekolah."},
-  {id:7,name:"Desain & Multimedia",category:"Seni",icon:"🎨",desc:"Belajar dasar desain visual, fotografi, video, dan pembuatan konten kreatif.",schedule:"Kamis, 15.30",place:"Lab Multimedia",contact:"08xx-xxxx-1007",activities:"Desain poster, fotografi, video, dan konten sekolah."},
-  {id:8,name:"Robotika",category:"Akademik",icon:"🤖",desc:"Mengenal elektronika, pemrograman, dan perakitan robot melalui proyek sederhana.",schedule:"Jumat, 15.30",place:"Lab Komputer",contact:"08xx-xxxx-1008",activities:"Arduino, sensor, robot sederhana, dan kompetisi."},
-  {id:9,name:"Jurnalistik",category:"Organisasi",icon:"📰",desc:"Melatih kemampuan menulis, wawancara, fotografi, dan menyampaikan informasi.",schedule:"Selasa, 15.30",place:"Ruang OSIS",contact:"08xx-xxxx-1009",activities:"Majalah sekolah, berita, wawancara, dan liputan acara."},
-  {id:10,name:"Futsal",category:"Olahraga",icon:"⚽",desc:"Kegiatan olahraga tim untuk meningkatkan kemampuan futsal sekaligus membangun sportivitas.",schedule:"Rabu & Jumat, 16.00",place:"Lapangan Futsal",contact:"08xx-xxxx-1010",activities:"Latihan teknik, sparring, dan turnamen antar sekolah."}
-];
+        setFeedbacks([newFeedback, ...feedbacks]);
+        setSubmitted(true);
+        setName('');
+        setGrade('');
+        setMessage('');
+      };
 
-const defaultOpportunities = [
-  {id:1,title:"Lomba Esai Nasional 2026",organizer:"Pelajar Berkarya",category:"Lomba",deadline:"20 Oktober 2026",location:"Online",desc:"Kompetisi menulis esai untuk siswa SMA dengan tema inovasi dan masa depan pendidikan.",requirements:["Siswa SMA/sederajat","Esai maksimal 1.500 kata","Karya belum pernah memenangkan kompetisi lain"],link:"#"},
-  {id:2,title:"Pelatihan Digital untuk Pelajar",organizer:"Ruang Belajar Digital",category:"Pelatihan",deadline:"5 Oktober 2026",location:"Online",desc:"Pelatihan dasar desain, produktivitas digital, dan pengenalan teknologi untuk pelajar.",requirements:["Siswa SMA/sederajat","Memiliki akses internet","Mengikuti seluruh sesi"],link:"#"},
-  {id:3,title:"Volunteer Pendidikan",organizer:"Sahabat Belajar",category:"Volunteer",deadline:"12 Oktober 2026",location:"Bandung",desc:"Kesempatan menjadi relawan dalam kegiatan belajar bersama untuk siswa sekolah dasar.",requirements:["Usia 15–18 tahun","Bersedia mengikuti briefing","Memiliki komitmen kegiatan"],link:"#"},
-  {id:4,title:"Beasiswa Pelajar Berprestasi",organizer:"Generasi Maju",category:"Beasiswa",deadline:"30 September 2026",location:"Nasional",desc:"Program dukungan pendidikan untuk pelajar dengan prestasi akademik maupun non-akademik.",requirements:["Siswa SMA","Memiliki prestasi atau kegiatan aktif","Mengikuti proses seleksi"],link:"#"},
-  {id:5,title:"Kompetisi Coding Pelajar",organizer:"Tech Youth Indonesia",category:"Lomba",deadline:"25 Oktober 2026",location:"Online",desc:"Kompetisi pemrograman tingkat pelajar untuk mengasah logika dan kemampuan problem solving.",requirements:["Siswa SMA/sederajat","Dasar pemrograman","Registrasi individu"],link:"#"},
-  {id:6,title:"Workshop Public Speaking",organizer:"Speak Up Community",category:"Pelatihan",deadline:"8 Oktober 2026",location:"Online",desc:"Workshop interaktif untuk melatih kepercayaan diri dan kemampuan berbicara di depan umum.",requirements:["Pelajar SMA","Aktif mengikuti sesi"],link:"#"},
-  {id:7,title:"Volunteer Lingkungan Sekolah",organizer:"Green Youth",category:"Volunteer",deadline:"18 Oktober 2026",location:"Cimahi",desc:"Kegiatan edukasi lingkungan dan aksi bersih bersama pelajar.",requirements:["Pelajar SMA","Membawa perlengkapan pribadi","Mengikuti briefing"],link:"#"},
-  {id:8,title:"Beasiswa Talenta Muda",organizer:"Yayasan Pendidikan Nusantara",category:"Beasiswa",deadline:"15 Oktober 2026",location:"Nasional",desc:"Dukungan pendidikan bagi siswa yang aktif mengembangkan bakat dan kegiatan positif.",requirements:["Siswa kelas X–XII","Dokumen prestasi","Surat rekomendasi sekolah"],link:"#"},
-  {id:9,title:"Lomba Poster Digital Pelajar",organizer:"Kreasi Muda",category:"Lomba",deadline:"2 November 2026",location:"Online",desc:"Tantang kreativitasmu dengan membuat poster digital bertema sekolah dan lingkungan.",requirements:["Siswa SMA","1 karya per peserta","Format JPG/PNG"],link:"#"},
-  {id:10,title:"Pelatihan Dasar Robotika",organizer:"Future Engineer Club",category:"Pelatihan",deadline:"10 Oktober 2026",location:"Jakarta",desc:"Pengenalan robotika dan elektronika melalui proyek sederhana yang dapat diikuti pemula.",requirements:["Siswa SMA","Tidak wajib punya pengalaman"],link:"#"},
-  {id:11,title:"Volunteer Literasi Anak",organizer:"Baca Bersama",category:"Volunteer",deadline:"22 Oktober 2026",location:"Bandung",desc:"Mendampingi kegiatan membaca dan permainan edukatif bersama anak-anak.",requirements:["Usia minimal 15 tahun","Komunikatif","Bersedia mengikuti kegiatan"],link:"#"},
-  {id:12,title:"Lomba Presentasi Sains",organizer:"Science Student Forum",category:"Lomba",deadline:"5 November 2026",location:"Online",desc:"Kompetisi presentasi proyek sains untuk siswa SMA.",requirements:["Tim 2–3 siswa","Proposal proyek","Presentasi maksimal 10 menit"],link:"#"}
-];
+      return (
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Punya Saran untuk ADISTA?</h1>
+            <p className="text-slate-600 text-sm mt-2">ADISTA masih bisa terus dikembangkan. Sampaikan kritik, saran, atau informasi kegiatan yang ingin kamu lihat di sini.</p>
+          </div>
 
-let ekskul = JSON.parse(localStorage.getItem("adista_eksul") || "null") || defaultEksul;
-let opportunities = JSON.parse(localStorage.getItem("adista_opportunities") || "null") || defaultOpportunities;
-let feedbacks = JSON.parse(localStorage.getItem("adista_feedback") || "[]");
-let selectedEksulCategory = "Semua";
-let selectedOppCategory = "Semua";
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+            {submitted ? (
+              <div className="text-center py-10 space-y-4">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                  ✓
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Terima kasih! Masukan kamu sudah diterima.</h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  Saran kamu langsung masuk ke daftar ulasan admin sekolah untuk evaluasi pembaruan platform selanjutnya.
+                </p>
+                <button 
+                  onClick={() => setSubmitted(false)} 
+                  className="mt-4 px-5 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl"
+                >
+                  Kirim Masukan Lain
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Nama (Opsional)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Contoh: Budi Pratama"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Kelas (Opsional)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Contoh: X MIPA 1"
+                      value={grade}
+                      onChange={(e) => setGrade(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    />
+                  </div>
+                </div>
 
-function saveData(){
-  localStorage.setItem("adista_eksul",JSON.stringify(ekskul));
-  localStorage.setItem("adista_opportunities",JSON.stringify(opportunities));
-  localStorage.setItem("adista_feedback",JSON.stringify(feedbacks));
-}
-function escapeHTML(str){
-  return String(str ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-}
-function categoryButtons(containerId,categories,selected,onClick){
-  document.getElementById(containerId).innerHTML=categories.map(c=>`<button class="filter-btn ${c===selected?"active":""}" onclick="${onClick}('${escapeHTML(c)}')">${escapeHTML(c)}</button>`).join("");
-}
-function renderEksulFilters(){
-  const cats=["Semua",...new Set(ekskul.map(x=>x.category))];
-  categoryButtons("eksulFilters",cats,selectedEksulCategory,"setEksulCategory");
-}
-function renderEksul(){
-  renderEksulFilters();
-  const q=(document.getElementById("eksulSearch")?.value||"").toLowerCase();
-  const list=ekskul.filter(x=>(selectedEksulCategory==="Semua"||x.category===selectedEksulCategory)&&`${x.name} ${x.category} ${x.desc}`.toLowerCase().includes(q));
-  const grid=document.getElementById("eksulGrid");
-  if(!list.length){grid.innerHTML='<div class="empty">Ekskul yang kamu cari belum ditemukan.</div>';return}
-  grid.innerHTML=list.map(eksulCard).join("");
-}
-function setEksulCategory(c){selectedEksulCategory=c;renderEksul()}
-function eksulCard(x){
-  return `<article class="card">
-    <div class="icon-box">${x.icon}</div>
-    <span class="tag">${escapeHTML(x.category)}</span>
-    <h3 style="margin-top:10px">${escapeHTML(x.name)}</h3>
-    <p>${escapeHTML(x.desc)}</p>
-    <div class="meta"><span>◷ ${escapeHTML(x.schedule)}</span><span>⌖ ${escapeHTML(x.place)}</span></div>
-    <div class="card-footer"><span class="muted" style="font-size:.76rem">${escapeHTML(x.contact)}</span><button class="btn btn-outline btn-sm" onclick="showEksul(${x.id})">Lihat Detail</button></div>
-  </article>`;
-}
-function renderFeatured(){
-  document.getElementById("featuredEksul").innerHTML=ekskul.slice(0,6).map(eksulCard).join("");
-}
-function showEksul(id){
-  const x=ekskul.find(a=>a.id===id);if(!x)return;
-  document.getElementById("modalContent").innerHTML=`
-    <div class="icon-box">${x.icon}</div><span class="tag">${escapeHTML(x.category)}</span>
-    <h2 style="margin-top:12px">${escapeHTML(x.name)}</h2><p class="muted" style="margin-top:8px">${escapeHTML(x.desc)}</p>
-    <div class="detail-meta"><div><b>Jadwal</b><br>${escapeHTML(x.schedule)}</div><div><b>Tempat</b><br>${escapeHTML(x.place)}</div><div><b>Kontak Pengurus</b><br>${escapeHTML(x.contact)}</div><div><b>Kategori</b><br>${escapeHTML(x.category)}</div></div>
-    <div class="detail-content"><h4>Kegiatan</h4><p>${escapeHTML(x.activities)}</p></div>
-    <div style="margin-top:24px"><a class="btn btn-primary" href="https://wa.me/6280000000000" target="_blank" rel="noopener">Tertarik? Hubungi Pengurus →</a></div>`;
-  document.getElementById("detailModal").classList.add("show");
-}
-function renderOpportunityFilters(){
-  const cats=["Semua","Lomba","Pelatihan","Volunteer","Beasiswa"];
-  categoryButtons("opportunityFilters",cats,selectedOppCategory,"setOppCategory");
-}
-function renderOpportunities(){
-  renderOpportunityFilters();
-  const q=(document.getElementById("opportunitySearch")?.value||"").toLowerCase();
-  const list=opportunities.filter(x=>(selectedOppCategory==="Semua"||x.category===selectedOppCategory)&&`${x.title} ${x.organizer} ${x.category} ${x.desc}`.toLowerCase().includes(q));
-  const grid=document.getElementById("opportunityGrid");
-  if(!list.length){grid.innerHTML='<div class="empty">Peluang yang kamu cari belum ditemukan.</div>';return}
-  grid.innerHTML=list.map(x=>`<article class="card">
-    <span class="tag">${escapeHTML(x.category)}</span>
-    <h3 style="margin-top:12px">${escapeHTML(x.title)}</h3>
-    <p>${escapeHTML(x.desc)}</p>
-    <div class="meta"><span>🏢 ${escapeHTML(x.organizer)}</span><span>⏳ Deadline: ${escapeHTML(x.deadline)}</span><span>⌖ ${escapeHTML(x.location)}</span></div>
-    <div class="card-footer"><span class="muted" style="font-size:.75rem">Info peluang</span><button class="btn btn-primary btn-sm" onclick="showOpportunity(${x.id})">Lihat Detail</button></div>
-  </article>`).join("");
-}
-function setOppCategory(c){selectedOppCategory=c;renderOpportunities()}
-function showOpportunity(id){
-  const x=opportunities.find(a=>a.id===id);if(!x)return;
-  document.getElementById("modalContent").innerHTML=`
-    <span class="tag">${escapeHTML(x.category)}</span><h2 style="margin-top:12px">${escapeHTML(x.title)}</h2>
-    <p class="muted" style="margin-top:8px">${escapeHTML(x.desc)}</p>
-    <div class="detail-meta"><div><b>Penyelenggara</b><br>${escapeHTML(x.organizer)}</div><div><b>Deadline</b><br>${escapeHTML(x.deadline)}</div><div><b>Kategori</b><br>${escapeHTML(x.category)}</div><div><b>Lokasi</b><br>${escapeHTML(x.location)}</div></div>
-    <div class="detail-content"><h4>Persyaratan</h4><ul>${(x.requirements||[]).map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul><h4>Deskripsi</h4><p>${escapeHTML(x.desc)}</p></div>
-    <div style="margin-top:24px"><a class="btn btn-primary" href="${x.link||"#"}" onclick="if((this.getAttribute('href')||'#')==='#'){event.preventDefault();alert('Link pendaftaran masih berupa dummy pada prototype.')}">Daftar / Lihat Informasi →</a></div>`;
-  document.getElementById("detailModal").classList.add("show");
-}
-function hideModal(){document.getElementById("detailModal").classList.remove("show")}
-function closeModal(e){if(e.target.id==="detailModal")hideModal()}
-function toggleFaq(btn){btn.parentElement.classList.toggle("open")}
-function submitFeedback(e){
-  e.preventDefault();
-  feedbacks.unshift({id:Date.now(),name:document.getElementById("fbName").value||"Anonim",className:document.getElementById("fbClass").value||"-",type:document.getElementById("fbType").value,message:document.getElementById("fbMessage").value,date:new Date().toLocaleString("id-ID")});
-  saveData();
-  document.getElementById("feedbackForm").reset();
-  document.getElementById("feedbackSuccess").classList.remove("hidden");
-  setTimeout(()=>document.getElementById("feedbackSuccess").classList.add("hidden"),4000);
-}
-function toggleMenu(){document.getElementById("navLinks").classList.toggle("show")}
-function closeMenu(){document.getElementById("navLinks").classList.remove("show")}
-function goHome(){showPublic();closeMenu()}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Kategori Masukan</label>
+                  <select 
+                    value={type} 
+                    onChange={(e) => setType(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                  >
+                    <option value="Saran">Saran Pengembangan</option>
+                    <option value="Kritik">Kritik Tampilan / Sistem</option>
+                    <option value="Permintaan informasi">Permintaan Info Lomba/Ekskul Baru</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
 
-/* ADMIN */
-function showAdmin(){
-  document.getElementById("publicPage").classList.add("hidden");
-  document.getElementById("publicNav").classList.add("hidden");
-  document.getElementById("publicFooter").classList.add("hidden");
-  document.getElementById("adminPage").classList.remove("hidden");
-  window.scrollTo(0,0);
-  if(sessionStorage.getItem("adista_admin")==="1"){
-    document.getElementById("adminLogin").classList.add("hidden");
-    document.getElementById("adminDashboard").classList.remove("hidden");
-    renderAdmin();
-  }else{
-    document.getElementById("adminLogin").classList.remove("hidden");
-    document.getElementById("adminDashboard").classList.add("hidden");
-  }
-}
-function showPublic(){
-  document.getElementById("publicPage").classList.remove("hidden");
-  document.getElementById("publicNav").classList.remove("hidden");
-  document.getElementById("publicFooter").classList.remove("hidden");
-  document.getElementById("adminPage").classList.add("hidden");
-}
-function adminLogin(e){
-  e.preventDefault();
-  if(document.getElementById("adminUser").value==="admin"&&document.getElementById("adminPass").value==="adista123"){
-    sessionStorage.setItem("adista_admin","1");showAdmin();
-  }else document.getElementById("loginError").classList.remove("hidden");
-}
-function exitAdmin(){sessionStorage.removeItem("adista_admin");showPublic();history.pushState({},"","#home")}
-function showAdminTab(tab,btn){
-  document.querySelectorAll("#adminDashboardTab,#adminEksulTab,#adminPeluangTab,#adminFeedbackTab").forEach(x=>x.classList.add("hidden"));
-  document.querySelectorAll(".admin-sidebar button").forEach(x=>x.classList.remove("active"));
-  document.getElementById("admin"+tab.charAt(0).toUpperCase()+tab.slice(1)+"Tab").classList.remove("hidden");
-  if(btn)btn.classList.add("active");
-  renderAdmin();
-}
-function renderAdmin(){
-  document.getElementById("statEksul").textContent=ekskul.length;
-  document.getElementById("statPeluang").textContent=opportunities.length;
-  document.getElementById("statFeedback").textContent=feedbacks.length;
-  document.getElementById("adminEksulList").innerHTML=`<table class="admin-table"><thead><tr><th>Nama</th><th>Kategori</th><th>Jadwal</th><th>Aksi</th></tr></thead><tbody>${ekskul.map(x=>`<tr><td>${x.icon} ${escapeHTML(x.name)}</td><td>${escapeHTML(x.category)}</td><td>${escapeHTML(x.schedule)}</td><td><div class="admin-actions"><button class="btn btn-outline btn-sm" onclick="editEksul(${x.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteEksul(${x.id})">Hapus</button></div></td></tr>`).join("")}</tbody></table>`;
-  document.getElementById("adminOpportunityList").innerHTML=`<table class="admin-table"><thead><tr><th>Judul</th><th>Kategori</th><th>Deadline</th><th>Aksi</th></tr></thead><tbody>${opportunities.map(x=>`<tr><td>${escapeHTML(x.title)}</td><td>${escapeHTML(x.category)}</td><td>${escapeHTML(x.deadline)}</td><td><div class="admin-actions"><button class="btn btn-outline btn-sm" onclick="editOpportunity(${x.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteOpportunity(${x.id})">Hapus</button></div></td></tr>`).join("")}</tbody></table>`;
-  document.getElementById("adminFeedbackList").innerHTML=feedbacks.length?feedbacks.map(f=>`<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:10px"><strong>${escapeHTML(f.type)}</strong><span class="muted" style="font-size:.75rem">${escapeHTML(f.date)}</span></div><p style="margin:8px 0">${escapeHTML(f.message)}</p><span class="tag">${escapeHTML(f.name)} · ${escapeHTML(f.className)}</span></div>`).join(""):'<div class="card"><p>Belum ada feedback masuk.</p></div>';
-}
-function openAddEksul(){openEksulForm()}
-function editEksul(id){openEksulForm(ekskul.find(x=>x.id===id))}
-function openEksulForm(x=null){
-  document.getElementById("adminFormContent").innerHTML=`<span class="eyebrow">${x?"Edit":"Tambah"} Ekskul</span><h2>${x?"Edit Ekskul":"Tambah Ekskul"}</h2>
-  <form onsubmit="saveEksulForm(event,${x?.id||0})" style="margin-top:20px">
-  <div class="form-grid"><div class="field"><label>Nama</label><input id="afName" required value="${escapeHTML(x?.name||"")}"></div><div class="field"><label>Ikon</label><input id="afIcon" value="${escapeHTML(x?.icon||"⭐")}"></div></div>
-  <div class="form-grid"><div class="field"><label>Kategori</label><select id="afCat">${["Olahraga","Seni","Akademik","Organisasi","Bahasa","Sosial"].map(c=>`<option ${c===x?.category?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Jadwal</label><input id="afSchedule" required value="${escapeHTML(x?.schedule||"")}"></div></div>
-  <div class="field"><label>Tempat</label><input id="afPlace" required value="${escapeHTML(x?.place||"")}"></div><div class="field"><label>Kontak</label><input id="afContact" value="${escapeHTML(x?.contact||"")}"></div><div class="field"><label>Deskripsi</label><textarea id="afDesc" required>${escapeHTML(x?.desc||"")}</textarea></div><div class="field"><label>Kegiatan</label><textarea id="afActivities">${escapeHTML(x?.activities||"")}</textarea></div>
-  <button class="btn btn-primary">Simpan</button></form>`;
-  document.getElementById("adminFormModal").classList.add("show");
-}
-function saveEksulForm(e,id){
-  e.preventDefault();
-  const data={id:id||Date.now(),name:document.getElementById("afName").value,icon:document.getElementById("afIcon").value||"⭐",category:document.getElementById("afCat").value,schedule:document.getElementById("afSchedule").value,place:document.getElementById("afPlace").value,contact:document.getElementById("afContact").value,desc:document.getElementById("afDesc").value,activities:document.getElementById("afActivities").value};
-  if(id)ekskul=ekskul.map(x=>x.id===id?data:x);else ekskul.push(data);
-  saveData();hideAdminModal();renderAdmin();renderEksul();renderFeatured();
-}
-function deleteEksul(id){if(confirm("Hapus ekskul ini?")){ekskul=ekskul.filter(x=>x.id!==id);saveData();renderAdmin();renderEksul();renderFeatured()}}
-function openAddOpportunity(){openOpportunityForm()}
-function editOpportunity(id){openOpportunityForm(opportunities.find(x=>x.id===id))}
-function openOpportunityForm(x=null){
-  document.getElementById("adminFormContent").innerHTML=`<span class="eyebrow">${x?"Edit":"Tambah"} Peluang</span><h2>${x?"Edit Peluang":"Tambah Peluang"}</h2>
-  <form onsubmit="saveOpportunityForm(event,${x?.id||0})" style="margin-top:20px">
-  <div class="field"><label>Judul</label><input id="opTitle" required value="${escapeHTML(x?.title||"")}"></div>
-  <div class="form-grid"><div class="field"><label>Kategori</label><select id="opCat">${["Lomba","Pelatihan","Volunteer","Beasiswa"].map(c=>`<option ${c===x?.category?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>Deadline</label><input id="opDeadline" required value="${escapeHTML(x?.deadline||"")}"></div></div>
-  <div class="form-grid"><div class="field"><label>Penyelenggara</label><input id="opOrganizer" required value="${escapeHTML(x?.organizer||"")}"></div><div class="field"><label>Lokasi</label><input id="opLocation" required value="${escapeHTML(x?.location||"")}"></div></div>
-  <div class="field"><label>Deskripsi</label><textarea id="opDesc" required>${escapeHTML(x?.desc||"")}</textarea></div><div class="field"><label>Persyaratan (pisahkan dengan koma)</label><input id="opReq" value="${escapeHTML((x?.requirements||[]).join(", "))}"></div>
-  <button class="btn btn-primary">Simpan</button></form>`;
-  document.getElementById("adminFormModal").classList.add("show");
-}
-function saveOpportunityForm(e,id){
-  e.preventDefault();
-  const data={id:id||Date.now(),title:document.getElementById("opTitle").value,category:document.getElementById("opCat").value,deadline:document.getElementById("opDeadline").value,organizer:document.getElementById("opOrganizer").value,location:document.getElementById("opLocation").value,desc:document.getElementById("opDesc").value,requirements:document.getElementById("opReq").value.split(",").map(x=>x.trim()).filter(Boolean),link:"#"};
-  if(id)opportunities=opportunities.map(x=>x.id===id?data:x);else opportunities.push(data);
-  saveData();hideAdminModal();renderAdmin();renderOpportunities();
-}
-function deleteOpportunity(id){if(confirm("Hapus peluang ini?")){opportunities=opportunities.filter(x=>x.id!==id);saveData();renderAdmin();renderOpportunities()}}
-function hideAdminModal(){document.getElementById("adminFormModal").classList.remove("show")}
-function closeAdminModal(e){if(e.target.id==="adminFormModal")hideAdminModal()}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Pesan Masukan *</label>
+                  <textarea 
+                    required 
+                    rows="4" 
+                    placeholder="Tuliskan saran atau uneg-uneg kamu di sini..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                  ></textarea>
+                </div>
 
-function route(){
-  if(location.hash==="#admin"){showAdmin()}else{showPublic();if(location.hash==="#home"||!location.hash)window.scrollTo(0,0)}
-}
-window.addEventListener("hashchange",route);
+                <button 
+                  type="submit" 
+                  className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl shadow-md shadow-brand-500/20 transition"
+                >
+                  Kirim Masukan Sekarang
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      );
+    }
 
-renderEksul();
-renderFeatured();
-renderOpportunities();
-route();
-</script>
+    // --- 7. ADMIN DASHBOARD SIMULATION ---
+    function AdminPage({ ekskul, setEkskul, peluang, setPeluang, feedbacks, navigateTo }) {
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [user, setUser] = useState('');
+      const [pass, setPass] = useState('');
+      const [error, setError] = useState(false);
+
+      const [adminTab, setAdminTab] = useState('overview'); // overview, ekskul, peluang, feedback
+
+      // Form states for Quick Add
+      const [newEkskulName, setNewEkskulName] = useState('');
+      const [newEkskulCat, setNewEkskulCat] = useState('Akademik');
+      const [newPeluangTitle, setNewPeluangTitle] = useState('');
+      const [newPeluangCat, setNewPeluangCat] = useState('Lomba');
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (user === 'admin' && pass === 'adista123') {
+          setIsAuthenticated(true);
+          setError(false);
+        } else {
+          setError(true);
+        }
+      };
+
+      const handleDeleteEkskul = (id) => {
+        setEkskul(ekskul.filter(item => item.id !== id));
+      };
+
+      const handleAddEkskul = (e) => {
+        e.preventDefault();
+        if (!newEkskulName) return;
+        const newItem = {
+          id: Date.now(),
+          name: newEkskulName,
+          category: newEkskulCat,
+          desc: "Kegiatan baru yang sedang dalam proses input rincian lengkap.",
+          schedule: "Setiap hari Jumat",
+          room: "Area Sekolah",
+          contact: "0812-xxxx-xxxx"
+        };
+        setEkskul([...ekskul, newItem]);
+        setNewEkskulName('');
+      };
+
+      const handleDeletePeluang = (id) => {
+        setPeluang(peluang.filter(item => item.id !== id));
+      };
+
+      const handleAddPeluang = (e) => {
+        e.preventDefault();
+        if (!newPeluangTitle) return;
+        const newItem = {
+          id: Date.now(),
+          title: newPeluangTitle,
+          organizer: "Panitia Terkait",
+          category: newPeluangCat,
+          deadline: "30 November 2026",
+          type: "Online",
+          desc: "Informasi peluang baru yang baru saja diinput oleh tim pengelola kesiswaan.",
+          req: "Terbuka bagi siswa SMA.",
+          link: "https://example.com"
+        };
+        setPeluang([...peluang, newItem]);
+        setNewPeluangTitle('');
+      };
+
+      if (!isAuthenticated) {
+        return (
+          <div className="max-w-md mx-auto px-4 py-16">
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-md">
+              <div className="text-center mb-6">
+                <span className="text-2xl">🔐</span>
+                <h2 className="text-2xl font-bold text-slate-900 mt-2">Login Pengelola ADISTA</h2>
+                <p className="text-xs text-slate-500 mt-1">Prototype Demo Account: <span className="font-mono text-brand-600 font-bold">admin / adista123</span></p>
+              </div>
+
+              {error && (
+                <div className="mb-4 text-xs font-semibold bg-rose-50 text-rose-600 p-3 rounded-xl border border-rose-100">
+                  Username atau password salah! Gunakan: admin & adista123
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Username</label>
+                  <input 
+                    type="text"
+                    value={user}
+                    onChange={(e) => setUser(e.target.value)}
+                    placeholder="admin"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                  <input 
+                    type="password"
+                    value={pass}
+                    onChange={(e) => setPass(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                  />
+                </div>
+                <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-brand-600 text-white font-bold text-sm rounded-xl transition">
+                  Masuk Dashboard
+                </button>
+              </form>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 mb-6 border-b border-slate-200 gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-600">Simulasi Mode Admin</span>
+              <h1 className="text-2xl font-extrabold text-slate-900">Dashboard Konten Sekolah</h1>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsAuthenticated(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 font-bold text-xs rounded-xl transition"
+              >
+                Keluar
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <p className="text-xs font-semibold text-slate-500">Jumlah Ekskul</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-1">{ekskul.length}</p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <p className="text-xs font-semibold text-slate-500">Peluang Aktif</p>
+              <p className="text-3xl font-extrabold text-brand-600 mt-1">{peluang.length}</p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <p className="text-xs font-semibold text-slate-500">Feedback Masuk</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-1">{feedbacks.length}</p>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 border-b border-slate-200 pb-3 mb-6">
+            <button 
+              onClick={() => setAdminTab('overview')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${adminTab === 'overview' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Ringkasan Data
+            </button>
+            <button 
+              onClick={() => setAdminTab('ekskul')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${adminTab === 'ekskul' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Kelola Ekskul ({ekskul.length})
+            </button>
+            <button 
+              onClick={() => setAdminTab('peluang')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${adminTab === 'peluang' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Kelola Peluang ({peluang.length})
+            </button>
+            <button 
+              onClick={() => setAdminTab('feedback')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold ${adminTab === 'feedback' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Pesan Masuk ({feedbacks.length})
+            </button>
+          </div>
+
+          {/* TAB 1: EKSKUL */}
+          {adminTab === 'ekskul' && (
+            <div className="space-y-6">
+              <form onSubmit={handleAddEkskul} className="bg-white p-4 rounded-2xl border border-slate-200 flex gap-3 items-center">
+                <input 
+                  type="text" 
+                  placeholder="Nama ekskul baru..." 
+                  value={newEkskulName}
+                  onChange={(e) => setNewEkskulName(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"
+                />
+                <select 
+                  value={newEkskulCat} 
+                  onChange={(e) => setNewEkskulCat(e.target.value)}
+                  className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"
+                >
+                  <option value="Olahraga">Olahraga</option>
+                  <option value="Seni">Seni</option>
+                  <option value="Akademik">Akademik</option>
+                  <option value="Organisasi">Organisasi</option>
+                  <option value="Bahasa">Bahasa</option>
+                </select>
+                <button type="submit" className="px-4 py-2 bg-brand-600 text-white text-xs font-bold rounded-xl hover:bg-brand-700">
+                  + Tambah Ekskul
+                </button>
+              </form>
+
+              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-slate-500 text-xs font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="p-4">Nama Ekskul</th>
+                      <th className="p-4">Kategori</th>
+                      <th className="p-4">Jadwal</th>
+                      <th className="p-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {ekskul.map(item => (
+                      <tr key={item.id} className="hover:bg-slate-50">
+                        <td className="p-4 font-bold text-slate-800">{item.name}</td>
+                        <td className="p-4 text-slate-500">{item.category}</td>
+                        <td className="p-4 text-slate-500 text-xs">{item.schedule}</td>
+                        <td className="p-4 text-right">
+                          <button 
+                            onClick={() => handleDeleteEkskul(item.id)}
+                            className="text-xs text-rose-600 hover:text-rose-800 font-bold px-2 py-1 rounded bg-rose-50"
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: PELUANG */}
+          {adminTab === 'peluang' && (
+            <div className="space-y-6">
+              <form onSubmit={handleAddPeluang} className="bg-white p-4 rounded-2xl border border-slate-200 flex gap-3 items-center">
+                <input 
+                  type="text" 
+                  placeholder="Judul lomba / beasiswa baru..." 
+                  value={newPeluangTitle}
+                  onChange={(e) => setNewPeluangTitle(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"
+                />
+                <select 
+                  value={newPeluangCat} 
+                  onChange={(e) => setNewPeluangCat(e.target.value)}
+                  className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"
+                >
+                  <option value="Lomba">Lomba</option>
+                  <option value="Pelatihan">Pelatihan</option>
+                  <option value="Volunteer">Volunteer</option>
+                  <option value="Beasiswa">Beasiswa</option>
+                </select>
+                <button type="submit" className="px-4 py-2 bg-brand-600 text-white text-xs font-bold rounded-xl hover:bg-brand-700">
+                  + Tambah Peluang
+                </button>
+              </form>
+
+              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-slate-500 text-xs font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="p-4">Nama Peluang</th>
+                      <th className="p-4">Kategori</th>
+                      <th className="p-4">Deadline</th>
+                      <th className="p-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {peluang.map(item => (
+                      <tr key={item.id} className="hover:bg-slate-50">
+                        <td className="p-4 font-bold text-slate-800">{item.title}</td>
+                        <td className="p-4 text-slate-500">{item.category}</td>
+                        <td className="p-4 text-slate-500 text-xs">{item.deadline}</td>
+                        <td className="p-4 text-right">
+                          <button 
+                            onClick={() => handleDeletePeluang(item.id)}
+                            className="text-xs text-rose-600 hover:text-rose-800 font-bold px-2 py-1 rounded bg-rose-50"
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: FEEDBACK */}
+          {adminTab === 'feedback' && (
+            <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100">
+              {feedbacks.map(f => (
+                <div key={f.id} className="p-5">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold text-slate-900 text-sm">{f.name}</span>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{f.type}</span>
+                  </div>
+                  <p className="text-slate-600 text-sm mt-1">{f.text}</p>
+                  <span className="text-[10px] text-slate-400 mt-2 block">{f.date}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB 4: OVERVIEW */}
+          {adminTab === 'overview' && (
+            <div className="bg-white rounded-3xl p-6 border border-slate-200 space-y-4">
+              <h3 className="font-bold text-slate-900">Panduan Demo Presentasi</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Halaman admin ini mendemonstrasikan bahwa pihak OSIS atau perwakilan guru sekolah dapat memperbarui konten ekskul, menambah info lomba baru, dan meninjau aspirasi siswa secara mandiri tanpa coding tambahan.
+              </p>
+              <div className="p-4 bg-brand-50 rounded-2xl text-xs text-brand-800 font-medium">
+                💡 <strong>Tips Demo:</strong> Tunjukkan flow dari halaman depan (siswa mencari ekskul/peluang), lalu buka tab admin ini untuk memperlihatkan bagaimana data dikelola dari sisi panitia sekolah.
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Render Root
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
