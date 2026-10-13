@@ -12,11 +12,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Leaflet MarkerCluster -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
@@ -31,22 +26,22 @@
   <!-- Header -->
   <header class="h-[65px] bg-slate-900 text-white px-6 flex items-center justify-between shadow-md z-20 relative">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400">
+      <div class="w-10 h-10 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
         <i class="fa-solid fa-water text-lg"></i>
       </div>
       <div>
         <h1 class="text-base font-bold tracking-tight">Sistem Monitoring Sempadan Pantai Bali</h1>
-        <p class="text-xs text-slate-400">Pengawasan Buffer 100m Akomodasi Pesisir</p>
+        <p class="text-xs text-slate-400">Sebaran Pelanggaran Buffer 100m Garis Pantai</p>
       </div>
     </div>
     
     <div class="flex items-center gap-3">
       <input type="file" id="json-file-input" accept=".json" class="hidden" />
       <button onclick="document.getElementById('json-file-input').click()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md border border-slate-700 transition flex items-center gap-1.5">
-        <i class="fa-solid fa-file-code"></i> Pilih File JSON Manual
+        <i class="fa-solid fa-file-code"></i> Pilih JSON Manual
       </button>
 
-      <button onclick="resetMapView()" class="text-xs bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-md font-medium transition shadow-sm">
+      <button onclick="resetMapView()" class="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-md font-medium transition shadow-sm">
         <i class="fa-solid fa-arrows-to-dot mr-1"></i> Reset Peta
       </button>
     </div>
@@ -58,15 +53,15 @@
     <!-- Panel Sidebar -->
     <aside class="w-full md:w-96 bg-white border-r border-slate-200 flex flex-col z-10 shadow-lg md:shadow-none">
       
-      <!-- Statistik -->
+      <!-- Statistik Ringkas -->
       <div class="p-4 border-b border-slate-100 bg-slate-50/70">
         <div class="grid grid-cols-2 gap-2 text-center">
           <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-sm">
-            <span class="text-xs text-slate-500 block">Total Terpantau</span>
+            <span class="text-xs text-slate-500 block">Total Ditampilkan</span>
             <span id="stat-total" class="text-xl font-bold text-slate-800">0</span>
           </div>
           <div class="p-2.5 bg-rose-50 rounded-lg border border-rose-200 shadow-sm">
-            <span class="text-xs text-rose-600 block">Dekat Sempadan</span>
+            <span class="text-xs text-rose-600 block">Titik Pelanggaran</span>
             <span id="stat-sempadan" class="text-xl font-bold text-rose-700">0</span>
           </div>
         </div>
@@ -75,14 +70,14 @@
       <!-- Filter & Search -->
       <div class="p-4 border-b border-slate-200 space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Pencarian Objek / Alamat</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Cari Objek / Lokasi</label>
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
             <input 
               id="search-input"
               type="text" 
               placeholder="Cari hotel, Lovina, Sanur, Kuta..."
-              class="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
+              class="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
             />
           </div>
         </div>
@@ -91,7 +86,7 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1">Filter Tipe Usaha</label>
           <select 
             id="type-filter" 
-            class="w-full text-sm rounded-lg border border-slate-300 py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white"
+            class="w-full text-sm rounded-lg border border-slate-300 py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 bg-white"
           >
             <option value="all">Semua Tipe Usaha</option>
             <option value="hotel">Hotel</option>
@@ -103,11 +98,11 @@
         </div>
       </div>
 
-      <!-- Daftar Kartu -->
+      <!-- List Data -->
       <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2" id="item-list">
         <div class="p-4 text-center text-xs text-slate-400" id="loading-state">
-          <i class="fa-solid fa-circle-notch fa-spin text-teal-600 text-lg mb-2 block"></i>
-          Memuat dataset JSON...
+          <i class="fa-solid fa-circle-notch fa-spin text-rose-600 text-lg mb-2 block"></i>
+          Memuat titik sempadan...
         </div>
       </div>
       
@@ -117,36 +112,18 @@
       </div>
     </aside>
 
-    <!-- Canvas Peta Leaflet -->
+    <!-- Canvas Peta -->
     <main class="flex-1 relative">
       <div id="map" class="w-full h-full"></div>
 
-      <!-- Legenda -->
+      <!-- Legenda Merah -->
       <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-sm p-3.5 rounded-xl border border-slate-200 shadow-xl z-[1000] text-xs">
         <p class="font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group text-slate-500"></i> Kategori Usaha
+          <i class="fa-solid fa-circle-exclamation text-rose-600"></i> Status Zonasi
         </p>
-        <div class="space-y-1.5">
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
-            <span>Hotel</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-            <span>Resort</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
-            <span>Guest House / Villa</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>
-            <span>Restaurant</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
-            <span>Bar / Beach Club</span>
-          </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-3.5 rounded-full bg-rose-600 border border-white shadow-sm inline-block"></span>
+          <span class="text-slate-700 font-medium">Indikasi Dekat Sempadan Pantai (&lt; 100m)</span>
         </div>
       </div>
     </main>
@@ -156,17 +133,12 @@
   <script>
     let rawData = [];
 
-    const typeConfig = {
-      hotel:       { color: '#3b82f6', label: 'Hotel', icon: 'fa-hotel' },
-      resort:      { color: '#10b981', label: 'Resort', icon: 'fa-umbrella-beach' },
-      guest_house: { color: '#f59e0b', label: 'Guest House / Villa', icon: 'fa-house-user' },
-      restaurant:  { color: '#a855f7', label: 'Restaurant', icon: 'fa-utensils' },
-      bar:         { color: '#f43f5e', label: 'Bar / Beach Club', icon: 'fa-martini-glass-citrus' }
-    };
-
-    // Inisialisasi Peta
+    // Inisialisasi peta dengan Canvas renderer agar ribuan titik render instan tanpa lag
     const baliCenter = [-8.5000, 115.1889];
-    const map = L.map('map', { zoomControl: false }).setView(baliCenter, 10);
+    const map = L.map('map', { 
+      zoomControl: false,
+      preferCanvas: true 
+    }).setView(baliCenter, 10);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -175,25 +147,20 @@
       maxZoom: 19
     }).addTo(map);
 
-    // Marker Cluster Group
-    const markerCluster = L.markerClusterGroup({
-      showCoverageOnHover: false,
-      maxClusterRadius: 40,
-      chunkedLoading: true
-    });
-    map.addLayer(markerCluster);
+    // Layer Group biasa (tanpa cluster)
+    const markerLayer = L.layerGroup().addTo(map);
 
-    function createCustomMarker(item) {
+    // Fungsi membuat titik merah
+    function createRedMarker(item) {
       const lat = parseFloat(item.Latitude);
       const lng = parseFloat(item.Longitude);
-      const cfg = typeConfig[item.Tipe_Usaha] || { color: '#64748b', label: item.Tipe_Usaha, icon: 'fa-building' };
 
       const marker = L.circleMarker([lat, lng], {
-        radius: 7,
-        fillColor: cfg.color,
-        color: '#ffffff',
-        weight: 1.5,
-        opacity: 1,
+        radius: 4.5,
+        fillColor: '#e11d48', // Merah tegas
+        color: '#ffffff',     // Outline putih tipis
+        weight: 1,
+        opacity: 0.9,
         fillOpacity: 0.85
       });
 
@@ -204,8 +171,8 @@
           </div>
           <p class="text-slate-500 text-[11px]"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${item.Jalan_Alamat}</p>
           <div class="flex items-center gap-2 pt-1">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold text-white" style="background-color: ${cfg.color}">
-              <i class="fa-solid ${cfg.icon} mr-1"></i>${cfg.label}
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-700 text-white uppercase tracking-wider">
+              ${item.Tipe_Usaha}
             </span>
           </div>
           <div class="mt-2 p-1.5 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-medium flex items-center gap-1.5">
@@ -223,13 +190,9 @@
       const query = document.getElementById('search-input').value.toLowerCase();
       const selectedType = document.getElementById('type-filter').value;
 
-      markerCluster.clearLayers();
+      markerLayer.clearLayers();
       const itemList = document.getElementById('item-list');
       itemList.innerHTML = '';
-
-      let matchedCount = 0;
-      let sempadanCount = 0;
-      const markersToAdd = [];
 
       const filtered = rawData.filter(item => {
         if (!item.Latitude || !item.Longitude) return false;
@@ -239,29 +202,22 @@
         return matchesQuery && matchesType;
       });
 
-      matchedCount = filtered.length;
-
       filtered.forEach((item, index) => {
-        if (item.Status_Sempadan && item.Status_Sempadan.includes('Sempadan')) {
-          sempadanCount++;
-        }
+        const marker = createRedMarker(item);
+        markerLayer.addLayer(marker);
 
-        const marker = createCustomMarker(item);
-        markersToAdd.push(marker);
-
-        // Tampilkan 50 data teratas di sidebar agar DOM tetap ringan dan cepat
-        if (index < 50) {
-          const cfg = typeConfig[item.Tipe_Usaha] || { color: '#64748b', label: item.Tipe_Usaha, icon: 'fa-building' };
+        // Sidebar merender 60 kartu teratas
+        if (index < 60) {
           const card = document.createElement('div');
-          card.className = "p-3 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 shadow-sm cursor-pointer transition flex flex-col gap-1.5";
+          card.className = "p-3 bg-white hover:bg-rose-50/50 rounded-xl border border-slate-200 shadow-sm cursor-pointer transition flex flex-col gap-1.5";
           card.innerHTML = `
             <div class="flex items-start justify-between gap-2">
               <h3 class="font-semibold text-xs text-slate-800 leading-snug">${item.Nama_Objek}</h3>
-              <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style="background-color: ${cfg.color}"></span>
+              <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5 bg-rose-600"></span>
             </div>
             <p class="text-[11px] text-slate-500 truncate"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${item.Jalan_Alamat}</p>
             <div class="flex items-center justify-between text-[10px] pt-1">
-              <span class="text-slate-600 font-medium"><i class="fa-solid ${cfg.icon} mr-1 text-slate-400"></i>${cfg.label}</span>
+              <span class="text-slate-600 font-medium uppercase tracking-wider">${item.Tipe_Usaha}</span>
               <span class="text-rose-600 font-semibold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Indikasi Sempadan</span>
             </div>
           `;
@@ -269,26 +225,22 @@
           card.onclick = () => {
             const lat = parseFloat(item.Latitude);
             const lng = parseFloat(item.Longitude);
-            map.flyTo([lat, lng], 16, { duration: 1.2 });
-            markerCluster.zoomToShowLayer(marker, () => {
-              marker.openPopup();
-            });
+            map.flyTo([lat, lng], 16, { duration: 1 });
+            marker.openPopup();
           };
 
           itemList.appendChild(card);
         }
       });
 
-      markerCluster.addLayers(markersToAdd);
-
-      document.getElementById('stat-total').innerText = matchedCount.toLocaleString();
-      document.getElementById('stat-sempadan').innerText = sempadanCount.toLocaleString();
+      document.getElementById('stat-total').innerText = filtered.length.toLocaleString();
+      document.getElementById('stat-sempadan').innerText = filtered.length.toLocaleString();
 
       const listStatus = document.getElementById('list-status');
-      if (matchedCount > 50) {
-        listStatus.innerText = `Menampilkan 50 dari total ${matchedCount.toLocaleString()} data`;
+      if (filtered.length > 60) {
+        listStatus.innerText = `Menampilkan 60 kartu dari total ${filtered.length.toLocaleString()} titik merah`;
       } else {
-        listStatus.innerText = `Menampilkan ${matchedCount} data`;
+        listStatus.innerText = `Menampilkan seluruh ${filtered.length} titik`;
       }
     }
 
@@ -297,14 +249,14 @@
       renderFilteredData();
       if (rawData.length > 0) {
         const sampleBounds = rawData.map(d => [parseFloat(d.Latitude), parseFloat(d.Longitude)]);
-        map.fitBounds(sampleBounds, { padding: [30, 30] });
+        map.fitBounds(sampleBounds, { padding: [20, 20] });
       }
     }
 
-    // Mengambil dataset JSON secara otomatis (Ideal saat dideploy ke Vercel / server lokal)
+    // Mengambil dataset JSON otomatis
     fetch('dataset_sempadan_pantai_bali_200plus.json')
       .then(res => {
-        if (!res.ok) throw new Error('File JSON gagal dimuat.');
+        if (!res.ok) throw new Error('File JSON tidak ditemukan via fetch');
         return res.json();
       })
       .then(data => {
@@ -312,13 +264,13 @@
       })
       .catch(err => {
         document.getElementById('loading-state').innerHTML = `
-          <i class="fa-solid fa-folder-open text-teal-600 text-xl mb-2 block"></i>
-          <span class="font-medium text-slate-700 block mb-1">Gagal fetch JSON otomatis</span>
-          Gunakan tombol <b>Pilih File JSON Manual</b> di atas untuk memuat data.
+          <i class="fa-solid fa-folder-open text-rose-600 text-xl mb-2 block"></i>
+          <span class="font-medium text-slate-700 block mb-1">Pilih File JSON</span>
+          Gunakan tombol <b>Pilih JSON Manual</b> di atas untuk memuat data.
         `;
       });
 
-    // Handler jika file JSON dipilih secara manual
+    // Upload manual cadangan
     document.getElementById('json-file-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
