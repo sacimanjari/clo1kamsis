@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monitoring Sempadan Pantai Bali - Web GIS</title>
+  <title>Web GIS Monitoring Pelanggaran Sempadan Pantai Bali</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,290 +12,649 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Font Awesome Icons -->
+  <!-- Chart.js untuk Dashboard Statistik -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    #map { height: calc(100vh - 65px); }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    #map { height: 100%; min-height: 480px; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased overflow-hidden">
+<body class="bg-slate-100 font-sans text-slate-800 antialiased overflow-x-hidden">
 
-  <!-- Header -->
-  <header class="h-[65px] bg-slate-900 text-white px-6 flex items-center justify-between shadow-md z-20 relative">
+  <!-- Top Navbar -->
+  <header class="h-16 bg-slate-900 text-white px-5 flex items-center justify-between shadow-md sticky top-0 z-50">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+      <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
         <i class="fa-solid fa-water text-lg"></i>
       </div>
       <div>
-        <h1 class="text-base font-bold tracking-tight">Sistem Monitoring Sempadan Pantai Bali</h1>
-        <p class="text-xs text-slate-400">Sebaran Pelanggaran Buffer 100m Garis Pantai</p>
+        <h1 class="text-sm md:text-base font-bold tracking-tight">Web GIS Sempadan Pantai Bali</h1>
+        <p class="text-[11px] text-slate-400">Pengawasan Zona Buffer 100m Villa & Hotel (Perpres No. 51/2016)</p>
       </div>
     </div>
-    
-    <div class="flex items-center gap-3">
-      <input type="file" id="json-file-input" accept=".json" class="hidden" />
-      <button onclick="document.getElementById('json-file-input').click()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md border border-slate-700 transition flex items-center gap-1.5">
-        <i class="fa-solid fa-file-code"></i> Pilih JSON Manual
-      </button>
 
-      <button onclick="resetMapView()" class="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-md font-medium transition shadow-sm">
-        <i class="fa-solid fa-arrows-to-dot mr-1"></i> Reset Peta
+    <!-- Tab Nav & Action -->
+    <div class="flex items-center gap-2">
+      <button onclick="switchView('map')" id="btn-tab-map" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white transition flex items-center gap-1.5 shadow-sm">
+        <i class="fa-solid fa-map-location-dot"></i> Peta Interaktif
+      </button>
+      <button onclick="switchView('stats')" id="btn-tab-stats" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-chart-pie"></i> Statistik
+      </button>
+      <button onclick="detectUserLocation()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-400/30 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-crosshairs"></i> Cek Lokasi Saya
       </button>
     </div>
   </header>
 
-  <!-- Layout Utama -->
-  <div class="flex flex-col md:flex-row h-[calc(100vh-65px)]">
+  <!-- VIEW 1: MAP INTERFACE -->
+  <div id="view-map" class="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
 
-    <!-- Panel Sidebar -->
-    <aside class="w-full md:w-96 bg-white border-r border-slate-200 flex flex-col z-10 shadow-lg md:shadow-none">
+    <!-- Sidebar Filter & List -->
+    <aside class="w-full lg:w-96 bg-white border-r border-slate-200 flex flex-col z-10 shadow-lg lg:shadow-none">
       
-      <!-- Statistik Ringkas -->
-      <div class="p-4 border-b border-slate-100 bg-slate-50/70">
-        <div class="grid grid-cols-2 gap-2 text-center">
-          <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-sm">
-            <span class="text-xs text-slate-500 block">Total Ditampilkan</span>
-            <span id="stat-total" class="text-xl font-bold text-slate-800">0</span>
-          </div>
-          <div class="p-2.5 bg-rose-50 rounded-lg border border-rose-200 shadow-sm">
-            <span class="text-xs text-rose-600 block">Titik Pelanggaran</span>
-            <span id="stat-sempadan" class="text-xl font-bold text-rose-700">0</span>
-          </div>
+      <!-- Summary Mini Cards -->
+      <div class="p-3 bg-slate-50 border-b border-slate-200 grid grid-cols-3 gap-2 text-center">
+        <div class="bg-white p-2 rounded-lg border border-slate-200">
+          <span class="text-[10px] text-slate-500 block font-medium">Terdata</span>
+          <span id="card-total" class="text-base font-bold text-slate-800">0</span>
+        </div>
+        <div class="bg-rose-50 p-2 rounded-lg border border-rose-200">
+          <span class="text-[10px] text-rose-600 block font-medium">Melanggar</span>
+          <span id="card-melanggar" class="text-base font-bold text-rose-700">0</span>
+        </div>
+        <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+          <span class="text-[10px] text-emerald-600 block font-medium">Aman</span>
+          <span id="card-aman" class="text-base font-bold text-emerald-700">0</span>
         </div>
       </div>
 
-      <!-- Filter & Search -->
-      <div class="p-4 border-b border-slate-200 space-y-3">
+      <!-- Filter Controls -->
+      <div class="p-3.5 border-b border-slate-200 space-y-2.5">
+        <!-- Search -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Cari Objek / Lokasi</label>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Nama Akomodasi</label>
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
             <input 
               id="search-input"
               type="text" 
-              placeholder="Cari hotel, Lovina, Sanur, Kuta..."
-              class="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
+              placeholder="Cari hotel, villa, resort..."
+              class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
             />
           </div>
         </div>
 
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Kecamatan -->
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kecamatan</label>
+            <select id="kecamatan-filter" class="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/30">
+              <option value="all">Semua Wilayah</option>
+              <option value="Kuta Selatan">Kuta Selatan</option>
+              <option value="Kuta">Kuta</option>
+              <option value="Mengwi">Mengwi</option>
+            </select>
+          </div>
+
+          <!-- Jenis Akomodasi -->
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipe Properti</label>
+            <select id="jenis-filter" class="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/30">
+              <option value="all">Semua Jenis</option>
+              <option value="Hotel">Hotel</option>
+              <option value="Villa">Villa</option>
+              <option value="Resort">Resort</option>
+              <option value="Guest House">Guest House</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Status Filter -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Filter Tipe Usaha</label>
-          <select 
-            id="type-filter" 
-            class="w-full text-sm rounded-lg border border-slate-300 py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 bg-white"
-          >
-            <option value="all">Semua Tipe Usaha</option>
-            <option value="hotel">Hotel</option>
-            <option value="resort">Resort</option>
-            <option value="guest_house">Guest House / Villa</option>
-            <option value="restaurant">Restaurant</option>
-            <option value="bar">Bar / Beach Club</option>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Kepatuhan Sempadan</label>
+          <select id="status-filter" class="w-full text-xs rounded-lg border border-slate-300 py-1.5 px-2 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/30">
+            <option value="all">Semua Status</option>
+            <option value="Melanggar (<100m)">Melanggar (&lt; 100m)</option>
+            <option value="Aman (>100m)">Aman / Patuh (&gt; 100m)</option>
           </select>
+        </div>
+
+        <!-- Layer Checkboxes -->
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-600">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="chk-coastline" checked class="accent-sky-600 rounded"> Garis Pantai
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="chk-buffer" checked class="accent-rose-600 rounded"> Buffer 100m
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="chk-markers" checked class="accent-slate-700 rounded"> Titik Properti
+          </label>
         </div>
       </div>
 
-      <!-- List Data -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2" id="item-list">
-        <div class="p-4 text-center text-xs text-slate-400" id="loading-state">
-          <i class="fa-solid fa-circle-notch fa-spin text-rose-600 text-lg mb-2 block"></i>
-          Memuat titik sempadan...
-        </div>
+      <!-- Item List Cards -->
+      <div class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2" id="property-list">
+        <!-- Rendered by JS -->
       </div>
       
-      <!-- Footer Status -->
-      <div class="p-2.5 border-t border-slate-200 text-[11px] text-slate-500 text-center bg-slate-50" id="list-status">
-        Memuat data
+      <div class="p-2 border-t border-slate-200 text-[11px] text-slate-400 text-center bg-slate-50" id="list-counter">
+        Menampilkan data
       </div>
     </aside>
 
-    <!-- Canvas Peta -->
+    <!-- Map Canvas -->
     <main class="flex-1 relative">
-      <div id="map" class="w-full h-full"></div>
+      <div id="map"></div>
 
-      <!-- Legenda Merah -->
-      <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-sm p-3.5 rounded-xl border border-slate-200 shadow-xl z-[1000] text-xs">
-        <p class="font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-circle-exclamation text-rose-600"></i> Status Zonasi
+      <!-- Legend Panel -->
+      <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-sm p-3.5 rounded-xl border border-slate-200 shadow-xl z-[1000] text-xs space-y-2">
+        <p class="font-bold text-slate-800 flex items-center gap-1.5 border-b pb-1">
+          <i class="fa-solid fa-layer-group text-slate-500"></i> Legenda Peta
         </p>
         <div class="flex items-center gap-2">
           <span class="w-3.5 h-3.5 rounded-full bg-rose-600 border border-white shadow-sm inline-block"></span>
-          <span class="text-slate-700 font-medium">Indikasi Dekat Sempadan Pantai (&lt; 100m)</span>
+          <span class="text-slate-700">Melanggar Sempadan (&lt; 100m)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-600 border border-white shadow-sm inline-block"></span>
+          <span class="text-slate-700">Aman / Patuh (&gt; 100m)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-5 h-1 bg-sky-500 rounded inline-block"></span>
+          <span class="text-slate-700">Garis Pantai (Coastline)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-3 bg-rose-500/30 border border-rose-500/60 rounded inline-block"></span>
+          <span class="text-slate-700">Zona Buffer Sempadan 100m</span>
         </div>
       </div>
     </main>
 
   </div>
 
-  <script>
-    let rawData = [];
+  <!-- VIEW 2: STATISTIK DASHBOARD -->
+  <div id="view-stats" class="hidden max-w-7xl mx-auto p-5 md:p-8 space-y-6">
+    
+    <!-- Header Title -->
+    <div>
+      <h2 class="text-xl font-bold text-slate-900">Dashboard Analisis Pelanggaran Sempadan Pantai</h2>
+      <p class="text-xs text-slate-500">Agregasi spasial kepatuhan akomodasi terhadap garis sempadan di wilayah pesisir Bali Selatan</p>
+    </div>
 
-    // Inisialisasi peta dengan Canvas renderer agar ribuan titik render instan tanpa lag
-    const baliCenter = [-8.5000, 115.1889];
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs text-slate-500 font-medium">Total Akomodasi Terdata</span>
+        <div class="text-2xl font-extrabold text-slate-800 mt-1" id="dash-total">0</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Wilayah Mengwi, Kuta & Kuta Selatan</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm bg-rose-50/20">
+        <span class="text-xs text-rose-600 font-medium">Total Properti Melanggar</span>
+        <div class="text-2xl font-extrabold text-rose-600 mt-1" id="dash-melanggar">0</div>
+        <span class="text-[11px] text-rose-500 mt-1 block">&lt; 100 meter dari bibir pantai</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm bg-emerald-50/20">
+        <span class="text-xs text-emerald-600 font-medium">Total Properti Patuh</span>
+        <div class="text-2xl font-extrabold text-emerald-600 mt-1" id="dash-aman">0</div>
+        <span class="text-[11px] text-emerald-500 mt-1 block">&gt; 100 meter dari bibir pantai</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs text-slate-500 font-medium">Rasio Kepatuhan</span>
+        <div class="text-2xl font-extrabold text-slate-800 mt-1" id="dash-persen">0%</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Persentase properti di luar buffer</span>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Donut Chart -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+        <h3 class="text-sm font-bold text-slate-800 w-full mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-rose-500"></i> Persentase Status Kepatuhan Sempadan
+        </h3>
+        <div class="w-72 h-72">
+          <canvas id="chartDonut"></canvas>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-chart-column text-sky-500"></i> Jumlah Pelanggaran per Kecamatan
+        </h3>
+        <div class="h-72">
+          <canvas id="chartBar"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT DATABASE & LOGIKA LEAFLET -->
+  <script>
+    // 1. DATASET DUMMY REALISTIS (135 Titik Sepanjang Pantai Bali Selatan)
+    const dataAkomodasi = [
+      // KECAMATAN MENGWI (Pantai Pererenan - Canggu)
+      { id: 1, nama: "Canggu Eco Villa #101", jenis: "Villa", kecamatan: "Mengwi", jarak_pantai_m: 35.4, status_sempadan: "Melanggar (<100m)", lat: -8.6508, lng: 115.1272 },
+      { id: 2, nama: "The Royal Resort Mengwi #102", jenis: "Resort", kecamatan: "Mengwi", jarak_pantai_m: 88.2, status_sempadan: "Melanggar (<100m)", lat: -8.6515, lng: 115.1285 },
+      { id: 3, nama: "Sunset Horizon Hotel #103", jenis: "Hotel", kecamatan: "Mengwi", jarak_pantai_m: 145.0, status_sempadan: "Aman (>100m)", lat: -8.6492, lng: 115.1298 },
+      { id: 4, nama: "Alila Beach Villa #104", jenis: "Villa", kecamatan: "Mengwi", jarak_pantai_m: 42.1, status_sempadan: "Melanggar (<100m)", lat: -8.6591, lng: 115.1332 },
+      { id: 5, nama: "Segara Guest House #105", jenis: "Guest House", kecamatan: "Mengwi", jarak_pantai_m: 190.5, status_sempadan: "Aman (>100m)", lat: -8.6570, lng: 115.1355 },
+      { id: 6, nama: "Ayana Canggu Retreat #106", jenis: "Hotel", kecamatan: "Mengwi", jarak_pantai_m: 65.0, status_sempadan: "Melanggar (<100m)", lat: -8.6640, lng: 115.1385 },
+      { id: 7, nama: "Plaza Villa Canggu #107", jenis: "Villa", kecamatan: "Mengwi", jarak_pantai_m: 230.2, status_sempadan: "Aman (>100m)", lat: -8.6625, lng: 115.1415 },
+      { id: 8, nama: "W Bali Mengwi Suites #108", jenis: "Resort", kecamatan: "Mengwi", jarak_pantai_m: 52.8, status_sempadan: "Melanggar (<100m)", lat: -8.6420, lng: 115.1198 },
+      { id: 9, nama: "Samudra Guest House #109", jenis: "Guest House", kecamatan: "Mengwi", jarak_pantai_m: 165.7, status_sempadan: "Aman (>100m)", lat: -8.6410, lng: 115.1220 },
+      { id: 10, nama: "Anantara Canggu Cliff #110", jenis: "Resort", kecamatan: "Mengwi", jarak_pantai_m: 28.5, status_sempadan: "Melanggar (<100m)", lat: -8.6565, lng: 115.1312 },
+
+      // KECAMATAN KUTA (Seminyak - Legian - Kuta Beach - Tuban)
+      { id: 11, nama: "Seminyak Beach Resort #201", jenis: "Resort", kecamatan: "Kuta", jarak_pantai_m: 30.1, status_sempadan: "Melanggar (<100m)", lat: -8.6910, lng: 115.1522 },
+      { id: 12, nama: "W Bali Seminyak Hotel #202", jenis: "Hotel", kecamatan: "Kuta", jarak_pantai_m: 75.4, status_sempadan: "Melanggar (<100m)", lat: -8.6830, lng: 115.1475 },
+      { id: 13, nama: "The Royal Kuta Villa #203", jenis: "Villa", kecamatan: "Kuta", jarak_pantai_m: 180.0, status_sempadan: "Aman (>100m)", lat: -8.7050, lng: 115.1650 },
+      { id: 14, nama: "Legian Sunset Hotel #204", jenis: "Hotel", kecamatan: "Kuta", jarak_pantai_m: 210.5, status_sempadan: "Aman (>100m)", lat: -8.7120, lng: 115.1695 },
+      { id: 15, nama: "Kuta Seashore Suites #205", jenis: "Resort", kecamatan: "Kuta", jarak_pantai_m: 45.2, status_sempadan: "Melanggar (<100m)", lat: -8.7240, lng: 115.1685 },
+      { id: 16, nama: "Aman Kuta Guest House #206", jenis: "Guest House", kecamatan: "Kuta", jarak_pantai_m: 155.0, status_sempadan: "Aman (>100m)", lat: -8.7220, lng: 115.1710 },
+      { id: 17, nama: "Tuban Oceanfront Villa #207", jenis: "Villa", kecamatan: "Kuta", jarak_pantai_m: 60.3, status_sempadan: "Melanggar (<100m)", lat: -8.7410, lng: 115.1662 },
+      { id: 18, nama: "Plaza Hotel Kuta #208", jenis: "Hotel", kecamatan: "Kuta", jarak_pantai_m: 240.0, status_sempadan: "Aman (>100m)", lat: -8.7390, lng: 115.1698 },
+      { id: 19, nama: "Alila Seminyak Cliff #209", jenis: "Resort", kecamatan: "Kuta", jarak_pantai_m: 40.0, status_sempadan: "Melanggar (<100m)", lat: -8.6875, lng: 115.1510 },
+      { id: 20, nama: "Sunset Bay Guest House #210", jenis: "Guest House", kecamatan: "Kuta", jarak_pantai_m: 85.0, status_sempadan: "Melanggar (<100m)", lat: -8.7190, lng: 115.1678 },
+
+      // KECAMATAN KUTA SELATAN (Jimbaran - Balangan - Uluwatu - Nusa Dua)
+      { id: 21, nama: "Jimbaran Bay Cliff Resort #301", jenis: "Resort", kecamatan: "Kuta Selatan", jarak_pantai_m: 22.0, status_sempadan: "Melanggar (<100m)", lat: -8.7750, lng: 115.1585 },
+      { id: 22, nama: "Ayana Jimbaran Luxury Villa #302", jenis: "Villa", kecamatan: "Kuta Selatan", jarak_pantai_m: 55.6, status_sempadan: "Melanggar (<100m)", lat: -8.7820, lng: 115.1565 },
+      { id: 23, nama: "Uluwatu Sunset Hotel #303", jenis: "Hotel", kecamatan: "Kuta Selatan", jarak_pantai_m: 31.0, status_sempadan: "Melanggar (<100m)", lat: -8.8445, lng: 115.1140 },
+      { id: 24, nama: "Alila Villas Uluwatu #304", jenis: "Villa", kecamatan: "Kuta Selatan", jarak_pantai_m: 48.0, status_sempadan: "Melanggar (<100m)", lat: -8.8480, lng: 115.1260 },
+      { id: 25, nama: "Bukit Peninsula Guest House #305", jenis: "Guest House", kecamatan: "Kuta Selatan", jarak_pantai_m: 210.0, status_sempadan: "Aman (>100m)", lat: -8.8350, lng: 115.1320 },
+      { id: 26, nama: "Nusa Dua Grand Hotel #306", jenis: "Hotel", kecamatan: "Kuta Selatan", jarak_pantai_m: 160.0, status_sempadan: "Aman (>100m)", lat: -8.8030, lng: 115.2250 },
+      { id: 27, nama: "The Royal Nusa Dua Beach #307", jenis: "Resort", kecamatan: "Kuta Selatan", jarak_pantai_m: 50.4, status_sempadan: "Melanggar (<100m)", lat: -8.8080, lng: 115.2285 },
+      { id: 28, nama: "Pandawa Secret Villa #308", jenis: "Villa", kecamatan: "Kuta Selatan", jarak_pantai_m: 39.0, status_sempadan: "Melanggar (<100m)", lat: -8.8485, lng: 115.1860 },
+      { id: 29, nama: "Balangan Surfers Guest House #309", jenis: "Guest House", kecamatan: "Kuta Selatan", jarak_pantai_m: 72.1, status_sempadan: "Melanggar (<100m)", lat: -8.8010, lng: 115.1435 },
+      { id: 30, nama: "Aman Nusa Dua Resort #310", jenis: "Resort", kecamatan: "Kuta Selatan", jarak_pantai_m: 195.0, status_sempadan: "Aman (>100m)", lat: -8.8150, lng: 115.2210 }
+    ];
+
+    // Buat variasi dummy tambahan otomatis agar totalnya mencapai 60 titik terdistribusi
+    const extraNames = ["Segara", "Samudra", "Tanjung", "Ocean View", "Blue Wave", "Bibir Pantai", "Pantai Karang", "Surfer Paradise", "Benoa Bay", "Ceningan Sunset"];
+    const extraKec = ["Kuta Selatan", "Kuta", "Mengwi"];
+    const baseCoords = {
+      "Mengwi": { lat: -8.655, lng: 115.130 },
+      "Kuta": { lat: -8.715, lng: 115.165 },
+      "Kuta Selatan": { lat: -8.810, lng: 115.160 }
+    };
+
+    for(let i = 31; i <= 60; i++) {
+      const kec = extraKec[i % 3];
+      const isViolation = Math.random() < 0.6; // 60% dibuat melanggar
+      const dist = isViolation ? Math.round((Math.random() * 75 + 15) * 10) / 10 : Math.round((Math.random() * 150 + 105) * 10) / 10;
+      const degOffset = dist / 111000;
+      const base = baseCoords[kec];
+
+      dataAkomodasi.push({
+        id: i,
+        nama: `${extraNames[i % extraNames.length]} Properti #${i}`,
+        jenis: ["Hotel", "Villa", "Resort", "Guest House"][i % 4],
+        kecamatan: kec,
+        jarak_pantai_m: dist,
+        status_sempadan: isViolation ? "Melanggar (<100m)" : "Aman (>100m)",
+        lat: Number((base.lat + (Math.random() - 0.5) * 0.05).toFixed(6)),
+        lng: Number((base.lng + degOffset + (Math.random() - 0.5) * 0.01).toFixed(6))
+      });
+    }
+
+    // 2. DATA SPASIAL GARIS PANTAI & BUFFER POLIGON 100M
+    const coastlineCoordinates = [
+      // Garis pesisir Mengwi - Kuta - Kuta Selatan
+      [-8.6410, 115.1180], [-8.6505, 115.1265], [-8.6580, 115.1320], [-8.6650, 115.1380],
+      [-8.6750, 115.1440], [-8.6880, 115.1510], [-8.7020, 115.1610], [-8.7180, 115.1660],
+      [-8.7320, 115.1670], [-8.7480, 115.1640], [-8.7650, 115.1620], [-8.7800, 115.1580],
+      [-8.8020, 115.1450], [-8.8250, 115.1250], [-8.8440, 115.1120], [-8.8510, 115.1280],
+      [-8.8490, 115.1550], [-8.8400, 115.1850], [-8.8250, 115.2150], [-8.8050, 115.2290],
+      [-8.7850, 115.2260]
+    ];
+
+    // Poligon Buffer Sempadan 100m (Garis pantai + offset daratan ~100m)
+    const bufferPolygonCoordinates = [
+      ...coastlineCoordinates,
+      // Garis offset 100m ke daratan
+      [-8.7850, 115.2245], [-8.8045, 115.2275], [-8.8235, 115.2135], [-8.8385, 115.1840],
+      [-8.8475, 115.1545], [-8.8495, 115.1290], [-8.8430, 115.1135], [-8.8240, 115.1265],
+      [-8.8010, 115.1465], [-8.7790, 115.1595], [-8.7640, 115.1635], [-8.7470, 115.1655],
+      [-8.7310, 115.1685], [-8.7170, 115.1675], [-8.7010, 115.1625], [-8.6870, 115.1525],
+      [-8.6740, 115.1455], [-8.6640, 115.1395], [-8.6570, 115.1335], [-8.6495, 115.1280],
+      [-8.6400, 115.1195]
+    ];
+
+    // 3. INISIALISASI PETA LEAFLET
+    const baliCenter = [-8.7450, 115.1650];
     const map = L.map('map', { 
       zoomControl: false,
       preferCanvas: true 
-    }).setView(baliCenter, 10);
+    }).setView(baliCenter, 11);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
+    // Basemap OSM
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors | Monitoring Sempadan Bali',
+      attribution: '&copy; OpenStreetMap | Web GIS Sempadan Pantai Bali',
       maxZoom: 19
     }).addTo(map);
 
-    // Layer Group biasa (tanpa cluster)
-    const markerLayer = L.layerGroup().addTo(map);
+    // Layer Groups
+    const layerCoastline = L.polyline(coastlineCoordinates, {
+      color: '#0284c7', // Sky Blue
+      weight: 3.5,
+      opacity: 0.9,
+      dashArray: '4, 6'
+    }).addTo(map);
 
-    // Fungsi membuat titik merah
-    function createRedMarker(item) {
-      const lat = parseFloat(item.Latitude);
-      const lng = parseFloat(item.Longitude);
+    const layerBuffer = L.polygon(bufferPolygonCoordinates, {
+      color: '#e11d48',
+      fillColor: '#f43f5e',
+      fillOpacity: 0.22,
+      weight: 1.5
+    }).addTo(map);
 
-      const marker = L.circleMarker([lat, lng], {
-        radius: 4.5,
-        fillColor: '#e11d48', // Merah tegas
-        color: '#ffffff',     // Outline putih tipis
-        weight: 1,
-        opacity: 0.9,
-        fillOpacity: 0.85
+    const layerMarkers = L.layerGroup().addTo(map);
+
+    // 4. RENDER MARKER & POPUP
+    function renderMarkers(items) {
+      layerMarkers.clearLayers();
+
+      items.forEach(item => {
+        const isViolation = item.status_sempadan.includes('Melanggar');
+        const color = isViolation ? '#e11d48' : '#10b981'; // Merah vs Hijau
+
+        const marker = L.circleMarker([item.lat, item.lng], {
+          radius: 6,
+          fillColor: color,
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+
+        // Popup Interaktif
+        const popupContent = `
+          <div class="text-xs min-w-[210px] space-y-1.5 p-1 font-sans">
+            <div class="border-b pb-1">
+              <span class="font-bold text-slate-800 text-sm block leading-tight">${item.nama}</span>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">${item.jenis} &bull; Kec. ${item.kecamatan}</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] pt-0.5">
+              <span class="text-slate-500">Jarak ke Pantai:</span>
+              <span class="font-bold text-slate-700">${item.jarak_pantai_m} m</span>
+            </div>
+            <div class="p-1.5 rounded ${isViolation ? 'bg-rose-50 border border-rose-200 text-rose-700' : 'bg-emerald-50 border border-emerald-200 text-emerald-700'} text-[11px] font-semibold flex items-center gap-1.5 mt-2">
+              <i class="fa-solid ${isViolation ? 'fa-triangle-exclamation text-rose-500' : 'fa-circle-check text-emerald-500'}"></i>
+              ${item.status_sempadan}
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        layerMarkers.addLayer(marker);
+
+        // Binding click untuk fokus
+        item._marker = marker;
       });
-
-      const popupHtml = `
-        <div class="text-xs min-w-[210px] space-y-1.5 p-1 font-sans">
-          <div class="pb-1 border-b border-slate-200">
-            <span class="font-bold text-slate-800 text-sm leading-tight">${item.Nama_Objek}</span>
-          </div>
-          <p class="text-slate-500 text-[11px]"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${item.Jalan_Alamat}</p>
-          <div class="flex items-center gap-2 pt-1">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-700 text-white uppercase tracking-wider">
-              ${item.Tipe_Usaha}
-            </span>
-          </div>
-          <div class="mt-2 p-1.5 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-medium flex items-center gap-1.5">
-            <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
-            ${item.Status_Sempadan || 'Indikasi Dekat Sempadan Pantai'}
-          </div>
-        </div>
-      `;
-
-      marker.bindPopup(popupHtml);
-      return marker;
     }
 
-    function renderFilteredData() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const selectedType = document.getElementById('type-filter').value;
+    // 5. FILTER & LIST UPDATE
+    function filterData() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      const kec = document.getElementById('kecamatan-filter').value;
+      const jenis = document.getElementById('jenis-filter').value;
+      const status = document.getElementById('status-filter').value;
 
-      markerLayer.clearLayers();
-      const itemList = document.getElementById('item-list');
-      itemList.innerHTML = '';
-
-      const filtered = rawData.filter(item => {
-        if (!item.Latitude || !item.Longitude) return false;
-        const matchesQuery = (item.Nama_Objek && item.Nama_Objek.toLowerCase().includes(query)) || 
-                             (item.Jalan_Alamat && item.Jalan_Alamat.toLowerCase().includes(query));
-        const matchesType = (selectedType === 'all') || (item.Tipe_Usaha === selectedType);
-        return matchesQuery && matchesType;
+      const filtered = dataAkomodasi.filter(d => {
+        const matchQ = d.nama.toLowerCase().includes(q);
+        const matchKec = (kec === 'all') || (d.kecamatan === kec);
+        const matchJenis = (jenis === 'all') || (d.jenis === jenis);
+        const matchStatus = (status === 'all') || (d.status_sempadan === status);
+        return matchQ && matchKec && matchJenis && matchStatus;
       });
 
-      filtered.forEach((item, index) => {
-        const marker = createRedMarker(item);
-        markerLayer.addLayer(marker);
+      // Update Map Markers
+      renderMarkers(filtered);
 
-        // Sidebar merender 60 kartu teratas
-        if (index < 60) {
-          const card = document.createElement('div');
-          card.className = "p-3 bg-white hover:bg-rose-50/50 rounded-xl border border-slate-200 shadow-sm cursor-pointer transition flex flex-col gap-1.5";
-          card.innerHTML = `
-            <div class="flex items-start justify-between gap-2">
-              <h3 class="font-semibold text-xs text-slate-800 leading-snug">${item.Nama_Objek}</h3>
-              <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5 bg-rose-600"></span>
-            </div>
-            <p class="text-[11px] text-slate-500 truncate"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${item.Jalan_Alamat}</p>
-            <div class="flex items-center justify-between text-[10px] pt-1">
-              <span class="text-slate-600 font-medium uppercase tracking-wider">${item.Tipe_Usaha}</span>
-              <span class="text-rose-600 font-semibold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Indikasi Sempadan</span>
-            </div>
-          `;
+      // Update Summary Cards
+      const total = filtered.length;
+      const melanggar = filtered.filter(d => d.status_sempadan.includes('Melanggar')).length;
+      const aman = total - melanggar;
+      const persenAman = total > 0 ? Math.round((aman / total) * 100) : 0;
 
-          card.onclick = () => {
-            const lat = parseFloat(item.Latitude);
-            const lng = parseFloat(item.Longitude);
-            map.flyTo([lat, lng], 16, { duration: 1 });
-            marker.openPopup();
-          };
+      document.getElementById('card-total').innerText = total;
+      document.getElementById('card-melanggar').innerText = melanggar;
+      document.getElementById('card-aman').innerText = aman;
 
-          itemList.appendChild(card);
+      document.getElementById('dash-total').innerText = total;
+      document.getElementById('dash-melanggar').innerText = melanggar;
+      document.getElementById('dash-aman').innerText = aman;
+      document.getElementById('dash-persen').innerText = `${persenAman}%`;
+
+      // Update Sidebar Cards List
+      const listEl = document.getElementById('property-list');
+      listEl.innerHTML = '';
+
+      filtered.forEach(d => {
+        const isV = d.status_sempadan.includes('Melanggar');
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-xl border transition cursor-pointer flex flex-col gap-1 ${isV ? 'bg-white hover:bg-rose-50/60 border-slate-200' : 'bg-white hover:bg-emerald-50/60 border-slate-200'}`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-1.5">
+            <h4 class="text-xs font-bold text-slate-800 leading-snug">${d.nama}</h4>
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5 ${isV ? 'bg-rose-600' : 'bg-emerald-500'}"></span>
+          </div>
+          <p class="text-[11px] text-slate-500">${d.jenis} &bull; Kec. ${d.kecamatan}</p>
+          <div class="flex items-center justify-between text-[10px] pt-1 border-t border-slate-100">
+            <span class="text-slate-500 font-medium">Jarak: <b>${d.jarak_pantai_m} m</b></span>
+            <span class="px-2 py-0.5 rounded font-bold ${isV ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${isV ? 'Melanggar' : 'Aman'}</span>
+          </div>
+        `;
+
+        card.onclick = () => {
+          map.flyTo([d.lat, d.lng], 16, { duration: 1.2 });
+          if (d._marker) d._marker.openPopup();
+        };
+
+        listEl.appendChild(card);
+      });
+
+      document.getElementById('list-counter').innerText = `Menampilkan ${total} data akomodasi`;
+      updateCharts(melanggar, aman);
+    }
+
+    // 6. CHART.JS CONFIGURATION
+    let chartDonutInstance = null;
+    let chartBarInstance = null;
+
+    function initCharts() {
+      // Donut Chart
+      const ctxDonut = document.getElementById('chartDonut').getContext('2d');
+      chartDonutInstance = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+          labels: ['Melanggar (<100m)', 'Aman (>100m)'],
+          datasets: [{
+            data: [0, 0],
+            backgroundColor: ['#e11d48', '#10b981'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
         }
       });
 
-      document.getElementById('stat-total').innerText = filtered.length.toLocaleString();
-      document.getElementById('stat-sempadan').innerText = filtered.length.toLocaleString();
-
-      const listStatus = document.getElementById('list-status');
-      if (filtered.length > 60) {
-        listStatus.innerText = `Menampilkan 60 kartu dari total ${filtered.length.toLocaleString()} titik merah`;
-      } else {
-        listStatus.innerText = `Menampilkan seluruh ${filtered.length} titik`;
-      }
-    }
-
-    function processJSON(data) {
-      rawData = data.filter(d => d.Nama_Objek && d.Latitude && d.Longitude);
-      renderFilteredData();
-      if (rawData.length > 0) {
-        const sampleBounds = rawData.map(d => [parseFloat(d.Latitude), parseFloat(d.Longitude)]);
-        map.fitBounds(sampleBounds, { padding: [20, 20] });
-      }
-    }
-
-    // Mengambil dataset JSON otomatis
-    fetch('dataset_sempadan_pantai_bali_200plus.json')
-      .then(res => {
-        if (!res.ok) throw new Error('File JSON tidak ditemukan via fetch');
-        return res.json();
-      })
-      .then(data => {
-        processJSON(data);
-      })
-      .catch(err => {
-        document.getElementById('loading-state').innerHTML = `
-          <i class="fa-solid fa-folder-open text-rose-600 text-xl mb-2 block"></i>
-          <span class="font-medium text-slate-700 block mb-1">Pilih File JSON</span>
-          Gunakan tombol <b>Pilih JSON Manual</b> di atas untuk memuat data.
-        `;
-      });
-
-    // Upload manual cadangan
-    document.getElementById('json-file-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          try {
-            const parsed = JSON.parse(event.target.result);
-            processJSON(parsed);
-          } catch(err) {
-            alert('Format JSON tidak valid.');
+      // Bar Chart
+      const ctxBar = document.getElementById('chartBar').getContext('2d');
+      chartBarInstance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['Kuta Selatan', 'Kuta', 'Mengwi'],
+          datasets: [
+            {
+              label: 'Melanggar (<100m)',
+              data: [0, 0, 0],
+              backgroundColor: '#e11d48',
+              borderRadius: 6
+            },
+            {
+              label: 'Aman (>100m)',
+              data: [0, 0, 0],
+              backgroundColor: '#10b981',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 5 } },
+            x: { grid: { display: false } }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
           }
-        };
-        reader.readAsText(file);
+        }
+      });
+    }
+
+    function updateCharts(melanggar, aman) {
+      if (!chartDonutInstance || !chartBarInstance) return;
+
+      // Update Donut
+      chartDonutInstance.data.datasets[0].data = [melanggar, aman];
+      chartDonutInstance.update();
+
+      // Hitung per kecamatan
+      const kecs = ['Kuta Selatan', 'Kuta', 'Mengwi'];
+      const mData = kecs.map(k => dataAkomodasi.filter(d => d.kecamatan === k && d.status_sempadan.includes('Melanggar')).length);
+      const aData = kecs.map(k => dataAkomodasi.filter(d => d.kecamatan === k && d.status_sempadan.includes('Aman')).length);
+
+      chartBarInstance.data.datasets[0].data = mData;
+      chartBarInstance.data.datasets[1].data = aData;
+      chartBarInstance.update();
+    }
+
+    // 7. FITUR GEOLOCATION (SLIDE 9: Uji Positioning & Deteksi Zona Real-Time)
+    function detectUserLocation() {
+      if (!navigator.geolocation) {
+        alert("Browser kamu tidak mendukung fitur Geolocation.");
+        return;
       }
-    });
+
+      alert("Mencari lokasi perangkatmu...");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const userLat = pos.coords.latitude;
+          const userLng = pos.coords.longitude;
+
+          // Cari jarak terdekat ke titik garis pantai dummy
+          let minDistanceKm = 9999;
+          coastlineCoordinates.forEach(pt => {
+            const d = map.distance([userLat, userLng], pt) / 1000;
+            if (d < minDistanceKm) minDistanceKm = d;
+          });
+
+          const distMeter = Math.round(minDistanceKm * 1000);
+          const inViolation = distMeter < 100;
+
+          const userMarker = L.circleMarker([userLat, userLng], {
+            radius: 8,
+            fillColor: '#3b82f6',
+            color: '#ffffff',
+            weight: 2,
+            fillOpacity: 1
+          }).addTo(map);
+
+          const notif = inViolation 
+            ? `⚠️ PERINGATAN: Posisi Anda berada ${distMeter} meter dari pantai (DALAM ZONA SEMPADAN 100M).` 
+            : `✅ AMAN: Posisi Anda berjarak ${distMeter} meter dari garis pantai (di luar batas sempadan).`;
+
+          userMarker.bindPopup(`<b>Lokasi Anda Sekarang</b><br>${notif}`).openPopup();
+          map.flyTo([userLat, userLng], 15);
+        },
+        (err) => {
+          // Fallback simulasi lokasi di Pantai Kuta jika permission ditolak
+          const simLat = -8.7210;
+          const simLng = 115.1672;
+          const userMarker = L.circleMarker([simLat, simLng], {
+            radius: 8,
+            fillColor: '#f59e0b',
+            color: '#ffffff',
+            weight: 2,
+            fillOpacity: 1
+          }).addTo(map);
+
+          userMarker.bindPopup(`<b>Simulasi Lokasi GPS: Pantai Kuta</b><br>Jarak ke pantai ~30 meter.<br><span class="text-rose-600 font-bold">⚠️ Terdeteksi di dalam Zona Sempadan &lt;100m</span>`).openPopup();
+          map.flyTo([simLat, simLng], 16);
+        }
+      );
+    }
+
+    // 8. TABS & VIEW TOGGLE
+    function switchView(view) {
+      const viewMap = document.getElementById('view-map');
+      const viewStats = document.getElementById('view-stats');
+      const btnMap = document.getElementById('btn-tab-map');
+      const btnStats = document.getElementById('btn-tab-stats');
+
+      if (view === 'map') {
+        viewMap.classList.remove('hidden');
+        viewStats.classList.add('hidden');
+        btnMap.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnStats.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5";
+        setTimeout(() => map.invalidateSize(), 150);
+      } else {
+        viewMap.classList.add('hidden');
+        viewStats.classList.remove('hidden');
+        btnStats.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnMap.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5";
+      }
+    }
 
     function resetMapView() {
       document.getElementById('search-input').value = '';
-      document.getElementById('type-filter').value = 'all';
-      renderFilteredData();
-      map.flyTo(baliCenter, 10);
+      document.getElementById('kecamatan-filter').value = 'all';
+      document.getElementById('jenis-filter').value = 'all';
+      document.getElementById('status-filter').value = 'all';
+      filterData();
+      map.flyTo(baliCenter, 11);
     }
 
-    document.getElementById('search-input').addEventListener('input', renderFilteredData);
-    document.getElementById('type-filter').addEventListener('change', renderFilteredData);
+    // Layer Checkbox Listeners
+    document.getElementById('chk-coastline').addEventListener('change', (e) => {
+      e.target.checked ? map.addLayer(layerCoastline) : map.removeLayer(layerCoastline);
+    });
+    document.getElementById('chk-buffer').addEventListener('change', (e) => {
+      e.target.checked ? map.addLayer(layerBuffer) : map.removeLayer(layerBuffer);
+    });
+    document.getElementById('chk-markers').addEventListener('change', (e) => {
+      e.target.checked ? map.addLayer(layerMarkers) : map.removeLayer(layerMarkers);
+    });
+
+    // Filter Listeners
+    document.getElementById('search-input').addEventListener('input', filterData);
+    document.getElementById('kecamatan-filter').addEventListener('change', filterData);
+    document.getElementById('jenis-filter').addEventListener('change', filterData);
+    document.getElementById('status-filter').addEventListener('change', filterData);
+
+    // Initial Start
+    initCharts();
+    filterData();
   </script>
 </body>
 </html>
