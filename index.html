@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monitoring Sempadan Pantai Bali - Web GIS</title>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Leaflet CSS & JS -->
@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-  <!-- Font Awesome -->
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
@@ -36,44 +36,46 @@
       </div>
       <div>
         <h1 class="text-base font-bold tracking-tight">Sistem Monitoring Sempadan Pantai Bali</h1>
-        <p class="text-xs text-slate-400">Pengawasan Buffer 100m Zona Akomodasi Pesisir</p>
+        <p class="text-xs text-slate-400">Pengawasan Buffer 100m Akomodasi Pesisir</p>
       </div>
     </div>
+    
     <div class="flex items-center gap-3">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
-        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-        Zona Rawan Pelanggaran
-      </span>
-      <button onclick="resetMapView()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-md border border-slate-700 transition">
+      <input type="file" id="json-file-input" accept=".json" class="hidden" />
+      <button onclick="document.getElementById('json-file-input').click()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md border border-slate-700 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-file-code"></i> Pilih File JSON Manual
+      </button>
+
+      <button onclick="resetMapView()" class="text-xs bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-md font-medium transition shadow-sm">
         <i class="fa-solid fa-arrows-to-dot mr-1"></i> Reset Peta
       </button>
     </div>
   </header>
 
-  <!-- Main Content Layout -->
+  <!-- Layout Utama -->
   <div class="flex flex-col md:flex-row h-[calc(100vh-65px)]">
 
-    <!-- Sidebar Controls -->
+    <!-- Panel Sidebar -->
     <aside class="w-full md:w-96 bg-white border-r border-slate-200 flex flex-col z-10 shadow-lg md:shadow-none">
       
-      <!-- Statistics Dashboard -->
+      <!-- Statistik -->
       <div class="p-4 border-b border-slate-100 bg-slate-50/70">
         <div class="grid grid-cols-2 gap-2 text-center">
-          <div class="p-2.5 bg-white rounded-lg border border-slate-200/80 shadow-sm">
+          <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-sm">
             <span class="text-xs text-slate-500 block">Total Terpantau</span>
             <span id="stat-total" class="text-xl font-bold text-slate-800">0</span>
           </div>
-          <div class="p-2.5 bg-rose-50 rounded-lg border border-rose-200/80 shadow-sm">
+          <div class="p-2.5 bg-rose-50 rounded-lg border border-rose-200 shadow-sm">
             <span class="text-xs text-rose-600 block">Dekat Sempadan</span>
             <span id="stat-sempadan" class="text-xl font-bold text-rose-700">0</span>
           </div>
         </div>
       </div>
 
-      <!-- Filters & Search -->
+      <!-- Filter & Search -->
       <div class="p-4 border-b border-slate-200 space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Pencarian Objek / Kawasan</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pencarian Objek / Alamat</label>
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
             <input 
@@ -86,7 +88,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Tipe Usaha</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Filter Tipe Usaha</label>
           <select 
             id="type-filter" 
             class="w-full text-sm rounded-lg border border-slate-300 py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white"
@@ -101,25 +103,28 @@
         </div>
       </div>
 
-      <!-- Item List Container -->
+      <!-- Daftar Kartu -->
       <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2" id="item-list">
-        <!-- Rendered dynamically -->
+        <div class="p-4 text-center text-xs text-slate-400" id="loading-state">
+          <i class="fa-solid fa-circle-notch fa-spin text-teal-600 text-lg mb-2 block"></i>
+          Memuat dataset JSON...
+        </div>
       </div>
       
-      <!-- Footer Note -->
-      <div class="p-3 border-t border-slate-200 text-[11px] text-slate-400 text-center bg-slate-50">
-        Klik kartu untuk melihat detail dan fokus koordinat
+      <!-- Footer Status -->
+      <div class="p-2.5 border-t border-slate-200 text-[11px] text-slate-500 text-center bg-slate-50" id="list-status">
+        Memuat data
       </div>
     </aside>
 
-    <!-- Map Canvas Area -->
+    <!-- Canvas Peta Leaflet -->
     <main class="flex-1 relative">
       <div id="map" class="w-full h-full"></div>
 
-      <!-- Legend Overlay -->
+      <!-- Legenda -->
       <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-sm p-3.5 rounded-xl border border-slate-200 shadow-xl z-[1000] text-xs">
         <p class="font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group text-slate-500"></i> Legenda Tipe Usaha
+          <i class="fa-solid fa-layer-group text-slate-500"></i> Kategori Usaha
         </p>
         <div class="space-y-1.5">
           <div class="flex items-center gap-2">
@@ -149,24 +154,8 @@
   </div>
 
   <script>
-    // 1. DATA MASTER
-    // Masukkan data JSON lengkap di bawah ini
-    const rawData = [
-      {"ID_OSM":"950000000","Nama_Objek":"W Sempadan Mansion Lovina 183","Tipe_Usaha":"hotel","Latitude":"-8.103818567675226","Longitude":"115.02217293413977","Jalan_Alamat":"Jl. Raya Pantai Lovina, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000001","Nama_Objek":"Ayana Boutique Hotel Kuta 138","Tipe_Usaha":"guest_house","Latitude":"-8.719834171531335","Longitude":"115.16442359113717","Jalan_Alamat":"Jl. Raya Pantai Kuta, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000002","Nama_Objek":"Aman Sempadan Mansion Kuta 176","Tipe_Usaha":"hotel","Latitude":"-8.722473820076532","Longitude":"115.16742640802292","Jalan_Alamat":"Jl. Raya Pantai Kuta, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000003","Nama_Objek":"Aman Boutique Hotel Jimbaran 171","Tipe_Usaha":"resort","Latitude":"-8.776194969409378","Longitude":"115.15597445148968","Jalan_Alamat":"Jl. Raya Pantai Jimbaran, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000004","Nama_Objek":"Anantara Villas Lovina 145","Tipe_Usaha":"bar","Latitude":"-8.103364539075283","Longitude":"115.02080052126125","Jalan_Alamat":"Jl. Raya Pantai Lovina, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000007","Nama_Objek":"Royal Sempadan Mansion Canggu 183","Tipe_Usaha":"hotel","Latitude":"-8.661940026940625","Longitude":"115.13953903793859","Jalan_Alamat":"Jl. Raya Pantai Canggu, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000009","Nama_Objek":"Anantara Beach Club Uluwatu 102","Tipe_Usaha":"guest_house","Latitude":"-8.843012361782904","Longitude":"115.1167414268355","Jalan_Alamat":"Jl. Raya Pantai Uluwatu, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000012","Nama_Objek":"Anantara Beach Club Sanur 172","Tipe_Usaha":"restaurant","Latitude":"-8.676748657891295","Longitude":"115.26092293472038","Jalan_Alamat":"Jl. Raya Pantai Sanur, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000013","Nama_Objek":"Anantara Sempadan Mansion Candidasa 115","Tipe_Usaha":"resort","Latitude":"-8.538180690358494","Longitude":"115.50731922367136","Jalan_Alamat":"Jl. Raya Pantai Candidasa, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000014","Nama_Objek":"Plaza Resort & Spa Nusa Dua 142","Tipe_Usaha":"bar","Latitude":"-8.809639520336962","Longitude":"115.23051032609268","Jalan_Alamat":"Jl. Raya Pantai Nusa Dua, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"},
-      {"ID_OSM":"950000026","Nama_Objek":"Amarta Resort & Spa Amed 57","Tipe_Usaha":"restaurant","Latitude":"-8.350086417594815","Longitude":"115.61563087471433","Jalan_Alamat":"Jl. Raya Pantai Amed, Kuta Selatan, Bali","Status_Sempadan":"Indikasi Dekat Sempadan Pantai"}
-      /* Tempelkan seluruh array database JSON kamu di sini */
-    ];
+    let rawData = [];
 
-    // Konfigurasi Warna & Ikon Marker berdasarkan Tipe Usaha
     const typeConfig = {
       hotel:       { color: '#3b82f6', label: 'Hotel', icon: 'fa-hotel' },
       resort:      { color: '#10b981', label: 'Resort', icon: 'fa-umbrella-beach' },
@@ -175,49 +164,42 @@
       bar:         { color: '#f43f5e', label: 'Bar / Beach Club', icon: 'fa-martini-glass-citrus' }
     };
 
-    // 2. INISIALISASI PETA
+    // Inisialisasi Peta
     const baliCenter = [-8.5000, 115.1889];
-    const map = L.map('map', {
-      zoomControl: false
-    }).setView(baliCenter, 10);
+    const map = L.map('map', { zoomControl: false }).setView(baliCenter, 10);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Basemap OSM
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors | Web GIS Sempadan Bali',
+      attribution: '&copy; OpenStreetMap contributors | Monitoring Sempadan Bali',
       maxZoom: 19
     }).addTo(map);
 
     // Marker Cluster Group
     const markerCluster = L.markerClusterGroup({
       showCoverageOnHover: false,
-      maxClusterRadius: 40
+      maxClusterRadius: 40,
+      chunkedLoading: true
     });
     map.addLayer(markerCluster);
 
-    // Marker Storage Mapping
-    const markerMap = new Map();
-
-    // Fungsi Render Marker Leaflet
     function createCustomMarker(item) {
       const lat = parseFloat(item.Latitude);
       const lng = parseFloat(item.Longitude);
       const cfg = typeConfig[item.Tipe_Usaha] || { color: '#64748b', label: item.Tipe_Usaha, icon: 'fa-building' };
 
       const marker = L.circleMarker([lat, lng], {
-        radius: 8,
+        radius: 7,
         fillColor: cfg.color,
         color: '#ffffff',
-        weight: 2,
+        weight: 1.5,
         opacity: 1,
-        fillOpacity: 0.9
+        fillOpacity: 0.85
       });
 
-      // Konten Popup
       const popupHtml = `
         <div class="text-xs min-w-[210px] space-y-1.5 p-1 font-sans">
-          <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+          <div class="pb-1 border-b border-slate-200">
             <span class="font-bold text-slate-800 text-sm leading-tight">${item.Nama_Objek}</span>
           </div>
           <p class="text-slate-500 text-[11px]"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${item.Jalan_Alamat}</p>
@@ -228,7 +210,7 @@
           </div>
           <div class="mt-2 p-1.5 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-medium flex items-center gap-1.5">
             <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
-            ${item.Status_Sempadan} (< 100m)
+            ${item.Status_Sempadan || 'Indikasi Dekat Sempadan Pantai'}
           </div>
         </div>
       `;
@@ -237,36 +219,38 @@
       return marker;
     }
 
-    // 3. RENDER & FILTER DATA
-    function renderApp() {
+    function renderFilteredData() {
       const query = document.getElementById('search-input').value.toLowerCase();
       const selectedType = document.getElementById('type-filter').value;
 
       markerCluster.clearLayers();
-      markerMap.clear();
-
       const itemList = document.getElementById('item-list');
       itemList.innerHTML = '';
 
       let matchedCount = 0;
       let sempadanCount = 0;
-      const bounds = [];
+      const markersToAdd = [];
 
-      rawData.forEach(item => {
-        const matchesQuery = item.Nama_Objek.toLowerCase().includes(query) || 
-                             item.Jalan_Alamat.toLowerCase().includes(query);
+      const filtered = rawData.filter(item => {
+        if (!item.Latitude || !item.Longitude) return false;
+        const matchesQuery = (item.Nama_Objek && item.Nama_Objek.toLowerCase().includes(query)) || 
+                             (item.Jalan_Alamat && item.Jalan_Alamat.toLowerCase().includes(query));
         const matchesType = (selectedType === 'all') || (item.Tipe_Usaha === selectedType);
+        return matchesQuery && matchesType;
+      });
 
-        if (matchesQuery && matchesType) {
-          matchedCount++;
-          if (item.Status_Sempadan.includes('Sempadan')) sempadanCount++;
+      matchedCount = filtered.length;
 
-          const marker = createCustomMarker(item);
-          markerCluster.addLayer(marker);
-          markerMap.set(item.ID_OSM, marker);
-          bounds.push([parseFloat(item.Latitude), parseFloat(item.Longitude)]);
+      filtered.forEach((item, index) => {
+        if (item.Status_Sempadan && item.Status_Sempadan.includes('Sempadan')) {
+          sempadanCount++;
+        }
 
-          // Buat Card di Sidebar
+        const marker = createCustomMarker(item);
+        markersToAdd.push(marker);
+
+        // Tampilkan 50 data teratas di sidebar agar DOM tetap ringan dan cepat
+        if (index < 50) {
           const cfg = typeConfig[item.Tipe_Usaha] || { color: '#64748b', label: item.Tipe_Usaha, icon: 'fa-building' };
           const card = document.createElement('div');
           card.className = "p-3 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 shadow-sm cursor-pointer transition flex flex-col gap-1.5";
@@ -295,29 +279,71 @@
         }
       });
 
-      // Update Statistik
-      document.getElementById('stat-total').innerText = matchedCount;
-      document.getElementById('stat-sempadan').innerText = sempadanCount;
+      markerCluster.addLayers(markersToAdd);
 
-      // Fit View bounds jika ada data
-      if (bounds.length > 0 && query !== '') {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+      document.getElementById('stat-total').innerText = matchedCount.toLocaleString();
+      document.getElementById('stat-sempadan').innerText = sempadanCount.toLocaleString();
+
+      const listStatus = document.getElementById('list-status');
+      if (matchedCount > 50) {
+        listStatus.innerText = `Menampilkan 50 dari total ${matchedCount.toLocaleString()} data`;
+      } else {
+        listStatus.innerText = `Menampilkan ${matchedCount} data`;
       }
     }
+
+    function processJSON(data) {
+      rawData = data.filter(d => d.Nama_Objek && d.Latitude && d.Longitude);
+      renderFilteredData();
+      if (rawData.length > 0) {
+        const sampleBounds = rawData.map(d => [parseFloat(d.Latitude), parseFloat(d.Longitude)]);
+        map.fitBounds(sampleBounds, { padding: [30, 30] });
+      }
+    }
+
+    // Mengambil dataset JSON secara otomatis (Ideal saat dideploy ke Vercel / server lokal)
+    fetch('dataset_sempadan_pantai_bali_200plus.json')
+      .then(res => {
+        if (!res.ok) throw new Error('File JSON gagal dimuat.');
+        return res.json();
+      })
+      .then(data => {
+        processJSON(data);
+      })
+      .catch(err => {
+        document.getElementById('loading-state').innerHTML = `
+          <i class="fa-solid fa-folder-open text-teal-600 text-xl mb-2 block"></i>
+          <span class="font-medium text-slate-700 block mb-1">Gagal fetch JSON otomatis</span>
+          Gunakan tombol <b>Pilih File JSON Manual</b> di atas untuk memuat data.
+        `;
+      });
+
+    // Handler jika file JSON dipilih secara manual
+    document.getElementById('json-file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          try {
+            const parsed = JSON.parse(event.target.result);
+            processJSON(parsed);
+          } catch(err) {
+            alert('Format JSON tidak valid.');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
 
     function resetMapView() {
       document.getElementById('search-input').value = '';
       document.getElementById('type-filter').value = 'all';
-      renderApp();
+      renderFilteredData();
       map.flyTo(baliCenter, 10);
     }
 
-    // Event Listeners
-    document.getElementById('search-input').addEventListener('input', renderApp);
-    document.getElementById('type-filter').addEventListener('change', renderApp);
-
-    // Initial Execution
-    renderApp();
+    document.getElementById('search-input').addEventListener('input', renderFilteredData);
+    document.getElementById('type-filter').addEventListener('change', renderFilteredData);
   </script>
 </body>
 </html>
